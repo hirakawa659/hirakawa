@@ -1,0 +1,2376 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Novel Editor</title><meta name="description" content="Grid-based Japanese novel writing editor with manuscript grid view, character counting, file management, and text correction tools"><style>
+:root{--cs:32px}
+html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0;font-family:monospace}
+.h{position:fixed;top:0;left:0;right:0;width:100%;display:flex;gap:6px;padding:8px;background:#fff;border-bottom:1px solid #ddd;height:50px;box-sizing:border-box;align-items:center;z-index:999;flex-shrink:0;overflow-x:auto;overflow-y:hidden;white-space:nowrap;-webkit-overflow-scrolling:touch}
+button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;background:#f0f0f2;border:1px solid #ccc;border-radius:4px;flex-shrink:0}
+#b{display:flex;position:fixed;top:50px;bottom:0;left:0;right:0;width:100%;height:calc(100% - 50px);height:calc(100dvh - 50px);overflow:hidden}
+#s{width:240px;background:#f8fafc;border-right:1px solid #e2e8f0;padding:8px;display:flex;flex-direction:column;gap:6px;flex-shrink:0;box-sizing:border-box}
+.m{flex:1;padding:16px 12px 75vh 12px;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;-webkit-overflow-scrolling:touch;background:#f1f5f9}
+#w{display:flex;flex-direction:row;align-items:stretch;background:#fff;box-sizing:border-box;flex-shrink:0;margin:0 auto;min-height:calc(100vh + 60vh);min-height:calc(100dvh + 60vh);height:auto;box-shadow:0 1px 4px rgba(0,0,0,0.06);position:relative}
+.l{width:36px;border-right:1px solid #e5e7eb;padding:0;text-align:right;font-size:12px;color:#aaa;padding-right:6px;user-select:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:#fff}
+#e{flex-grow:1;height:auto;min-height:100%;padding:0;outline:0;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;display:block!important;box-sizing:border-box;font-size:calc(var(--cs)*0.78)!important;line-height:var(--cs)!important;letter-spacing:calc(var(--cs)*0.22)!important;text-align:left!important;caret-color:#2563eb;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","MS Gothic",monospace;font-feature-settings:"halt" 0,"palt" 0,"pkna" 0,"fwid" 1!important;font-variant-east-asian:full-width!important;font-kerning:none!important;background-color:#fff!important;background-image:linear-gradient(90deg,#ececec 1px,transparent 1px),linear-gradient(#ececec 1px,transparent 1px)!important;background-size:var(--cs) var(--cs)!important;background-repeat:repeat!important;background-position:0 0!important;cursor:text}
+#e *{background-color:transparent}
+#e div,#e p{min-height:var(--cs)!important;display:block!important;box-sizing:border-box;text-align:left!important;line-height:var(--cs)!important;padding:0!important;padding-left:calc(var(--cs)*0.11)!important;margin:0!important;background:transparent!important;width:100%!important;overflow:visible!important}
+#e span{display:inline;margin:0;padding:0;box-sizing:border-box}
+.sub-sup{display:inline-block!important;width:calc(var(--cs)*0.78)!important;height:calc(var(--cs)*0.78)!important;line-height:calc(var(--cs)*0.78)!important;letter-spacing:0!important;text-align:center!important;box-sizing:border-box!important;margin:0!important;margin-right:calc(var(--cs)*0.22)!important;padding:0!important;font-size:calc(var(--cs)*0.65)!important;vertical-align:middle!important;background:#e0e7ff!important;color:#1e3a8a!important;border-radius:2px!important;user-select:all}
+.sp-nonzen{display:inline!important;background:#fef08a!important;color:inherit!important;border-bottom:2px solid #f59e0b!important;border-radius:2px!important;white-space:pre!important;box-sizing:border-box;font-size:inherit!important;letter-spacing:inherit!important}
+.sp-nonzen:empty{display:none!important}
+body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:none!important}
+.sp{background:#e4e4e7!important;color:#71717a!important;border-radius:2px}
+.hm-mark{background:#ffedd5!important;border-bottom:2px solid #ea580c!important;color:#c2410c!important;font-weight:bold!important;border-radius:2px}
+.hidden-char-badge{display:inline-block!important;background:#fce7f3!important;color:#be185d!important;border:1px dashed #db2777!important;border-radius:2px!important;font-size:10px!important;padding:0 3px!important;line-height:normal!important;vertical-align:middle!important;margin:0 1px!important;user-select:all!important;cursor:pointer}
+.er{background-color:#fce7f3!important;border-bottom:2px dotted #db2777!important}
+.tool-item{cursor:grab;user-select:none;flex-shrink:0;transition:transform 0.15s ease,opacity 0.15s ease}
+.tool-item:active{cursor:grabbing}
+.tool-item.dragging{opacity:0.35;outline:2px dashed #2563eb;outline-offset:2px;border-radius:4px}
+.tool-item.drag-over{transform:scale(1.06)}
+#t{overflow-y:auto;flex:1;font-size:12px;padding-right:2px}
+.tree-node{margin-bottom:2px;user-select:none}
+.tree-row{display:flex;align-items:center;justify-content:space-between;padding:4px 6px;border-radius:6px;background:#fff;border:1px solid #e2e8f0;transition:all 0.1s ease;gap:4px}
+.tree-row:hover{background:#f1f5f9;border-color:#cbd5e1}
+.tree-row.active{background:#eff6ff;border-color:#3b82f6;color:#1d4ed8;font-weight:600}
+.tree-row.folder-active{border-color:#f59e0b;background:#fefce8}
+.tree-title-btn{flex:1;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;background:none;border:none;padding:0;text-align:left;font-size:12px;font-family:inherit;color:inherit}
+.tree-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.tree-badge{font-size:10px;color:#64748b;background:#f1f5f9;padding:1px 5px;border-radius:4px;flex-shrink:0;font-weight:normal}
+.tree-row.active .tree-badge{background:#dbeafe;color:#1e40af}
+.tree-info-btn{background:#f1f5f9;border:1px solid #cbd5e1;border-radius:4px;padding:2px 5px;font-size:11px;cursor:pointer;color:#475569;flex-shrink:0;line-height:1.2;transition:all 0.1s ease}
+.tree-info-btn:hover{background:#e2e8f0;color:#0f172a;border-color:#94a3b8}
+.tree-children{padding-left:12px;border-left:1px dashed #cbd5e1;margin-left:6px;margin-top:2px}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;backdrop-filter:blur(2px)}
+.modal-card{background:#fff;border-radius:12px;width:100%;max-width:390px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.15),0 8px 10px -6px rgba(0,0,0,0.1);overflow:hidden;display:flex;flex-direction:column;border:1px solid #e2e8f0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN",sans-serif}
+.modal-header{padding:12px 16px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between}
+.modal-body{padding:14px;overflow-y:auto;max-height:80vh;display:flex;flex-direction:column;gap:12px;box-sizing:border-box}
+.modal-section{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.modal-sec-title{font-size:11px;font-weight:bold;color:#64748b;text-transform:uppercase;letter-spacing:0.5px}
+</style></head>
+<body>
+<div class="h">
+<button id="tool_sb" class="tool-item" onclick="tgS()" title="フォルダ開閉" style="background:#e0e7ff;color:#1e3a8a">📁 フォルダ</button>
+<button id="tool_root" class="tool-item" onclick="u()" title="最上層（ルート）">戻</button>
+<button id="tool_undo" class="tool-item" onclick="document.execCommand('undo')" title="元に戻す">撤</button>
+<button id="tool_redo" class="tool-item" onclick="document.execCommand('redo')" title="やり直す">進</button>
+<button id="tool_copy" class="tool-item" onclick="c()" title="きれいな原稿文章をコピー">複</button>
+<button id="tool_save_txt" class="tool-item" onclick="saveAsTxt()" style="background:#f0fdf4;color:#166534;font-weight:bold;white-space:nowrap" title="現在の話を.txtファイルとして保存">💾 .txt保存</button>
+<button id="tool_fx" class="tool-item" onclick="fx()" style="background:#e0f2fe;color:#0369a1" title="一括修正（英数記号1マス化・誤字修正）">修</button>
+<button id="tool_spcol" class="tool-item" onclick="tgSpColor()" style="background:#fef08a;color:#854d0e;font-weight:bold" title="全角以外の空白の色をON/OFF">空白色:ON</button>
+<button id="tool_hm" class="tool-item" onclick="tgHomoglyphs()" style="background:#fed7aa;color:#9a3412;font-weight:bold" title="紛らわしい類似文字・異言語文字を検出">ホモグラフ</button>
+<button id="tool_hd" class="tool-item" onclick="tgHiddenChars()" style="background:#f3e8ff;color:#6b21a8;font-weight:bold" title="ゼロ幅スペース等の隠し文字/Unicodeを検出">隠し文字</button>
+<button id="tool_rep" class="tool-item" onclick="tgRep()" style="background:#fef3c7;color:#92400e;font-weight:bold" title="検索・置換バー">置換</button>
+<div id="tool_select" class="tool-item" style="display:inline-flex;align-items:center"><select id="l" onchange="z()"></select></div>
+<div id="tool_count" class="tool-item" style="display:inline-flex;align-items:center"><span id="k" style="font-size:12px;font-weight:bold;color:#334155;background:#f1f5f9;padding:4px 8px;border-radius:4px;border:1px solid #e2e8f0;white-space:nowrap;cursor:default" title="文字数">0字</span></div>
+<button id="orderBtn" onclick="openOrderModal()" style="background:#f8fafc;color:#475569;border:1px dashed #94a3b8;padding:5px 8px;font-size:11px" title="ツールボタンの並び順を変更">⇄ 並替</button>
+</div>
+<div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
+<input id="rFrom" placeholder="検索文字" style="padding:5px 8px;border:1px solid #d97706;border-radius:4px;font-size:12px;width:120px;outline:none;background:#fff">
+<span style="color:#d97706;font-size:12px;font-weight:bold">➔</span>
+<input id="rTo" placeholder="置換文字" style="padding:5px 8px;border:1px solid #d97706;border-radius:4px;font-size:12px;width:120px;outline:none;background:#fff">
+<button onclick="doRep(false)" style="background:#fef08a;border:1px solid #ca8a04;color:#713f12;padding:5px 10px;font-size:12px">1件置換</button>
+<button onclick="doRep(true)" style="background:#eab308;border:1px solid #ca8a04;color:#fff;padding:5px 10px;font-size:12px">一括置換</button>
+<span id="repMsg" style="font-size:12px;color:#92400e;margin-left:4px;font-weight:bold"></span>
+<button onclick="tgRep()" style="margin-left:auto;background:none;border:none;font-size:16px;cursor:pointer;color:#92400e;padding:0 6px">✕</button>
+</div>
+<div id="b">
+<div id="s">
+<div style="display:flex;gap:4px;margin-bottom:4px">
+<button onclick="a(1)" style="flex:1;font-size:11px;white-space:nowrap;padding:6px 2px" title="新規フォルダ作成">+フォルダ</button>
+<button onclick="a(0)" style="flex:1;font-size:11px;white-space:nowrap;padding:6px 2px;background:#e0f2fe;color:#0369a1" title="新しい話（エピソード）を作成">+話</button>
+<button onclick="tgS()" title="サイドバーを閉じる" style="padding:6px 8px">◀</button>
+</div>
+<div id="folderBreadcrumb" style="font-size:11px;color:#64748b;padding:2px 2px 6px 2px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between">
+  <span id="currentFolderLabel" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px" title="現在の作成先">📁 作成先: ルート</span>
+  <button onclick="u()" style="padding:2px 5px;font-size:10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:3px;cursor:pointer" title="ルート階層を作成先に設定">ルート</button>
+</div>
+<div id="t"></div>
+</div>
+<div class="m"><div id="w"><div class="l" id="n">1</div><div id="e" contenteditable="true"><div><br></div></div></div></div>
+</div>
+<script>
+const e=document.getElementById('e'),l=document.getElementById('l'),t=document.getElementById('t'),k=document.getElementById('k'),w=document.getElementById('w'),n=document.getElementById('n');
+let d={r:[]},f=null,pId=null;
+for(let i=20; i<=40; i++)l.innerHTML+=`<option value="${i}">${i}字</option>`;l.value="30";
+window.onload=()=>{
+    try{document.execCommand('defaultParagraphSeparator', false, 'div');}catch(err){}
+    let s=localStorage.getItem('n_d'),sw=localStorage.getItem('n_w'),sc=localStorage.getItem('n_c');
+    if(s){try{d=JSON.parse(s)}catch(err){}}
+    if(!d||!d.r||d.r.length===0){
+        let id='d_'+Date.now();
+        d={r:[{id,type:'file',name:'第1話',content:'<div><br></div>'}]};
+        f=id;
+    }else{
+        if(sc&&g(sc)){
+            f=sc;
+        }else{
+            function findFirst(items){
+                for(let it of items){
+                    if(it.type==='file')return it.id;
+                    if(it.children){let res=findFirst(it.children);if(res)return res;}
+                }
+                return null;
+            }
+            f=findFirst(d.r)||d.r[0].id;
+        }
+    }
+    function cleanAllStoriesInStorage(){
+        if(!d||!d.r)return;
+        function walkItems(items){
+            items.forEach(it=>{
+                let changed=false;
+                if(it.content){
+                    let tmp=document.createElement('div');
+                    tmp.innerHTML=it.content;
+                    if(it.content.includes('sp-nonzen')){
+                        let badSpans=tmp.querySelectorAll('.sp-nonzen');
+                        badSpans.forEach(sp=>{
+                            let txt=sp.textContent||'';
+                            if(/[^\s\u00A0]/.test(txt)||txt===''||txt==='\n'){
+                                changed=true;
+                                let p=sp.parentNode;
+                                if(p){
+                                    if(txt===''||txt==='\n'){
+                                        while(sp.firstChild)p.insertBefore(sp.firstChild,sp);
+                                        p.removeChild(sp);
+                                    }else{
+                                        p.replaceChild(document.createTextNode(txt),sp);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    // 先頭に溜まった2行以上の不要な空白行（長文貼り付け時の空行問題）を解消
+                    let divs=tmp.querySelectorAll('div');
+                    let firstContentIdx=-1;
+                    for(let i=0;i<divs.length;i++){
+                        let t=divs[i].textContent.replace(/[\s\u3000\r\n]/g,'');
+                        if(t.length>0||divs[i].querySelector('.sub-sup, .hidden-char-badge, .hm-mark, img')){
+                            firstContentIdx=i;
+                            break;
+                        }
+                    }
+                    if(firstContentIdx>=2){
+                        for(let i=0;i<firstContentIdx;i++) divs[i].remove();
+                        changed=true;
+                    }
+                    if(changed) it.content=tmp.innerHTML;
+                }
+                if(it.children)walkItems(it.children);
+            });
+        }
+        walkItems(d.r);
+        localStorage.setItem('n_d',JSON.stringify(d));
+    }
+    cleanAllStoriesInStorage();
+    if(sw)l.value=sw;
+    r();
+    o(f);
+    if(localStorage.getItem('n_sp_color')==='off'){
+        document.body.classList.add('sp-color-off');
+        const btn=document.getElementById('tool_spcol');
+        if(btn){btn.textContent='空白色:OFF';btn.style.background='#f0f0f2';btn.style.color='#666'}
+    }
+    applyToolOrder(getToolOrder());
+    initToolDragAndDrop();
+    norm();cleanSpans();autoFormatEditor();highlightSpaces();z();v();
+};
+function cleanExcessiveLeadingLines(root = e){
+    let divs = root.querySelectorAll('#e>div');
+    if(divs.length === 0) divs = root.querySelectorAll('div');
+    if(divs.length <= 1) return;
+    let firstContentIdx = -1;
+    for(let i = 0; i < divs.length; i++){
+        let t = divs[i].textContent.replace(/[\s\u3000\r\n]/g, '');
+        if(t.length > 0 || divs[i].querySelector('.sub-sup, .hidden-char-badge, .hm-mark, img')){
+            firstContentIdx = i;
+            break;
+        }
+    }
+    if(firstContentIdx >= 2){
+        for(let i = 0; i < firstContentIdx; i++){
+            divs[i].remove();
+        }
+    }
+}
+function cleanExcessiveBlankLines(root = e){
+    cleanExcessiveLeadingLines(root);
+}
+function cleanContaminatedSpans(){
+    let nonzens = e.querySelectorAll('.sp-nonzen');
+    if(nonzens.length === 0) return;
+    let sel = window.getSelection();
+    let curContainer = (sel && sel.rangeCount > 0) ? sel.getRangeAt(0).startContainer : null;
+    let curOffset = (sel && sel.rangeCount > 0) ? sel.getRangeAt(0).startOffset : 0;
+    
+    nonzens.forEach(sp => {
+        let txt = sp.textContent || '';
+        let hasNonSpace = /[^\s\u00A0]/.test(txt);
+        let isEmpty = (txt === '' || txt === '\n');
+        if(!hasNonSpace && !isEmpty) return;
+        
+        let isCursorInside = curContainer && sp.contains(curContainer);
+        let p = sp.parentNode;
+        if(!p) return;
+        
+        if(isEmpty){
+            while(sp.firstChild){
+                p.insertBefore(sp.firstChild, sp);
+            }
+            p.removeChild(sp);
+        } else {
+            let tn = document.createTextNode(txt);
+            p.replaceChild(tn, sp);
+            if(isCursorInside){
+                try{
+                    let newRange = document.createRange();
+                    let safeOffset = Math.min(curOffset, txt.length);
+                    newRange.setStart(tn, safeOffset);
+                    newRange.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(newRange);
+                }catch(err){}
+            }
+        }
+    });
+}
+
+function cleanSpans(){
+    let charBoxes=e.querySelectorAll('.char-box');
+    charBoxes.forEach(s=>{
+        let p=s.parentNode;
+        while(s.firstChild)p.insertBefore(s.firstChild,s);
+        p.removeChild(s);
+    });
+    cleanContaminatedSpans();
+    let spans=e.querySelectorAll('span:not(.sub-sup):not(.hidden-char-badge):not(.hm-mark):not(.er):not(.sp-nonzen)');
+    spans.forEach(s=>{
+        let p=s.parentNode;
+        while(s.firstChild)p.insertBefore(s.firstChild,s);
+        p.removeChild(s);
+    });
+}
+const regSpecialChars=/[\u2070-\u209F\u00B2\u00B3\u00B9\u2150-\u215E\u00BC-\u00BE∓±×÷√∞]/;
+const regCombinedFilter=/([\u2070-\u209F\u00B2\u00B3\u00B9\u2150-\u215E\u00BC-\u00BE∓±×÷√∞])/g;
+
+function autoFormatEditor(optActiveLine, optActiveOffset){
+    let activeLine=optActiveLine;
+    let activeOffset=optActiveOffset;
+    
+    if(activeLine===undefined){
+        let sel=window.getSelection();
+        if(sel&&sel.rangeCount>0){
+            let r=sel.getRangeAt(0);
+            let n=r.startContainer;
+            while(n&&n!==e&&n.parentElement!==e){
+                n=n.parentElement;
+            }
+            if(n&&n.parentElement===e){
+                activeLine=n;
+                let preRange=r.cloneRange();
+                preRange.selectNodeContents(activeLine);
+                preRange.setEnd(r.startContainer,r.startOffset);
+                activeOffset=preRange.toString().length;
+            }
+        }
+    }
+    
+    let walker=document.createTreeWalker(e,NodeFilter.SHOW_TEXT,null,false);
+    let nodes=[];
+    while(walker.nextNode()){
+        let p=walker.currentNode.parentNode;
+        if(p&&(p.classList.contains('sub-sup')||p.classList.contains('hidden-char-badge')))continue;
+        nodes.push(walker.currentNode);
+    }
+    
+    let changed=false;
+    for(let tn of nodes){
+        let val=tn.nodeValue;
+        if(regSpecialChars.test(val)){
+            changed=true;
+            let frag=document.createDocumentFragment();
+            let parts=val.split(regCombinedFilter);
+            for(let part of parts){
+                if(!part)continue;
+                if(regSpecialChars.test(part)){
+                    let sp=document.createElement('span');
+                    sp.className='sub-sup';
+                    sp.setAttribute('contenteditable','false');
+                    sp.textContent=part;
+                    frag.appendChild(sp);
+                }else{
+                    frag.appendChild(document.createTextNode(part));
+                }
+            }
+            tn.parentNode.replaceChild(frag,tn);
+        }
+    }
+    if(changed && activeLine&&activeOffset!==null&&activeOffset!==undefined){
+        setCaretCharOffset(activeLine,activeOffset);
+    }
+}
+
+function setCaretCharOffset(lineEl,targetOffset){
+    let sel=window.getSelection();
+    if(!sel)return;
+    let walker=document.createTreeWalker(lineEl,NodeFilter.SHOW_TEXT,null,false);
+    let count=0;
+    let lastNode=null;
+    let set=false;
+    while(walker.nextNode()){
+        let node=walker.currentNode;
+        lastNode=node;
+        let len=node.nodeValue.length;
+        if(count+len>=targetOffset){
+            let range=document.createRange();
+            let offsetInNode=Math.min(targetOffset-count,len);
+            let p=node.parentElement;
+            let isSpecialElem = p && (p.getAttribute('contenteditable')==='false' || p.classList.contains('sp-nonzen') || p.classList.contains('sub-sup') || p.classList.contains('hm-mark') || p.classList.contains('hidden-char-badge'));
+            if(isSpecialElem){
+                if(offsetInNode>=len){
+                    range.setStartAfter(p);
+                }else{
+                    range.setStartBefore(p);
+                }
+            }else{
+                range.setStart(node,offsetInNode);
+            }
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+            set=true;
+            break;
+        }
+        count+=len;
+    }
+    if(!set){
+        let range=document.createRange();
+        if(lastNode){
+            let p=lastNode.parentElement;
+            let isSpecialElem = p && (p.getAttribute('contenteditable')==='false' || p.classList.contains('sp-nonzen') || p.classList.contains('sub-sup') || p.classList.contains('hm-mark') || p.classList.contains('hidden-char-badge'));
+            if(isSpecialElem){
+                range.setStartAfter(p);
+            }else{
+                range.setStart(lastNode,lastNode.nodeValue.length);
+            }
+        }else{
+            let br=lineEl.querySelector('br');
+            if(br){
+                range.setStartBefore(br);
+            }else{
+                range.selectNodeContents(lineEl);
+            }
+        }
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
+}
+
+// 全角スペース以外のスペース（半角スペースやタブ等）に背景色を付ける
+// 「␣」等の記号は絶対に使わず、元のスペース文字そのままで表示
+function highlightSpaces(optActiveLine, optActiveOffset){
+    // 既存の .sp-nonzen を検査し、空白以外の文字や空spanを即座に安全解除（黄色文字化の根本防止）
+    cleanContaminatedSpans();
+
+    if (document.body.classList.contains('sp-color-off')) return;
+
+    let activeLine=optActiveLine;
+    let activeOffset=optActiveOffset;
+    if(activeLine===undefined){
+        let sel=window.getSelection();
+        if(sel&&sel.rangeCount>0){
+            let r=sel.getRangeAt(0);
+            let n=r.startContainer;
+            while(n&&n!==e&&n.parentElement!==e){
+                n=n.parentElement;
+            }
+            if(n&&n.parentElement===e){
+                activeLine=n;
+                let pre=r.cloneRange();
+                pre.selectNodeContents(activeLine);
+                pre.setEnd(r.startContainer,r.startOffset);
+                activeOffset=pre.toString().length;
+            }
+        }
+    }
+    
+    let walker=document.createTreeWalker(e,NodeFilter.SHOW_TEXT,null,false);
+    let nodes=[];
+    while(walker.nextNode()){
+        let p=walker.currentNode.parentNode;
+        if(p&&(p.classList.contains('sp-nonzen')||p.classList.contains('sub-sup')||p.classList.contains('hidden-char-badge')||p.classList.contains('hm-mark')||p.classList.contains('er')))continue;
+        nodes.push(walker.currentNode);
+    }
+    
+    const regSpace=/([^\S\u3000\r\n]+)/g;
+    let changed=false;
+    for(let tn of nodes){
+        let val=tn.nodeValue;
+        if(/[^\S\u3000\r\n]/.test(val)){
+            changed=true;
+            let frag=document.createDocumentFragment();
+            let parts=val.split(regSpace);
+            for(let part of parts){
+                if(!part)continue;
+                if(/[^\S\u3000\r\n]/.test(part)){
+                    let sp=document.createElement('span');
+                    sp.className='sp-nonzen';
+                    // ␣は使わず元の空白文字そのまま
+                    sp.textContent=part;
+                    frag.appendChild(sp);
+                }else{
+                    frag.appendChild(document.createTextNode(part));
+                }
+            }
+            tn.parentNode.replaceChild(frag,tn);
+        }
+    }
+    if(changed && activeLine&&activeOffset!==null&&activeOffset!==undefined){
+        setCaretCharOffset(activeLine,activeOffset);
+    }
+}
+let hmActive=false;
+function tgHomoglyphs(){
+    const btn=document.getElementById('hmBtn');
+    if(hmActive){
+        let marks=e.querySelectorAll('.hm-mark');
+        marks.forEach(m=>{
+            let p=m.parentNode;
+            while(m.firstChild)p.insertBefore(m.firstChild,m);
+            p.removeChild(m);
+        });
+        hmActive=false;
+        if(btn){btn.style.background='#fed7aa';btn.style.color='#9a3412';btn.textContent='ホモグラフ'}
+        alert('ホモグラフの強調表示を解除しました。');
+        return;
+    }
+    let divs=e.querySelectorAll('#e>div');
+    let count=0;
+    const hmRegex=/[\u0400-\u04FF\u0370-\u03FF]/g;
+    divs.forEach(d=>{
+        let walker=document.createTreeWalker(d,NodeFilter.SHOW_TEXT,null,false);
+        let textNodes=[];
+        while(walker.nextNode()){
+            let p=walker.currentNode.parentNode;
+            if(p&&(p.classList.contains('sub-sup')||p.classList.contains('sp-nonzen')||p.classList.contains('hidden-char-badge')||p.classList.contains('char-box')))continue;
+            textNodes.push(walker.currentNode);
+        }
+        textNodes.forEach(tn=>{
+            let val=tn.nodeValue;
+            if(hmRegex.test(val)){
+                let frag=document.createDocumentFragment();
+                let lastIdx=0;
+                hmRegex.lastIndex=0;
+                let match;
+                while((match=hmRegex.exec(val))!==null){
+                    if(match.index>lastIdx){
+                        frag.appendChild(document.createTextNode(val.substring(lastIdx,match.index)));
+                    }
+                    let span=document.createElement('span');
+                    span.className='hm-mark';
+                    span.textContent=match[0];
+                    span.title=`類似異言語文字: U+${match[0].charCodeAt(0).toString(16).toUpperCase()}`;
+                    frag.appendChild(span);
+                    lastIdx=match.index+match[0].length;
+                    count++;
+                }
+                if(lastIdx<val.length){
+                    frag.appendChild(document.createTextNode(val.substring(lastIdx)));
+                }
+                tn.parentNode.replaceChild(frag,tn);
+            }
+        });
+    });
+    if(count>0){
+        hmActive=true;
+        if(btn){btn.style.background='#ea580c';btn.style.color='#fff';btn.textContent=`ホモグラフ(${count})`}
+        alert(`🔍 ホモグラフ（キリル・ギリシャ等の類似文字）を ${count} 箇所検出しました！オレンジ色の下線で強調表示しています。`);
+    }else{
+        alert('✨ ホモグラフ（類似の異言語文字）は検出されませんでした。正常です！');
+    }
+}
+function tgHiddenChars(){
+    const hiddenRegex=/[\u200B-\u200F\u2028\u2029\u202A-\u202E\u2060-\u206F\uFEFF\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g;
+    let divs=e.querySelectorAll('#e>div');
+    let count=0;
+    let badges=e.querySelectorAll('.hidden-char-badge');
+    badges.forEach(b=>b.remove());
+    divs.forEach(d=>{
+        let walker=document.createTreeWalker(d,NodeFilter.SHOW_TEXT,null,false);
+        let textNodes=[];
+        while(walker.nextNode()){
+            let p=walker.currentNode.parentNode;
+            if(p&&(p.classList.contains('sub-sup')||p.classList.contains('sp-nonzen')||p.classList.contains('char-box')))continue;
+            textNodes.push(walker.currentNode);
+        }
+        textNodes.forEach(tn=>{
+            let val=tn.nodeValue;
+            if(hiddenRegex.test(val)){
+                let frag=document.createDocumentFragment();
+                let lastIdx=0;
+                hiddenRegex.lastIndex=0;
+                let match;
+                while((match=hiddenRegex.exec(val))!==null){
+                    if(match.index>lastIdx){
+                        frag.appendChild(document.createTextNode(val.substring(lastIdx,match.index)));
+                    }
+                    let codeHex=match[0].charCodeAt(0).toString(16).toUpperCase().padStart(4,'0');
+                    let span=document.createElement('span');
+                    span.className='hidden-char-badge';
+                    span.setAttribute('contenteditable','false');
+                    span.textContent=`[U+${codeHex}]`;
+                    span.title=`不可視隠し文字 U+${codeHex}`;
+                    frag.appendChild(span);
+                    lastIdx=match.index+match[0].length;
+                    count++;
+                }
+                if(lastIdx<val.length){
+                    frag.appendChild(document.createTextNode(val.substring(lastIdx)));
+                }
+                tn.parentNode.replaceChild(frag,tn);
+            }
+        });
+    });
+    if(count>0){
+        let removeAll=confirm(`⚠️ 不可視・隠し文字（ゼロ幅スペース等）が ${count} 件見つかりました！画面上に [U+XXXX] バッジとして可視化しました。\n\nこれらの隠し文字を一括削除して綺麗にしますか？`);
+        if(removeAll){
+            let bList=e.querySelectorAll('.hidden-char-badge');
+            bList.forEach(b=>b.remove());
+            divs.forEach(d=>{
+                d.innerHTML=d.innerHTML.replace(hiddenRegex,'');
+            });
+            v();s();localStorage.setItem('n_r',e.innerHTML);
+            alert(`✨ ${count} 件の隠し文字を完全に削除しました！`);
+        }
+    }else{
+        alert('✨ 不可視・隠し文字（ゼロ幅スペースや特殊Unicode制御文字）は1つも見つかりませんでした。正常です！');
+    }
+}
+function tgSpColor(){
+    const isOff=document.body.classList.toggle('sp-color-off');
+    const btn=document.getElementById('tool_spcol')||document.getElementById('spColBtn');
+    if(btn){
+        if(isOff){
+            btn.textContent='空白色:OFF';btn.style.background='#f0f0f2';btn.style.color='#666';
+        }else{
+            btn.textContent='空白色:ON';btn.style.background='#fef08a';btn.style.color='#854d0e';
+        }
+    }
+    localStorage.setItem('n_sp_color',isOff?'off':'on');
+    if(!isOff){
+        highlightSpaces();
+    }
+}
+function norm(){
+    if(!e.innerHTML.trim()){e.innerHTML='<div><br></div>';return}
+    let hasRawText=false;
+    for(let n of e.childNodes){
+        if(n.nodeType===3 && n.nodeValue.trim()){hasRawText=true;break}
+        if(n.nodeType===1 && n.tagName!=='DIV'){hasRawText=true;break}
+    }
+    if(hasRawText){
+        let lines=e.innerText.split('\n');
+        e.innerHTML=lines.map(l=>`<div>${l?l:'<br>'}</div>`).join('');
+    }
+    cleanExcessiveBlankLines();
+    cleanSpans();
+}
+function tgS(){
+    const s=document.getElementById('s');
+    const isHidden=(s.style.display==='none');
+    s.style.display=isHidden?'flex':'none';
+    const btn=document.getElementById('sbBtn');
+    if(btn)btn.style.background=isHidden?'#e0e7ff':'#f0f0f2';
+    setTimeout(()=>{z()},30);
+}
+function z(){
+    let v=l.value;let num=parseInt(v);if(!num||isNaN(num))num=30;
+    const m=document.querySelector('.m');
+    const mWidth=m?m.clientWidth:(window.innerWidth-200);
+    const pad=24,lw=36;
+    let avail=mWidth-pad-lw;
+    if(avail<100)avail=100;
+    let cs=Math.floor(avail/num);
+    if(cs<12)cs=12;if(cs>64)cs=64;
+    const pw=cs*num;
+    const totalW=pw+lw;
+    document.documentElement.style.setProperty('--cs',cs+'px');
+    w.style.width=totalW+'px';
+    e.style.width=pw+'px';
+    localStorage.setItem('n_w',v);
+    ensureGridLines();
+}
+function getEditorPureTextFromElement(el){
+    let divs=el.querySelectorAll('#e>div');
+    if(divs.length===0)divs=el.querySelectorAll('div');
+    let lines=[];
+    if(divs.length>0){
+        for(let i=0; i<divs.length; i++){
+            let d=divs[i];
+            if(!d.firstElementChild || (d.firstElementChild.tagName==='BR' && d.children.length===1)){
+                let t=d.textContent||'';
+                lines.push(t.replace(/[\r\n]/g,''));
+            }else{
+                let clone=d.cloneNode(true);
+                clone.querySelectorAll('.hidden-char-badge').forEach(b=>b.remove());
+                clone.querySelectorAll('.sp-nonzen').forEach(s=>s.replaceWith(s.textContent||' '));
+                let t=clone.textContent||'';
+                lines.push(t.replace(/[\r\n]/g,''));
+            }
+        }
+    }else{
+        let clone=el.cloneNode(true);
+        clone.querySelectorAll('.hidden-char-badge').forEach(b=>b.remove());
+        clone.querySelectorAll('.sp-nonzen').forEach(s=>s.replaceWith(s.textContent||' '));
+        let t=clone.textContent||'';
+        lines=t.split(/[\r\n]+/);
+    }
+    return lines;
+}
+
+function getEditorPureTextFromHtml(html){
+    let wrapper=document.createElement('div');
+    wrapper.innerHTML=html||'';
+    return getEditorPureTextFromElement(wrapper);
+}
+
+function countCharsFromLines(lines){
+    let totalChars=0;
+    let withoutSpaces=0;
+    let lastContentIdx = -1;
+    for(let i=0; i<lines.length; i++){
+        let line = lines[i];
+        totalChars += line.length;
+        let noSpace = line.replace(/[\s\u3000]/g,'');
+        withoutSpaces += noSpace.length;
+        if(noSpace.length > 0){
+            lastContentIdx = i;
+        }
+    }
+    return {
+        totalChars,
+        withoutSpaces,
+        lines: Math.max(1, lastContentIdx + 1)
+    };
+}
+
+function ensureGridLines(){
+    let divs=e.querySelectorAll('#e>div');
+    if(divs.length===0){
+        e.innerHTML='<div><br></div>';
+    }
+}
+
+let lastRenderedVisibleLines = -1;
+let lastRenderedActiveLine = -1;
+
+function v(){
+    ensureGridLines();
+    let divs=e.querySelectorAll('#e>div');
+    if(divs.length===0){
+        divs=e.querySelectorAll('div');
+    }
+    let totalLines=Math.max(1, divs.length);
+    
+    // 下の方へスクロールしても原稿用紙のマス目と行番号が自然に続くように描画行数を計算
+    let cs=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs'))||32;
+    let mCont=document.querySelector('.m');
+    let mHeight=mCont?mCont.clientHeight:(window.innerHeight||800);
+    let sTop=mCont?mCont.scrollTop:0;
+    let scrollBottom = sTop + mHeight + (mHeight * 1.5);
+    let editorHeight=Math.max(e.clientHeight||0, w.clientHeight||0, scrollBottom);
+    let visibleGridLines=Math.max(totalLines, Math.floor(editorHeight/cs));
+    
+    // 実際に文字または空白マス目がある最終行を判定（黒字と薄いグレーの切り替え）
+    let lastActiveLine = 0;
+    for(let i=divs.length-1; i>=0; i--){
+        let d = divs[i];
+        let txt = d.textContent.replace(/[\r\n]/g,'');
+        if(txt.length > 0 || d.querySelector('.sub-sup, .hidden-char-badge, .hm-mark, img')){
+            lastActiveLine = i + 1;
+            break;
+        }
+    }
+    if(lastActiveLine === 0) lastActiveLine = 1;
+    
+    if(visibleGridLines !== lastRenderedVisibleLines || lastActiveLine !== lastRenderedActiveLine){
+        lastRenderedVisibleLines = visibleGridLines;
+        lastRenderedActiveLine = lastActiveLine;
+        let h='';
+        for(let i=1;i<=visibleGridLines;i++){
+            if(i<=lastActiveLine){
+                h+=i+'<br>';
+            }else{
+                h+=`<span style="color:#cbd5e1;font-size:10px">${i}</span><br>`;
+            }
+        }
+        n.innerHTML=h;
+    }
+    
+    let pureLines=getEditorPureTextFromElement(e);
+    let st=countCharsFromLines(pureLines);
+    // デフォルト表示はスペースなし（空白除外）文字数をメインに
+    k.innerHTML=`<span style="font-weight:bold">${st.withoutSpaces.toLocaleString()}字</span><span style="font-size:10px;color:#64748b;margin-left:4px;font-weight:normal">(空白込${st.totalChars.toLocaleString()})</span>`;
+    k.title=`【文字数カウンター】\n文字数（空白なし・デフォルト）: ${st.withoutSpaces.toLocaleString()}字\n総文字数（空白込み）: ${st.totalChars.toLocaleString()}字\n行数: ${st.lines}行`;
+    
+    if(f){
+        let curBadge=document.querySelector(`.tree-row[data-id="${f}"] .tree-badge`);
+        if(curBadge){
+            curBadge.textContent=st.withoutSpaces.toLocaleString()+'字';
+        }
+    }
+}
+function o(id){
+    if(typeof flushPendingHeavyTask === 'function' && f && f !== id){
+        flushPendingHeavyTask();
+    }
+    let i=g(id);
+    if(i){
+        e.innerHTML=(i.content&&i.content.trim())?i.content:'<div><br></div>';
+        f=id;
+        localStorage.setItem('n_c',id);
+    }
+    cleanExcessiveBlankLines();
+    norm();
+    cleanSpans();
+    autoFormatEditor();
+    highlightSpaces();
+    z();
+    v();
+    const mCont=document.querySelector('.m');
+    if(mCont)mCont.scrollTop=0;
+}
+function s(){let i=g(f);if(i){i.content=e.innerHTML;localStorage.setItem('n_d',JSON.stringify(d))}}
+function g(id,items=d.r){for(let i of items){if(i.id===id)return i;if(i.children){let found=g(id,i.children);if(found)return found}}return null}
+let collapsedFolders=new Set();
+let currentModalItemId=null;
+
+function updateFolderBreadcrumb(){
+    let lbl=document.getElementById('currentFolderLabel');
+    if(!lbl)return;
+    if(!pId){
+        lbl.textContent='📁 作成先: ルート';
+        lbl.title='新規作成は最上層に行われます';
+    }else{
+        let p=g(pId);
+        if(p&&p.type==='folder'){
+            lbl.textContent='📁 作成先: '+p.name;
+            lbl.title='新規作成は「'+p.name+'」内に行われます';
+        }else{
+            pId=null;
+            lbl.textContent='📁 作成先: ルート';
+        }
+    }
+}
+
+function findItemContext(id, list=d.r, parentFolder=null){
+    for(let idx=0; idx<list.length; idx++){
+        let item=list[idx];
+        if(item.id===id) return {item, list, parentFolder, index:idx};
+        if(item.children){
+            let found=findItemContext(id, item.children, item);
+            if(found) return found;
+        }
+    }
+    return null;
+}
+
+function isDescendantOrSelf(folderItem, checkId){
+    if(!folderItem) return false;
+    if(folderItem.id===checkId) return true;
+    if(!folderItem.children) return false;
+    for(let ch of folderItem.children){
+        if(ch.type==='folder'&&isDescendantOrSelf(ch, checkId)) return true;
+    }
+    return false;
+}
+
+function getChapterStats(item){
+    let content=(item.id===f)?e.innerHTML:(item.content||'');
+    let pureLines=getEditorPureTextFromHtml(content);
+    let st=countCharsFromLines(pureLines);
+    return { chars:st.totalChars, withoutSpaces:st.withoutSpaces, lines:st.lines };
+}
+
+function getFolderStats(folderItem){
+    let files=0, chars=0, withoutSpaces=0, subfolders=0;
+    function walk(it){
+        if(it.type==='file'){
+            files++;
+            let st=getChapterStats(it);
+            chars+=st.chars;
+            withoutSpaces+=st.withoutSpaces;
+        }else if(it.children){
+            subfolders+=it.children.filter(c=>c.type==='folder').length;
+            it.children.forEach(walk);
+        }
+    }
+    if(folderItem.children) folderItem.children.forEach(walk);
+    return { files, chars, withoutSpaces, subfolders };
+}
+
+function r(){
+    t.innerHTML='';
+    if(!d.r||d.r.length===0){
+        let emptyDiv=document.createElement('div');
+        emptyDiv.style.color='#94a3b8';
+        emptyDiv.style.fontSize='11px';
+        emptyDiv.style.padding='8px';
+        emptyDiv.textContent='「+話」を押して作成してください';
+        t.appendChild(emptyDiv);
+    }else{
+        d.r.forEach(i=>t.appendChild(m(i,null)));
+    }
+    updateFolderBreadcrumb();
+}
+
+function m(i,pid){
+    let nodeDiv=document.createElement('div');
+    nodeDiv.className='tree-node';
+    
+    let row=document.createElement('div');
+    let isCurrentFile=(i.id===f);
+    let isCurrentTarget=(i.id===pId);
+    row.className='tree-row'+(isCurrentFile?' active':'')+(isCurrentTarget?' folder-active':'');
+    row.dataset.id=i.id;
+    
+    let titleBtn=document.createElement('button');
+    titleBtn.className='tree-title-btn';
+    
+    let isFold=collapsedFolders.has(i.id);
+    let iconSpan=document.createElement('span');
+    if(i.type==='folder'){
+        iconSpan.textContent=isFold?'📁':'📂';
+    }else{
+        iconSpan.textContent='📄';
+    }
+    titleBtn.appendChild(iconSpan);
+    
+    let nameSpan=document.createElement('span');
+    nameSpan.className='tree-name';
+    nameSpan.textContent=i.name;
+    nameSpan.title=i.name;
+    titleBtn.appendChild(nameSpan);
+    
+    let badgeSpan=document.createElement('span');
+    badgeSpan.className='tree-badge';
+    if(i.type==='folder'){
+        let st=getFolderStats(i);
+        badgeSpan.textContent=st.files+'話 ('+st.withoutSpaces.toLocaleString()+'字)';
+        badgeSpan.title=`フォルダ「${i.name}」: ${st.files}話 / 文字数(空白なし): ${st.withoutSpaces.toLocaleString()}字 (空白込: ${st.chars.toLocaleString()}字)`;
+    }else{
+        let st=getChapterStats(i);
+        badgeSpan.textContent=st.withoutSpaces.toLocaleString()+'字';
+        badgeSpan.title=`「${i.name}」: 文字数(空白なし): ${st.withoutSpaces.toLocaleString()}字 (空白込: ${st.chars.toLocaleString()}字 / ${st.lines}行)`;
+    }
+    titleBtn.appendChild(badgeSpan);
+    
+    titleBtn.onclick=(ev)=>{
+        ev.stopPropagation();
+        if(i.type==='file'){
+            s();
+            o(i.id);
+            r();
+        }else{
+            if(collapsedFolders.has(i.id)){
+                collapsedFolders.delete(i.id);
+            }else{
+                collapsedFolders.add(i.id);
+            }
+            pId=i.id;
+            r();
+        }
+    };
+    
+    row.appendChild(titleBtn);
+    
+    let infoBtn=document.createElement('button');
+    infoBtn.className='tree-info-btn';
+    infoBtn.innerHTML='ℹ️';
+    infoBtn.title='「'+i.name+'」の情報・操作（名前変更・複製・移動・削除）';
+    infoBtn.onclick=(ev)=>{
+        ev.stopPropagation();
+        openItemModal(i.id, ev);
+    };
+    row.appendChild(infoBtn);
+    
+    nodeDiv.appendChild(row);
+    
+    if(i.type==='folder'&&i.children&&!isFold){
+        let childCont=document.createElement('div');
+        childCont.className='tree-children';
+        if(i.children.length===0){
+            let emptyLabel=document.createElement('div');
+            emptyLabel.style.color='#94a3b8';
+            emptyLabel.style.fontSize='10px';
+            emptyLabel.style.padding='3px 4px';
+            emptyLabel.textContent='(空)';
+            childCont.appendChild(emptyLabel);
+        }else{
+            i.children.forEach(ch=>childCont.appendChild(m(ch,i.id)));
+        }
+        nodeDiv.appendChild(childCont);
+    }
+    
+    return nodeDiv;
+}
+
+function countTotalFiles(items){
+    let count=0;
+    function walk(list){
+        for(let it of list){
+            if(it.type==='file')count++;
+            if(it.children)walk(it.children);
+        }
+    }
+    if(items)walk(items);
+    return count;
+}
+
+let createModalIsFolder=false;
+let createModalTargetFolderId=null;
+
+function a(isF, optTargetFolderId=null){
+    createModalIsFolder=isF;
+    createModalTargetFolderId=(optTargetFolderId!==null)?optTargetFolderId:pId;
+    
+    let modal=document.getElementById('createModal');
+    let title=document.getElementById('createModalTitle');
+    let desc=document.getElementById('createModalTargetDesc');
+    let label=document.getElementById('createModalLabel');
+    let input=document.getElementById('createModalInput');
+    
+    let targetName='最上層（ルート）';
+    if(createModalTargetFolderId){
+        let targetP=g(createModalTargetFolderId);
+        if(targetP)targetName=`📁 ${targetP.name}`;
+    }
+    
+    if(isF){
+        title.innerHTML='<span>📁</span><span>新規フォルダ作成</span>';
+        label.textContent='フォルダ名';
+        input.placeholder='例: 第1部、設定資料など';
+        input.value='';
+        desc.textContent='作成先: '+targetName;
+    }else{
+        title.innerHTML='<span>📄</span><span>新規話（エピソード）作成</span>';
+        label.textContent='話タイトル';
+        let nextEpNum=countTotalFiles(d.r)+1;
+        input.placeholder=`例: 第${nextEpNum}話`;
+        input.value=`第${nextEpNum}話`;
+        desc.textContent='作成先: '+targetName;
+    }
+    
+    modal.style.display='flex';
+    setTimeout(()=>{
+        input.focus();
+        input.select();
+    },50);
+}
+
+function closeCreateModal(){
+    let modal=document.getElementById('createModal');
+    if(modal)modal.style.display='none';
+}
+
+function submitCreateModal(){
+    let input=document.getElementById('createModalInput');
+    let n=input.value.trim();
+    if(!n){
+        alert(createModalIsFolder?'フォルダ名を入力してください。':'話名を入力してください。');
+        input.focus();
+        return;
+    }
+    let id='i_'+Date.now()+'_'+Math.random().toString(36).substr(2,4);
+    let ni={id,type:createModalIsFolder?'folder':'file',name:n};
+    if(createModalIsFolder){
+        ni.children=[];
+    }else{
+        ni.content='<div><br></div>';
+    }
+    
+    let targetId=createModalTargetFolderId||pId;
+    if(targetId){
+        let p=g(targetId);
+        if(p&&p.type==='folder'){
+            if(!p.children)p.children=[];
+            p.children.push(ni);
+            collapsedFolders.delete(p.id);
+        }else{
+            d.r.push(ni);
+        }
+    }else{
+        d.r.push(ni);
+    }
+    s();
+    if(!createModalIsFolder){
+        f=id;
+        o(f);
+    }
+    r();
+    closeCreateModal();
+}
+
+function u(){
+    pId=null;
+    updateFolderBreadcrumb();
+    r();
+}
+
+/* 情報・操作モーダル制御 */
+function openItemModal(id, ev){
+    if(ev)ev.stopPropagation();
+    currentModalItemId=id;
+    updateModalContent(id);
+    let modal=document.getElementById('itemModal');
+    if(modal)modal.style.display='flex';
+}
+
+function closeItemModal(){
+    let modal=document.getElementById('itemModal');
+    if(modal)modal.style.display='none';
+    currentModalItemId=null;
+}
+
+function updateModalContent(id){
+    let ctx=findItemContext(id);
+    if(!ctx){
+        closeItemModal();
+        return;
+    }
+    let it=ctx.item;
+    let isFolder=(it.type==='folder');
+    
+    let titleEl=document.getElementById('modalHeaderTitle');
+    if(titleEl){
+        titleEl.innerHTML=isFolder
+            ? `<span>📁</span><span>フォルダの情報・操作</span>`
+            : `<span>📄</span><span>話（エピソード）の情報・操作</span>`;
+    }
+    
+    let statsEl=document.getElementById('modalInfoStats');
+    if(statsEl){
+        let parentName=ctx.parentFolder?`📁 ${ctx.parentFolder.name}`:'最上層（ルート）';
+        if(isFolder){
+            let st=getFolderStats(it);
+            statsEl.innerHTML=`
+                <div><strong>フォルダ名:</strong> ${it.name}</div>
+                <div><strong>所属階層:</strong> ${parentName}</div>
+                <div><strong>含まれる話数:</strong> ${st.files} 話</div>
+                <div><strong>文字数（空白なし・デフォルト）:</strong> <span style="font-size:13px;color:#2563eb;font-weight:bold">${st.withoutSpaces.toLocaleString()} 字</span></div>
+                <div><strong>総文字数（空白込み）:</strong> ${st.chars.toLocaleString()} 字</div>
+                <div><strong>サブフォルダ:</strong> ${st.subfolders} 件</div>
+            `;
+        }else{
+            let st=getChapterStats(it);
+            statsEl.innerHTML=`
+                <div><strong>話タイトル:</strong> ${it.name}</div>
+                <div><strong>所属フォルダ:</strong> ${parentName}</div>
+                <div><strong>文字数（空白なし・デフォルト）:</strong> <span style="font-size:13px;color:#2563eb;font-weight:bold">${st.withoutSpaces.toLocaleString()} 字</span></div>
+                <div><strong>総文字数（空白込み）:</strong> ${st.chars.toLocaleString()} 字</div>
+                <div><strong>行数:</strong> ${st.lines.toLocaleString()} 行</div>
+            `;
+        }
+    }
+    
+    let inputEl=document.getElementById('modalRenameInput');
+    if(inputEl){
+        inputEl.value=it.name;
+    }
+    
+    let dupBtn=document.getElementById('modalDuplicateBtn');
+    if(dupBtn){
+        dupBtn.textContent=isFolder?'📋 このフォルダを複製':'📋 この話を複製';
+    }
+    
+    let saveTxtBtn=document.getElementById('modalSaveTxtBtn');
+    if(saveTxtBtn){
+        saveTxtBtn.textContent=isFolder?'💾 フォルダ内の全話をまとめて.txt保存':'💾 .txtファイルとして保存';
+    }
+    
+    let delBtn=document.getElementById('modalDeleteBtn');
+    if(delBtn){
+        delBtn.textContent=isFolder?'🗑️ このフォルダと中身を削除':'🗑️ この話を削除';
+    }
+    
+    let targetSelect=document.getElementById('modalMoveTarget');
+    if(targetSelect){
+        targetSelect.innerHTML='';
+        let rootOpt=document.createElement('option');
+        rootOpt.value='root';
+        rootOpt.textContent='📁 最上層（ルート）';
+        targetSelect.appendChild(rootOpt);
+        
+        function populateOptions(items, depth=0){
+            for(let item of items){
+                if(item.type==='folder'){
+                    if(isFolder&&isDescendantOrSelf(it, item.id)) continue;
+                    let opt=document.createElement('option');
+                    opt.value=item.id;
+                    opt.textContent='　'.repeat(depth+1)+'📁 '+item.name;
+                    targetSelect.appendChild(opt);
+                    if(item.children) populateOptions(item.children, depth+1);
+                }
+            }
+        }
+        populateOptions(d.r, 0);
+        let curPid=ctx.parentFolder?ctx.parentFolder.id:'root';
+        targetSelect.value=curPid;
+    }
+    
+    let addSec=document.getElementById('modalFolderAddSection');
+    if(addSec){
+        addSec.style.display=isFolder?'block':'none';
+    }
+    let repSec=document.getElementById('modalFolderReplaceSection');
+    if(repSec){
+        repSec.style.display=isFolder?'block':'none';
+        let msgEl=document.getElementById('modalFolderRepMsg');
+        if(msgEl) msgEl.textContent='';
+    }
+}
+
+function execFolderBatchReplace(){
+    if(!currentModalItemId) return;
+    let ctx=findItemContext(currentModalItemId);
+    if(!ctx||ctx.item.type!=='folder') return;
+    
+    let fInput=document.getElementById('modalFolderRepFrom');
+    let tInput=document.getElementById('modalFolderRepTo');
+    let msgEl=document.getElementById('modalFolderRepMsg');
+    
+    let fVal=fInput?fInput.value:'';
+    let tVal=tInput?tInput.value:'';
+    
+    if(!fVal){
+        if(msgEl){
+            msgEl.textContent='検索文字列を入力してください。';
+            msgEl.style.color='#dc2626';
+        }
+        return;
+    }
+    
+    // 現在編集中（開いている話）の最新状態を同期
+    s();
+    
+    let escaped=fVal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    let regex=new RegExp(escaped, 'g');
+    
+    let totalReplacedCount=0;
+    let changedFilesCount=0;
+    
+    function replaceInHTML(html){
+        let wrapper=document.createElement('div');
+        wrapper.innerHTML=html||'';
+        let divs=wrapper.querySelectorAll('div');
+        let fileRepCount=0;
+        
+        if(divs.length>0){
+            divs.forEach(d=>{
+                let txt=d.innerText;
+                if(regex.test(txt)){
+                    let matches=txt.match(regex);
+                    if(matches) fileRepCount+=matches.length;
+                    let newText=txt.replace(regex, tVal);
+                    d.innerHTML=newText?newText:'<br>';
+                }
+            });
+        }else{
+            let txt=wrapper.innerText;
+            if(regex.test(txt)){
+                let matches=txt.match(regex);
+                if(matches) fileRepCount+=matches.length;
+                let newText=txt.replace(regex, tVal);
+                wrapper.innerHTML=newText?`<div>${newText}</div>`:'<div><br></div>';
+            }
+        }
+        return {
+            newHtml: wrapper.innerHTML,
+            count: fileRepCount
+        };
+    }
+    
+    function processFolderItems(items){
+        items.forEach(it=>{
+            if(it.type==='file'){
+                let rawContent=(it.id===f)?e.innerHTML:(it.content||'<div><br></div>');
+                let res=replaceInHTML(rawContent);
+                if(res.count>0){
+                    totalReplacedCount+=res.count;
+                    changedFilesCount++;
+                    it.content=res.newHtml;
+                    if(it.id===f){
+                        e.innerHTML=res.newHtml;
+                    }
+                }
+            }else if(it.children){
+                processFolderItems(it.children);
+            }
+        });
+    }
+    
+    if(ctx.item.children){
+        processFolderItems(ctx.item.children);
+    }
+    
+    if(totalReplacedCount>0){
+        s();
+        r();
+        v();
+        updateModalContent(currentModalItemId);
+        if(msgEl){
+            msgEl.textContent=`${changedFilesCount}話中、計${totalReplacedCount}箇所を置換しました！`;
+            msgEl.style.color='#16a34a';
+        }
+    }else{
+        if(msgEl){
+            msgEl.textContent='該当する文字列は見つかりませんでした。';
+            msgEl.style.color='#64748b';
+        }
+    }
+}
+
+function modalAddFileInCurrentFolder(){
+    if(!currentModalItemId)return;
+    let ctx=findItemContext(currentModalItemId);
+    if(!ctx||ctx.item.type!=='folder')return;
+    let folderId=currentModalItemId;
+    closeItemModal();
+    a(false, folderId);
+}
+
+function modalAddFolderInCurrentFolder(){
+    if(!currentModalItemId)return;
+    let ctx=findItemContext(currentModalItemId);
+    if(!ctx||ctx.item.type!=='folder')return;
+    let folderId=currentModalItemId;
+    closeItemModal();
+    a(true, folderId);
+}
+
+function saveModalRename(){
+    if(!currentModalItemId)return;
+    let inputEl=document.getElementById('modalRenameInput');
+    let val=inputEl.value.trim();
+    if(!val){
+        alert('名前を入力してください。');
+        return;
+    }
+    let ctx=findItemContext(currentModalItemId);
+    if(!ctx)return;
+    ctx.item.name=val;
+    s();
+    r();
+    updateModalContent(currentModalItemId);
+}
+
+function duplicateModalItem(){
+    if(!currentModalItemId)return;
+    let ctx=findItemContext(currentModalItemId);
+    if(!ctx)return;
+    
+    function cloneChild(ch){
+        let c={
+            id:'i_'+Date.now()+'_'+Math.random().toString(36).substr(2,4),
+            type:ch.type,
+            name:ch.name
+        };
+        if(ch.type==='file'){
+            c.content=(ch.id===f)?e.innerHTML:(ch.content||'<div><br></div>');
+        }else if(ch.children){
+            c.children=ch.children.map(cloneChild);
+        }
+        return c;
+    }
+    
+    let copy={
+        id:'i_'+Date.now()+'_'+Math.random().toString(36).substr(2,4),
+        type:ctx.item.type,
+        name:ctx.item.name+' (コピー)'
+    };
+    if(ctx.item.type==='file'){
+        copy.content=(ctx.item.id===f)?e.innerHTML:(ctx.item.content||'<div><br></div>');
+    }else if(ctx.item.children){
+        copy.children=ctx.item.children.map(cloneChild);
+    }
+    
+    ctx.list.splice(ctx.index+1, 0, copy);
+    s();
+    r();
+    closeItemModal();
+}
+
+function moveModalItemUp(){
+    if(!currentModalItemId)return;
+    let ctx=findItemContext(currentModalItemId);
+    if(!ctx||ctx.index<=0)return;
+    let tmp=ctx.list[ctx.index];
+    ctx.list[ctx.index]=ctx.list[ctx.index-1];
+    ctx.list[ctx.index-1]=tmp;
+    s();
+    r();
+    updateModalContent(currentModalItemId);
+}
+
+function moveModalItemDown(){
+    if(!currentModalItemId)return;
+    let ctx=findItemContext(currentModalItemId);
+    if(!ctx||ctx.index>=ctx.list.length-1)return;
+    let tmp=ctx.list[ctx.index];
+    ctx.list[ctx.index]=ctx.list[ctx.index+1];
+    ctx.list[ctx.index+1]=tmp;
+    s();
+    r();
+    updateModalContent(currentModalItemId);
+}
+
+function moveModalItemToFolder(){
+    if(!currentModalItemId)return;
+    let targetSelect=document.getElementById('modalMoveTarget');
+    let targetFolderId=targetSelect.value;
+    let ctx=findItemContext(currentModalItemId);
+    if(!ctx)return;
+    
+    let curParentId=ctx.parentFolder?ctx.parentFolder.id:'root';
+    if(curParentId===targetFolderId){
+        alert('すでにこのフォルダに存在します。');
+        return;
+    }
+    
+    ctx.list.splice(ctx.index,1);
+    
+    if(targetFolderId==='root'){
+        d.r.push(ctx.item);
+    }else{
+        let tf=g(targetFolderId);
+        if(tf&&tf.type==='folder'){
+            if(!tf.children)tf.children=[];
+            tf.children.push(ctx.item);
+            collapsedFolders.delete(tf.id);
+        }else{
+            d.r.push(ctx.item);
+        }
+    }
+    s();
+    r();
+    closeItemModal();
+}
+
+function deleteModalItem(){
+    if(!currentModalItemId)return;
+    let ctx=findItemContext(currentModalItemId);
+    if(!ctx)return;
+    
+    let isF=(ctx.item.type==='folder');
+    let msg=isF
+        ? `フォルダ「${ctx.item.name}」を削除しますか？\n（フォルダ内のすべての話も削除されます）`
+        : `話「${ctx.item.name}」を削除しますか？`;
+    if(!confirm(msg))return;
+    
+    let wasActive=(ctx.item.id===f||(isF&&isDescendantOrSelf(ctx.item, f)));
+    ctx.list.splice(ctx.index,1);
+    
+    function findFirstFile(items){
+        for(let it of items){
+            if(it.type==='file')return it;
+            if(it.children){
+                let res=findFirstFile(it.children);
+                if(res)return res;
+            }
+        }
+        return null;
+    }
+    
+    if(wasActive){
+        let nextF=findFirstFile(d.r);
+        if(nextF){
+            f=nextF.id;
+            o(f);
+        }else{
+            let newId='d_'+Date.now();
+            d.r.push({id:newId,type:'file',name:'第1話',content:'<div><br></div>'});
+            f=newId;
+            o(f);
+        }
+    }
+    s();
+    r();
+    closeItemModal();
+}
+
+/* 置換ツール */
+function tgRep(){
+    const rb=document.getElementById('repBar');
+    const isHidden=(rb.style.display==='none'||!rb.style.display);
+    rb.style.display=isHidden?'flex':'none';
+    const b=document.getElementById('b');
+    b.style.top=isHidden?'92px':'50px';
+    b.style.height=isHidden?'calc(100% - 92px)':'calc(100% - 50px)';
+    if(isHidden){
+        document.getElementById('rFrom').focus();
+        document.getElementById('repMsg').textContent='';
+    }
+}
+function doRep(isAll){
+    const fVal=document.getElementById('rFrom').value;
+    const tVal=document.getElementById('rTo').value;
+    const msg=document.getElementById('repMsg');
+    if(!fVal){
+        msg.textContent='検索文字を入力してください';
+        return;
+    }
+    norm();
+    let divs=e.querySelectorAll('#e>div');
+    if(divs.length===0){
+        e.innerHTML='<div>'+e.innerHTML+'</div>';
+        divs=e.querySelectorAll('#e>div');
+    }
+    let count=0;
+    const escaped=fVal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex=new RegExp(escaped, isAll?'g':'');
+    
+    for(let d of divs){
+        let txt=d.innerText;
+        if(regex.test(txt)){
+            let matches=txt.match(regex);
+            if(matches) count+=matches.length;
+            let newText=txt.replace(regex, tVal);
+            d.innerHTML=newText?newText:'<br>';
+            if(!isAll && count>0) break;
+        }
+    }
+    
+    if(count>0){
+        msg.textContent=`${count}件置換しました`;
+        v();
+        s();
+    }else{
+        msg.textContent='見つかりませんでした';
+    }
+}
+
+/* 【修】ボタン：半角空白の全角化（1マス化・カーソル跳ね防止）、英数記号の全角化、下つき添え字固定、誤字チェックを一括実行 */
+function fx(){
+    cleanExcessiveLeadingLines();
+    norm();
+    let divs=e.querySelectorAll('#e>div');if(divs.length===0){e.innerHTML='<div>'+e.innerHTML+'</div>';divs=e.querySelectorAll('#e>div')}
+    divs.forEach(d=>{
+        let clone=d.cloneNode(true);
+        clone.querySelectorAll('.sp-nonzen').forEach(s=>s.replaceWith(s.textContent||' '));
+        clone.querySelectorAll('.char-box').forEach(s=>{
+            let p=s.parentNode;while(s.firstChild)p.insertBefore(s.firstChild,s);p.removeChild(s);
+        });
+        clone.querySelectorAll('.hidden-char-badge').forEach(s=>s.remove());
+        clone.querySelectorAll('.hm-mark').forEach(s=>{
+            let p=s.parentNode;while(s.firstChild)p.insertBefore(s.firstChild,s);p.removeChild(s);
+        });
+        let txt=clone.innerText;if(txt==='\n'||txt==='')return;let h='';
+        for(let i=0;i<txt.length;i++){
+            let c=txt[i];
+            if(/[^\S\u3000\r\n]/.test(c)){
+                h+='　';
+            }else if(c==='　'){
+                h+='　';
+            }else if(regSpecialChars.test(c)){
+                h+=`<span class="sub-sup" contenteditable="false">${c}</span>`;
+            }else if(/[!-~]/.test(c)){
+                // 半角の英字・数字・記号を日本の原稿用紙の標準である全角（1マス1文字）に自動変換
+                h+=String.fromCharCode(c.charCodeAt(0)+0xFEE0);
+            }else if(c==='言'&&txt[i+1]==='頭'){
+                h+=`<span class="er">言</span><span class="er">頭</span>`;
+                i++;
+            }else{
+                h+=c;
+            }
+        }
+        d.innerHTML=h;
+    });
+    alert('✨ 半角空白の全角化、英数記号の全角1マス化、下つき添え字固定、誤字チェックを一括実行しました！');
+    v();s();
+}
+
+/* テキスト抽出・.txtファイル保存処理 */
+function getStoryPlainText(contentHtml){
+    let wrapper=document.createElement('div');
+    wrapper.innerHTML=contentHtml||'';
+    let divs=wrapper.querySelectorAll('div');
+    let lines=[];
+    if(divs.length>0){
+        divs.forEach(d=>{
+            let clone=d.cloneNode(true);
+            clone.querySelectorAll('.hidden-char-badge').forEach(b=>b.remove());
+            clone.querySelectorAll('.sp-nonzen').forEach(s=>s.replaceWith(s.textContent||' '));
+            clone.querySelectorAll('.sp').forEach(s=>s.replaceWith(' '));
+            let t=clone.innerText.replace(/\r?\n/g,'');
+            lines.push(t);
+        });
+    }else{
+        let clone=wrapper.cloneNode(true);
+        clone.querySelectorAll('.hidden-char-badge').forEach(b=>b.remove());
+        clone.querySelectorAll('.sp-nonzen').forEach(s=>s.replaceWith(s.textContent||' '));
+        clone.querySelectorAll('.sp').forEach(s=>s.replaceWith(' '));
+        lines=(clone.innerText||'').split(/\r?\n/);
+    }
+    while(lines.length>1 && lines[lines.length-1].replace(/[\s\u3000]/g,'')===''){
+        lines.pop();
+    }
+    return lines.join('\n');
+}
+
+function downloadTextFile(filename, text){
+    let blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+    let url=URL.createObjectURL(blob);
+    let a=document.createElement('a');
+    a.href=url;
+    a.download=filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+
+function saveAsTxt(){
+    if(typeof flushPendingHeavyTask === 'function') flushPendingHeavyTask();
+    s();
+    let item=g(f);
+    let name=item?(item.name||'第1話'):'小説原稿';
+    let safeName=name.replace(/[\\/:*?"<>|]/g,'_');
+    let text=getStoryPlainText(e.innerHTML);
+    downloadTextFile(safeName+'.txt', text);
+}
+
+function saveModalItemAsTxt(){
+    if(!currentModalItemId)return;
+    let ctx=findItemContext(currentModalItemId);
+    if(!ctx)return;
+    let it=ctx.item;
+    if(it.type==='file'){
+        let text='';
+        if(it.id===f){
+            s();
+            text=getStoryPlainText(e.innerHTML);
+        }else{
+            text=getStoryPlainText(it.content);
+        }
+        let safeName=(it.name||'第1話').replace(/[\\/:*?"<>|]/g,'_');
+        downloadTextFile(safeName+'.txt', text);
+    }else if(it.type==='folder'){
+        let allTexts=[];
+        function walkFolder(folder){
+            if(!folder.children)return;
+            folder.children.forEach(ch=>{
+                if(ch.type==='file'){
+                    let cText=(ch.id===f)?getStoryPlainText(e.innerHTML):getStoryPlainText(ch.content);
+                    allTexts.push(`【${ch.name}】\n\n`+cText);
+                }else if(ch.type==='folder'){
+                    walkFolder(ch);
+                }
+            });
+        }
+        walkFolder(it);
+        let safeName=(it.name||'フォルダ').replace(/[\\/:*?"<>|]/g,'_');
+        downloadTextFile(safeName+'.txt', allTexts.join('\n\n\n--------------------\n\n\n'));
+    }
+}
+
+/* 複（コピー）ボタン：画面表示用の箱を消して、本物のきれいな文章に戻してクリップボードに送る設定 */
+function c(){
+    if(typeof flushPendingHeavyTask === 'function') flushPendingHeavyTask();
+    let t=getStoryPlainText(e.innerHTML);
+    navigator.clipboard.writeText(t).then(()=>alert('きれいな小説文章をコピーしました！'));
+}
+
+function sc(){
+    setTimeout(()=>{
+        let sel=window.getSelection();if(!sel||sel.rangeCount===0)return;
+        let r=sel.getRangeAt(0),node=r.startContainer;
+        if(node.nodeType===3)node=node.parentNode;
+        while(node&&node!==e&&node.parentElement!==e){node=node.parentElement}
+        if(node&&node.parentElement===e){
+            const mCont=document.querySelector('.m');
+            if(mCont){
+                const mRect=mCont.getBoundingClientRect();
+                const nRect=node.getBoundingClientRect();
+                if(nRect.top < mRect.top + 40){
+                    mCont.scrollTop -= (mRect.top + 40 - nRect.top);
+                }else if(nRect.bottom > mRect.bottom - 80){
+                    mCont.scrollTop += (nRect.bottom - (mRect.bottom - 80));
+                }
+            }
+        }
+    },30);
+}
+
+let isComposing=false;
+let heavyTaskTimer=null;
+let pendingCleanLines=false;
+
+// 文字のマス入れ（空白ハイライト・添字1マス化・スパンクリーン）、文字数カウント、保存を一括実行
+function runHeavyTask(){
+    if(isComposing) return;
+    if(pendingCleanLines){
+        cleanExcessiveLeadingLines();
+        pendingCleanLines=false;
+    }
+    cleanContaminatedSpans();
+    highlightSpaces();
+    autoFormatEditor();
+    v();
+    s();
+    try{
+        localStorage.setItem('n_r',e.innerHTML);
+    }catch(err){}
+}
+
+// 確定保存が必要なタイミング（タブ切り替え・保存・コピー・離脱等）で即時実行
+function flushPendingHeavyTask(){
+    if(heavyTaskTimer){
+        clearTimeout(heavyTaskTimer);
+        heavyTaskTimer=null;
+        runHeavyTask();
+    }
+}
+
+// 遅延実行デバウンス制御
+// 通常入力時：0.3秒後（300ms）
+// 長文貼り付け時：1秒後（1000ms）
+function scheduleHeavyTask(delay=300, needCleanLines=false){
+    if(isComposing) return;
+    if(needCleanLines) pendingCleanLines=true;
+    clearTimeout(heavyTaskTimer);
+    heavyTaskTimer=setTimeout(()=>{
+        heavyTaskTimer=null;
+        runHeavyTask();
+    }, delay);
+}
+
+// 既存コード互換エイリアス
+function scheduleFormat(delay=300){
+    scheduleHeavyTask(delay);
+}
+
+e.addEventListener('compositionstart',()=>{isComposing=true;});
+e.addEventListener('compositionend',()=>{
+    isComposing=false;
+    // 変換確定後、0.3秒後にマス入れ・文字数カウント・保存
+    scheduleHeavyTask(300);
+});
+
+// 半角スペース等の直後・内部でEnter改行した際、
+// ブラウザが新しい行に .sp-nonzen を複製して後続の文字まで黄色くしてしまう問題を完全に遮断する
+e.addEventListener('keydown', (ev)=>{
+    if(ev.key === 'Enter'){
+        if(isComposing) return;
+        
+        let sel = window.getSelection();
+        if(sel && sel.rangeCount > 0){
+            let r = sel.getRangeAt(0);
+            let n = r.startContainer;
+            let sp = (n.nodeType === 1) ? n.closest('.sp-nonzen') : n.parentElement?.closest('.sp-nonzen');
+            if(sp){
+                let range = document.createRange();
+                range.setStartAfter(sp);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+        
+        // 改行時も即座の重い同期処理は走らせず、0.3秒後にマス入れ・文字数カウントを実行
+        scheduleHeavyTask(300);
+    }
+});
+
+// 文字入力イベント
+// 文字の表示自体はネイティブの最高速のまま維持し、同期的には重い文字数カウントやDOMマス入れ・保存は行わない
+e.oninput=()=>{
+    sc();
+    // 通常のタイピング・修正は0.3秒（300ms）後に実行
+    scheduleHeavyTask(300);
+};
+
+e.addEventListener('blur',()=>{
+    flushPendingHeavyTask();
+});
+
+window.addEventListener('beforeunload',()=>{
+    flushPendingHeavyTask();
+});
+
+e.addEventListener('paste', (ev)=>{
+    ev.preventDefault();
+    let text = (ev.clipboardData || window.clipboardData)?.getData('text/plain') || '';
+    if(!text) return;
+    
+    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    
+    // 現在のエディタが実質空（空白のみ、または初期の空行のみ）か確認
+    let currentPure = getEditorPureTextFromElement(e).join('').trim();
+    let isDocEmpty = (currentPure.length === 0);
+    
+    if(isDocEmpty){
+        // 先頭の不要な連続改行をトリムして1行目から綺麗に配置
+        text = text.replace(/^\n+/, '');
+        let lines = text.split('\n');
+        let frag = document.createDocumentFragment();
+        lines.forEach(lineText => {
+            let d = document.createElement('div');
+            if(lineText){
+                d.textContent = lineText;
+            } else {
+                d.innerHTML = '<br>';
+            }
+            frag.appendChild(d);
+        });
+        e.innerHTML = '';
+        e.appendChild(frag);
+        
+        let lastDiv = e.lastElementChild;
+        if(lastDiv){
+            let sel = window.getSelection();
+            if(sel){
+                let range = document.createRange();
+                range.selectNodeContents(lastDiv);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+    } else {
+        let sel = window.getSelection();
+        if(!sel || sel.rangeCount === 0){
+            let lines = text.split('\n');
+            let frag = document.createDocumentFragment();
+            lines.forEach(lineText => {
+                let d = document.createElement('div');
+                if(lineText) d.textContent = lineText;
+                else d.innerHTML = '<br>';
+                frag.appendChild(d);
+            });
+            e.appendChild(frag);
+        } else {
+            let range = sel.getRangeAt(0);
+            range.deleteContents();
+            let lines = text.split('\n');
+            if(lines.length === 1){
+                let tn = document.createTextNode(lines[0]);
+                range.insertNode(tn);
+                range.setStartAfter(tn);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            } else {
+                let node = range.startContainer;
+                while(node && node.parentElement !== e && node !== e){
+                    node = node.parentElement;
+                }
+                let curDiv = (node && node.parentElement === e) ? node : e.firstElementChild;
+                let curText = curDiv ? curDiv.textContent.replace(/[\r\n]/g, '') : '';
+                if(!curText){
+                    curDiv.textContent = lines[0] || '';
+                    if(!lines[0]) curDiv.innerHTML = '<br>';
+                    let nextSibling = curDiv.nextSibling;
+                    let lastInserted = curDiv;
+                    for(let i = 1; i < lines.length; i++){
+                        let nd = document.createElement('div');
+                        if(lines[i]) nd.textContent = lines[i];
+                        else nd.innerHTML = '<br>';
+                        e.insertBefore(nd, nextSibling);
+                        lastInserted = nd;
+                    }
+                    let selRange = document.createRange();
+                    selRange.selectNodeContents(lastInserted);
+                    selRange.collapse(false);
+                    sel.removeAllRanges();
+                    sel.addRange(selRange);
+                } else {
+                    let preRange = range.cloneRange();
+                    preRange.selectNodeContents(curDiv);
+                    preRange.setEnd(range.startContainer, range.startOffset);
+                    let preText = preRange.toString();
+                    
+                    let postRange = range.cloneRange();
+                    postRange.selectNodeContents(curDiv);
+                    postRange.setStart(range.endContainer, range.endOffset);
+                    let postText = postRange.toString();
+                    
+                    curDiv.textContent = preText + lines[0];
+                    let nextSibling = curDiv.nextSibling;
+                    let lastInserted = curDiv;
+                    for(let i = 1; i < lines.length - 1; i++){
+                        let nd = document.createElement('div');
+                        if(lines[i]) nd.textContent = lines[i];
+                        else nd.innerHTML = '<br>';
+                        e.insertBefore(nd, nextSibling);
+                        lastInserted = nd;
+                    }
+                    let endDiv = document.createElement('div');
+                    let endText = lines[lines.length - 1] + postText;
+                    if(endText) endDiv.textContent = endText;
+                    else endDiv.innerHTML = '<br>';
+                    e.insertBefore(endDiv, nextSibling);
+                    lastInserted = endDiv;
+                    
+                    let selRange = document.createRange();
+                    if(endDiv.firstChild && endDiv.firstChild.nodeType === 3){
+                        selRange.setStart(endDiv.firstChild, lines[lines.length - 1].length);
+                    } else {
+                        selRange.selectNodeContents(endDiv);
+                        selRange.collapse(false);
+                    }
+                    sel.removeAllRanges();
+                    sel.addRange(selRange);
+                }
+            }
+        }
+    }
+    
+    // 長文貼り付け時：テキストは即座に画面へ表示され、
+    // マス入れ・空行調整・文字数カウント・保存などの重い処理は急がず1秒後（1000ms）に実行
+    scheduleHeavyTask(1000, true);
+    sc();
+});
+
+/* ツールバーの並び替え機能 */
+const toolDefs={
+    'tool_sb':{name:'📁 フォルダ',desc:'サイドバーの表示・非表示'},
+    'tool_root':{name:'戻 (ルート)',desc:'最上層階層に移動'},
+    'tool_undo':{name:'撤 (アンドゥ)',desc:'1つ前の操作を取り消す'},
+    'tool_redo':{name:'進 (リドゥ)',desc:'取り消した操作をやり直す'},
+    'tool_copy':{name:'複 (コピー)',desc:'きれいな小説原稿をクリップボードにコピー'},
+    'tool_save_txt':{name:'💾 .txtファイルとして保存',desc:'現在の話を.txtファイルとしてダウンロード保存'},
+    'tool_fx':{name:'修 (一括修正)',desc:'英数記号1マス化・全角空白化・誤字修正'},
+    'tool_spcol':{name:'空白色',desc:'空白の強調色ON/OFF'},
+    'tool_hm':{name:'ホモグラフ',desc:'紛らわしい類似文字の検出'},
+    'tool_hd':{name:'隠し文字',desc:'ゼロ幅スペースなどの検出・削除'},
+    'tool_rep':{name:'置換',desc:'文字列の検索・置換バー'},
+    'tool_select':{name:'行文字数設定',desc:'1行あたりの文字数選択 (20〜40字)'},
+    'tool_count':{name:'文字数カウンター',desc:'総文字数・空白抜き文字数'}
+};
+const defaultToolOrder=['tool_sb','tool_root','tool_undo','tool_redo','tool_copy','tool_save_txt','tool_fx','tool_spcol','tool_hm','tool_hd','tool_rep','tool_select','tool_count'];
+
+function getToolOrder(){
+    let saved=localStorage.getItem('n_tool_order');
+    if(saved){
+        try{
+            let arr=JSON.parse(saved);
+            if(Array.isArray(arr)&&arr.length>0){
+                let set=new Set(arr);
+                let full=[...arr];
+                defaultToolOrder.forEach(id=>{
+                    if(!set.has(id))full.push(id);
+                });
+                return full;
+            }
+        }catch(err){}
+    }
+    return [...defaultToolOrder];
+}
+
+function applyToolOrder(orderList){
+    const header=document.querySelector('.h');
+    if(!header)return;
+    const orderBtn=document.getElementById('orderBtn');
+    orderList.forEach(toolId=>{
+        let el=document.getElementById(toolId);
+        if(el){
+            header.appendChild(el);
+        }
+    });
+    if(orderBtn)header.appendChild(orderBtn);
+    localStorage.setItem('n_tool_order',JSON.stringify(orderList));
+}
+
+function initToolDragAndDrop(){
+    const header=document.querySelector('.h');
+    if(!header)return;
+    let dragged=null;
+    
+    header.querySelectorAll('.tool-item').forEach(item=>{
+        item.setAttribute('draggable','true');
+        
+        item.ondragstart=(e)=>{
+            dragged=item;
+            e.dataTransfer.effectAllowed='move';
+            item.classList.add('dragging');
+        };
+        
+        item.ondragend=()=>{
+            if(dragged)dragged.classList.remove('dragging');
+            header.querySelectorAll('.tool-item').forEach(i=>i.classList.remove('drag-over'));
+            dragged=null;
+            saveCurrentToolOrderFromDOM();
+        };
+        
+        item.ondragover=(e)=>{
+            e.preventDefault();
+            if(!dragged||dragged===item)return;
+            let rect=item.getBoundingClientRect();
+            let midX=rect.left+rect.width/2;
+            if(e.clientX<midX){
+                header.insertBefore(dragged,item);
+            }else{
+                header.insertBefore(dragged,item.nextSibling);
+            }
+        };
+    });
+}
+
+function saveCurrentToolOrderFromDOM(){
+    const header=document.querySelector('.h');
+    if(!header)return;
+    let newOrder=[];
+    header.querySelectorAll('.tool-item').forEach(el=>{
+        if(el.id&&el.id!=='orderBtn'){
+            newOrder.push(el.id);
+        }
+    });
+    localStorage.setItem('n_tool_order',JSON.stringify(newOrder));
+}
+
+function openOrderModal(){
+    let modal=document.getElementById('orderModal');
+    if(!modal)return;
+    renderOrderList();
+    modal.style.display='flex';
+}
+
+function closeOrderModal(){
+    let modal=document.getElementById('orderModal');
+    if(modal)modal.style.display='none';
+}
+
+function renderOrderList(){
+    let container=document.getElementById('orderListContainer');
+    if(!container)return;
+    container.innerHTML='';
+    let currentOrder=getToolOrder();
+    
+    currentOrder.forEach((toolId,index)=>{
+        let def=toolDefs[toolId]||{name:toolId,desc:''};
+        let row=document.createElement('div');
+        row.style.display='flex';
+        row.style.alignItems='center';
+        row.style.justifyContent='space-between';
+        row.style.padding='7px 10px';
+        row.style.background='#fff';
+        row.style.border='1px solid #e2e8f0';
+        row.style.borderRadius='6px';
+        row.style.gap='8px';
+        
+        let labelSpan=document.createElement('div');
+        labelSpan.style.display='flex';
+        labelSpan.style.flexDirection='column';
+        labelSpan.style.flex='1';
+        labelSpan.innerHTML=`<span style="font-size:12px;font-weight:bold;color:#1e293b">${def.name}</span><span style="font-size:10px;color:#64748b">${def.desc}</span>`;
+        row.appendChild(labelSpan);
+        
+        let btnGroup=document.createElement('div');
+        btnGroup.style.display='flex';
+        btnGroup.style.gap='4px';
+        
+        let upBtn=document.createElement('button');
+        upBtn.innerHTML='▲';
+        upBtn.title='左（前）へ移動';
+        upBtn.disabled=(index===0);
+        upBtn.style.padding='4px 8px';
+        upBtn.style.fontSize='11px';
+        upBtn.onclick=()=>{
+            if(index>0){
+                let tmp=currentOrder[index];
+                currentOrder[index]=currentOrder[index-1];
+                currentOrder[index-1]=tmp;
+                applyToolOrder(currentOrder);
+                renderOrderList();
+            }
+        };
+        btnGroup.appendChild(upBtn);
+        
+        let downBtn=document.createElement('button');
+        downBtn.innerHTML='▼';
+        downBtn.title='右（後ろ）へ移動';
+        downBtn.disabled=(index===currentOrder.length-1);
+        downBtn.style.padding='4px 8px';
+        downBtn.style.fontSize='11px';
+        downBtn.onclick=()=>{
+            if(index<currentOrder.length-1){
+                let tmp=currentOrder[index];
+                currentOrder[index]=currentOrder[index+1];
+                currentOrder[index+1]=tmp;
+                applyToolOrder(currentOrder);
+                renderOrderList();
+            }
+        };
+        btnGroup.appendChild(downBtn);
+        
+        row.appendChild(btnGroup);
+        container.appendChild(row);
+    });
+}
+
+function resetToolOrder(){
+    applyToolOrder([...defaultToolOrder]);
+    renderOrderList();
+}
+window.addEventListener('scroll',()=>{if(window.scrollY!==0||window.scrollX!==0)window.scrollTo(0,0)});
+e.addEventListener('focus',()=>{setTimeout(()=>{window.scrollTo(0,0);},50)});
+
+/* マス目やエディタ領域をクリック・タップした時のカーソル配置処理 */
+function applyCaretToDiv(targetDiv, targetCol, maxCols){
+    if(!targetDiv) return;
+    targetCol = Math.min(targetCol, maxCols);
+    let lineText = targetDiv.textContent.replace(/\r?\n/g,'');
+    let sel = window.getSelection();
+    if(!sel) return;
+    let range = document.createRange();
+    
+    if(lineText.length === 0){
+        // 空行の場合
+        if(targetCol > 0){
+            // 指定のマス目（targetCol）まで全角スペースで埋めてカーソルを配置
+            let pad = '　'.repeat(targetCol);
+            let tn = document.createTextNode(pad);
+            targetDiv.innerHTML = '';
+            targetDiv.appendChild(tn);
+            targetDiv.appendChild(document.createElement('br'));
+            range.setStart(tn, targetCol);
+            range.collapse(true);
+        } else {
+            let br = targetDiv.querySelector('br');
+            if(!br){
+                targetDiv.innerHTML = '<br>';
+            }
+            range.setStart(targetDiv, 0);
+            range.collapse(true);
+        }
+    } else {
+        // すでに文字がある行の場合
+        if(targetCol > lineText.length){
+            // 行末より右の空きマスをクリック：全角スペースで埋めてそのマス目にカーソル配置
+            let padCount = targetCol - lineText.length;
+            let pad = '　'.repeat(padCount);
+            let tn = document.createTextNode(pad);
+            let br = targetDiv.querySelector('br');
+            if(br){
+                targetDiv.insertBefore(tn, br);
+            } else {
+                targetDiv.appendChild(tn);
+            }
+            range.setStart(tn, padCount);
+            range.collapse(true);
+        } else {
+            // 文字の存在するマス目をクリック：その文字の位置へ
+            setCaretCharOffset(targetDiv, targetCol);
+            return;
+        }
+    }
+    sel.removeAllRanges();
+    sel.addRange(range);
+}
+
+let lastHandleTime = 0;
+let lastTouchPos = null;
+let touchMoved = false;
+let touchStartScrollTop = 0;
+let touchHandled = false;
+
+window.addEventListener('touchstart', (ev)=>{
+    if(ev.touches && ev.touches.length === 1){
+        let mCont = document.querySelector('.m');
+        touchStartScrollTop = mCont ? mCont.scrollTop : 0;
+        lastTouchPos = {
+            x: ev.touches[0].clientX,
+            y: ev.touches[0].clientY,
+            time: Date.now()
+        };
+        touchMoved = false;
+        touchHandled = false;
+    }
+}, {passive:true});
+
+window.addEventListener('touchmove', (ev)=>{
+    if(lastTouchPos && ev.touches && ev.touches.length === 1){
+        let mCont = document.querySelector('.m');
+        let curScroll = mCont ? mCont.scrollTop : 0;
+        let scrollDelta = Math.abs(curScroll - touchStartScrollTop);
+        let dx = Math.abs(ev.touches[0].clientX - lastTouchPos.x);
+        let dy = Math.abs(ev.touches[0].clientY - lastTouchPos.y);
+        // 実際にコンテナがスクロールしたか、または大きなドラッグ（25px超）があった場合のみスクロールと判定
+        if(scrollDelta > 8 || dx > 25 || dy > 25){
+            touchMoved = true;
+        }
+    }
+}, {passive:true});
+
+window.addEventListener('touchend', (ev)=>{
+    if(!touchMoved && lastTouchPos && (Date.now() - lastTouchPos.time < 500)){
+        let changed = ev.changedTouches && ev.changedTouches[0];
+        if(changed){
+            let targetEl = document.elementFromPoint(changed.clientX, changed.clientY);
+            if(targetEl && (targetEl.closest('#e') || targetEl.closest('#w') || targetEl.closest('.m'))){
+                if(!targetEl.closest('#s') && !targetEl.closest('.h') && !targetEl.closest('.modal-overlay') && !targetEl.closest('#repBar') && !targetEl.closest('button') && !targetEl.closest('input') && !targetEl.closest('select')){
+                    touchHandled = true;
+                    handleCellClick({
+                        clientX: changed.clientX,
+                        clientY: changed.clientY,
+                        target: targetEl
+                    });
+                }
+            }
+        }
+    }
+}, {passive:true});
+
+function handleCellClick(ev){
+    if(ev.target && (ev.target.closest('#s')||ev.target.closest('.h')||ev.target.closest('#itemModal')||ev.target.closest('#repBar')||ev.target.closest('.modal-overlay')||ev.target.closest('button')||ev.target.closest('input')||ev.target.closest('select'))) return;
+    
+    // スクロール中の誤作動防止
+    if(touchMoved && (Date.now() - (lastTouchPos?.time || 0) < 350)) return;
+    
+    let now = Date.now();
+    if(now - lastHandleTime < 60) return;
+    lastHandleTime = now;
+    
+    // 座標の取得（タッチまたはクリック）
+    let clientX = ev.clientX;
+    let clientY = ev.clientY;
+    if((clientX === undefined || clientX === 0) && lastTouchPos){
+        clientX = lastTouchPos.x;
+        clientY = lastTouchPos.y;
+    }
+    if(clientX === undefined || clientY === undefined) return;
+    
+    let rect = e.getBoundingClientRect();
+    let cs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 32;
+    let maxCols = parseInt(l.value) || 30;
+    let padLeft = cs * 0.11;
+    let clickX = clientX - rect.left - padLeft;
+    let clickY = clientY - rect.top;
+    
+    ensureGridLines();
+    let divs = e.querySelectorAll('#e>div');
+    if(divs.length === 0){
+        e.innerHTML = '<div><br></div>';
+        divs = e.querySelectorAll('#e>div');
+    }
+    
+    // 1. 本文より上をクリックした場合：1行目の先頭に合わせる
+    if(clickY < 0){
+        let firstDiv = divs[0];
+        if(firstDiv){
+            if(document.activeElement !== e) e.focus();
+            applyCaretToDiv(firstDiv, 0, maxCols);
+        }
+        return;
+    }
+    
+    let targetRow = Math.max(0, Math.floor(clickY / cs));
+    let targetCol = Math.max(0, Math.floor(clickX / cs));
+    targetCol = Math.min(targetCol, maxCols);
+    
+    // 2. 目的の行が存在しない場合、そこまでの空行をDOMに同期生成する
+    if(targetRow >= divs.length){
+        let frag = document.createDocumentFragment();
+        for(let i = divs.length; i <= targetRow; i++){
+            let nd = document.createElement('div');
+            nd.innerHTML = '<br>';
+            frag.appendChild(nd);
+        }
+        e.appendChild(frag);
+        divs = e.querySelectorAll('#e>div');
+    }
+    
+    let targetDiv = divs[targetRow];
+    if(targetDiv){
+        if(document.activeElement !== e){
+            e.focus();
+        }
+        applyCaretToDiv(targetDiv, targetCol, maxCols);
+        v();
+        s();
+    }
+}
+e.addEventListener('mousedown',()=>{ if(document.activeElement !== e) e.focus(); });
+e.addEventListener('click',(ev)=>{
+    if(touchHandled && (Date.now() - (lastTouchPos?.time || 0) < 500)) return;
+    let closestDiv = ev.target.closest('#e>div');
+    if(closestDiv){
+        let lineText = closestDiv.textContent.replace(/[\r\n]/g, '');
+        let cs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 32;
+        let rect = e.getBoundingClientRect();
+        let padLeft = cs * 0.11;
+        let clickCol = Math.floor((ev.clientX - rect.left - padLeft) / cs);
+        if(clickCol < lineText.length && ev.target !== e){
+            v();
+            return;
+        }
+    }
+    handleCellClick(ev);
+});
+w.addEventListener('click',(ev)=>{
+    if(touchHandled && (Date.now() - (lastTouchPos?.time || 0) < 500)) return;
+    if(ev.target===w||ev.target.classList.contains('l')||ev.target===n){
+        handleCellClick(ev);
+    }
+});
+const mContainer=document.querySelector('.m');
+if(mContainer){
+    mContainer.addEventListener('click',(ev)=>{
+        if(touchHandled && (Date.now() - (lastTouchPos?.time || 0) < 500)) return;
+        if(ev.target===mContainer){
+            handleCellClick(ev);
+        }
+    });
+    let scrollRaf = null;
+    mContainer.addEventListener('scroll',()=>{
+        if(scrollRaf) return;
+        scrollRaf = requestAnimationFrame(()=>{
+            scrollRaf = null;
+            v();
+        });
+    },{passive:true});
+}
+window.addEventListener('resize',()=>{z();window.scrollTo(0,0)});
+if(window.ResizeObserver){
+    new ResizeObserver(()=>{z()}).observe(document.querySelector('.m'));
+}
+</script>
+
+<!-- 話・フォルダの管理モーダル -->
+<div id="itemModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeItemModal()">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div id="modalHeaderTitle" style="font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px;color:#1e293b">
+        <span>📄</span><span>設定と詳細</span>
+      </div>
+      <button onclick="closeItemModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;padding:0 4px;line-height:1">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- 基本情報 -->
+      <div class="modal-section">
+        <div class="modal-sec-title">基本情報</div>
+        <div id="modalInfoStats" style="font-size:12px;color:#334155;line-height:1.6"></div>
+      </div>
+      <!-- 名前の変更 -->
+      <div class="modal-section">
+        <div class="modal-sec-title">名前の変更</div>
+        <div style="display:flex;gap:6px">
+          <input id="modalRenameInput" style="flex:1;padding:6px 8px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px;outline:none;background:#fff" onkeydown="if(event.key==='Enter')saveModalRename()">
+          <button onclick="saveModalRename()" style="background:#2563eb;color:#fff;border:none;border-radius:4px;padding:6px 12px;font-size:12px;cursor:pointer;font-weight:bold">保存</button>
+        </div>
+      </div>
+      <!-- 操作（保存・複製・並び順） -->
+      <div class="modal-section">
+        <div class="modal-sec-title">操作・保存</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button id="modalSaveTxtBtn" onclick="saveModalItemAsTxt()" style="width:100%;background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:8px;border-radius:5px;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:bold;cursor:pointer">
+            💾 .txtファイルとして保存
+          </button>
+          <button id="modalDuplicateBtn" onclick="duplicateModalItem()" style="width:100%;background:#f8fafc;border:1px solid #cbd5e1;color:#1e293b;padding:7px 8px;border-radius:5px;font-size:12px;display:flex;align-items:center;justify-content:center;gap:4px;font-weight:bold;cursor:pointer">
+            📋 この話を複製
+          </button>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button onclick="moveModalItemUp()" style="flex:1;background:#f8fafc;border:1px solid #cbd5e1;color:#334155;padding:6px;border-radius:5px;font-size:11px;cursor:pointer;font-weight:bold" title="同じフォルダ内で1つ上へ">
+            ▲ 上へ移動
+          </button>
+          <button onclick="moveModalItemDown()" style="flex:1;background:#f8fafc;border:1px solid #cbd5e1;color:#334155;padding:6px;border-radius:5px;font-size:11px;cursor:pointer;font-weight:bold" title="同じフォルダ内で1つ下へ">
+            ▼ 下へ移動
+          </button>
+        </div>
+      </div>
+      <!-- フォルダ移動 -->
+      <div class="modal-section">
+        <div class="modal-sec-title">所属フォルダの変更</div>
+        <div style="display:flex;gap:6px">
+          <select id="modalMoveTarget" style="flex:1;padding:6px 8px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px;outline:none;background:#fff"></select>
+          <button onclick="moveModalItemToFolder()" style="background:#475569;color:#fff;border:none;border-radius:4px;padding:6px 10px;font-size:12px;cursor:pointer;font-weight:bold">移動</button>
+        </div>
+      </div>
+      <!-- フォルダ専用: 内部に新規作成 -->
+      <div id="modalFolderAddSection" class="modal-section" style="display:none;background:#f0f9ff;border-color:#bae6fd">
+        <div class="modal-sec-title" style="color:#0369a1">このフォルダの中に新規追加</div>
+        <div style="display:flex;gap:6px">
+          <button onclick="modalAddFileInCurrentFolder()" style="flex:1;background:#2563eb;color:#fff;border:none;padding:7px;border-radius:5px;font-size:12px;font-weight:bold;cursor:pointer">
+            + 話を追加
+          </button>
+          <button onclick="modalAddFolderInCurrentFolder()" style="flex:1;background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc;padding:7px;border-radius:5px;font-size:12px;font-weight:bold;cursor:pointer">
+            + サブフォルダを追加
+          </button>
+        </div>
+      </div>
+      <!-- フォルダ専用: フォルダ内の一括置換 -->
+      <div id="modalFolderReplaceSection" class="modal-section" style="display:none;background:#fefce8;border-color:#fef08a">
+        <div class="modal-sec-title" style="color:#854d0e;display:flex;align-items:center;justify-content:space-between">
+          <span>🔄 フォルダ内の一括文字列置換</span>
+        </div>
+        <div style="font-size:11px;color:#713f12;margin-bottom:8px;line-height:1.4">
+          このフォルダ（およびサブフォルダ）に含まれるすべての話の文字列を一括で検索・置換します。
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <input id="modalFolderRepFrom" placeholder="置換前の文字列（検索）" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #fde047;border-radius:4px;font-size:12px;outline:none;background:#fff" onkeydown="if(event.key==='Enter')document.getElementById('modalFolderRepTo').focus()">
+          <input id="modalFolderRepTo" placeholder="置換後の文字列" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #fde047;border-radius:4px;font-size:12px;outline:none;background:#fff" onkeydown="if(event.key==='Enter')execFolderBatchReplace()">
+          <div style="display:flex;gap:6px;margin-top:2px">
+            <button onclick="execFolderBatchReplace()" style="flex:1;background:#ca8a04;color:#fff;border:none;border-radius:4px;padding:7px 10px;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px">
+              一括置換を実行
+            </button>
+          </div>
+          <div id="modalFolderRepMsg" style="font-size:11px;font-weight:bold;min-height:16px;color:#a16207"></div>
+        </div>
+      </div>
+      <!-- 削除 -->
+      <div class="modal-section" style="border-color:#fecaca;background:#fff5f5">
+        <div class="modal-sec-title" style="color:#b91c1c">削除</div>
+        <button id="modalDeleteBtn" onclick="deleteModalItem()" style="background:#ef4444;color:#fff;border:none;border-radius:5px;padding:8px 10px;font-size:12px;cursor:pointer;font-weight:bold;display:flex;align-items:center;justify-content:center;gap:4px">
+          🗑️ 削除する
+        </button>
+      </div>
+    </div>
+    <div style="padding:10px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end">
+      <button onclick="closeItemModal()" style="background:#e2e8f0;border:1px solid #cbd5e1;color:#334155;padding:6px 14px;border-radius:5px;font-size:12px;cursor:pointer">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新規作成モーダル（フォルダ／話） -->
+<div id="createModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeCreateModal()">
+  <div class="modal-card" style="max-width:380px">
+    <div class="modal-header">
+      <div id="createModalTitle" style="font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px;color:#1e293b">
+        <span>📄</span><span>新規作成</span>
+      </div>
+      <button onclick="closeCreateModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;padding:0 4px;line-height:1">✕</button>
+    </div>
+    <div class="modal-body" style="gap:12px">
+      <div id="createModalTargetDesc" style="font-size:12px;color:#64748b;background:#f8fafc;padding:6px 8px;border-radius:4px;border:1px solid #e2e8f0"></div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <label id="createModalLabel" for="createModalInput" style="font-size:12px;font-weight:bold;color:#334155">タイトル</label>
+        <input id="createModalInput" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cbd5e1;border-radius:5px;font-size:13px;outline:none;background:#fff" onkeydown="if(event.key==='Enter')submitCreateModal()">
+      </div>
+      <div style="display:flex;gap:6px;margin-top:4px">
+        <button onclick="closeCreateModal()" style="flex:1;background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;padding:8px;border-radius:5px;font-size:12px;cursor:pointer">キャンセル</button>
+        <button onclick="submitCreateModal()" style="flex:1;background:#2563eb;color:#fff;border:none;padding:8px;border-radius:5px;font-size:12px;font-weight:bold;cursor:pointer">作成する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ツールボタン並び替えモーダル -->
+<div id="orderModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeOrderModal()">
+  <div class="modal-card" style="max-width:360px">
+    <div class="modal-header">
+      <div style="font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px;color:#1e293b">
+        <span>⇄</span><span>ツールボタンの並び順変更</span>
+      </div>
+      <button onclick="closeOrderModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;padding:0 4px;line-height:1">✕</button>
+    </div>
+    <div class="modal-body" style="gap:10px">
+      <div style="font-size:12px;color:#64748b;line-height:1.4">「▲」「▼」ボタンで上部ツールの配置順を自由に入れ替えられます。（画面上のボタンを直接ドラッグして入れ替えることも可能です）</div>
+      <div id="orderListContainer" style="display:flex;flex-direction:column;gap:5px;max-height:55vh;overflow-y:auto;padding-right:2px"></div>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button onclick="resetToolOrder()" style="flex:1;background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;padding:7px;border-radius:5px;font-size:12px;cursor:pointer">初期順に戻す</button>
+        <button onclick="closeOrderModal()" style="flex:1;background:#2563eb;color:#fff;border:none;padding:7px;border-radius:5px;font-size:12px;font-weight:bold;cursor:pointer">完了</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>
+
