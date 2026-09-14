@@ -2436,7 +2436,8 @@ window.addEventListener('touchend', (ev)=>{
         let changed = ev.changedTouches && ev.changedTouches[0];
         if(changed){
             let targetEl = document.elementFromPoint(changed.clientX, changed.clientY);
-            if(targetEl && (targetEl.closest('#e') || targetEl.closest('#w') || targetEl.closest('.m'))){
+            // 原稿用紙（#w または #e）の内側をタップした場合のみ反応（グレー背景 .m は完全無反応）
+            if(targetEl && (targetEl.closest('#e') || targetEl.closest('#w'))){
                 if(!targetEl.closest('#s') && !targetEl.closest('.h') && !targetEl.closest('.modal-overlay') && !targetEl.closest('#repBar') && !targetEl.closest('button') && !targetEl.closest('input') && !targetEl.closest('select')){
                     touchHandled = true;
                     handleCellClick({
@@ -2451,7 +2452,10 @@ window.addEventListener('touchend', (ev)=>{
 }, {passive:true});
 
 function handleCellClick(ev){
-    if(ev.target && (ev.target.closest('#s')||ev.target.closest('.h')||ev.target.closest('#itemModal')||ev.target.closest('#repBar')||ev.target.closest('.modal-overlay')||ev.target.closest('button')||ev.target.closest('input')||ev.target.closest('select'))) return;
+    if(!ev || !ev.target) return;
+    // グレーの背景（.m）や原稿用紙外は完全無反応にする
+    if(!ev.target.closest('#e') && !ev.target.closest('#w')) return;
+    if(ev.target.closest('#s')||ev.target.closest('.h')||ev.target.closest('#itemModal')||ev.target.closest('#repBar')||ev.target.closest('.modal-overlay')||ev.target.closest('button')||ev.target.closest('input')||ev.target.closest('select')) return;
     
     // スクロール中の誤作動防止
     if(touchMoved && (Date.now() - (lastTouchPos?.time || 0) < 350)) return;
@@ -2546,15 +2550,6 @@ w.addEventListener('click',(ev)=>{
         handleCellClick(ev);
     }
 });
-const mContainer=document.querySelector('.m');
-if(mContainer){
-    mContainer.addEventListener('click',(ev)=>{
-        if(touchHandled && (Date.now() - (lastTouchPos?.time || 0) < 500)) return;
-        if(ev.target===mContainer){
-            handleCellClick(ev);
-        }
-    });
-}
 window.addEventListener('resize',()=>{z();window.scrollTo(0,0)});
 if(window.ResizeObserver){
     new ResizeObserver(()=>{z()}).observe(document.querySelector('.m'));
