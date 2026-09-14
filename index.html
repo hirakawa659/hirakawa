@@ -64,6 +64,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_save_txt" class="tool-item" onclick="saveAsTxt()" style="background:#f0fdf4;color:#166534;font-weight:bold;white-space:nowrap" title="現在の話を.txtファイルとして保存">💾 .txt保存</button>
 <button id="tool_fx" class="tool-item" onclick="fx()" style="background:#e0f2fe;color:#0369a1" title="一括修正（英数記号1マス化・誤字修正）">修</button>
 <button id="tool_spcol" class="tool-item" onclick="tgSpColor()" style="background:#fef08a;color:#854d0e;font-weight:bold" title="全角以外の空白の色をON/OFF">空白色:ON</button>
+<button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:#dbeafe;color:#1e40af;font-weight:bold;line-height:1.15;padding:3px 8px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
 <button id="tool_hm" class="tool-item" onclick="tgHomoglyphs()" style="background:#fed7aa;color:#9a3412;font-weight:bold" title="紛らわしい類似文字・異言語文字を検出">ホモグラフ</button>
 <button id="tool_hd" class="tool-item" onclick="tgHiddenChars()" style="background:#f3e8ff;color:#6b21a8;font-weight:bold" title="ゼロ幅スペース等の隠し文字/Unicodeを検出">隠し文字</button>
 <button id="tool_rep" class="tool-item" onclick="tgRep()" style="background:#fef3c7;color:#92400e;font-weight:bold" title="検索・置換バー">置換</button>
@@ -224,6 +225,7 @@ window.onload=()=>{
     applyToolOrder(getToolOrder());
     initToolDragAndDrop();
     initTreeDragAndDropTouch();
+    updateSelCountBtn();
     norm();cleanSpans();autoFormatEditor();highlightSpaces();z();v();
 };
 function cleanExcessiveLeadingLines(root = e){
@@ -632,6 +634,166 @@ function tgSpColor(){
         highlightSpaces();
     }
 }
+
+/* 選択文字数表示機能（マス数・空白込文字数を5秒間ポップアップ表示） */
+let selCountEnabled = (localStorage.getItem('n_sel_count_enabled') !== 'off');
+let selToastTimer = null;
+let selFadeTimer = null;
+let selChangeDebounce = null;
+
+function updateSelCountBtn(){
+    const btn = document.getElementById('tool_selcount');
+    if(!btn) return;
+    if(selCountEnabled){
+        btn.innerHTML = '選択文字数<br>ON';
+        btn.style.background = '#dbeafe';
+        btn.style.color = '#1e40af';
+        btn.style.fontWeight = 'bold';
+        btn.title = '選択文字数の表示（5秒間ポップアップ）: 現在ON (クリックでOFF)';
+    }else{
+        btn.innerHTML = '選択文字数<br>OFF';
+        btn.style.background = '#f0f0f2';
+        btn.style.color = '#64748b';
+        btn.style.fontWeight = 'normal';
+        btn.title = '選択文字数の表示: 現在OFF (クリックでON)';
+    }
+}
+
+function tgSelCount(){
+    selCountEnabled = !selCountEnabled;
+    localStorage.setItem('n_sel_count_enabled', selCountEnabled ? 'on' : 'off');
+    updateSelCountBtn();
+    if(!selCountEnabled){
+        hideSelToast(true);
+    }
+}
+
+function hideSelToast(immediate = false){
+    const badge = document.getElementById('selectionCountBadge');
+    if(!badge) return;
+    if(selToastTimer){
+        clearTimeout(selToastTimer);
+        selToastTimer = null;
+    }
+    if(immediate){
+        if(selFadeTimer){ clearTimeout(selFadeTimer); selFadeTimer = null; }
+        badge.style.opacity = '0';
+        badge.style.transform = 'translate(-50%, -6px)';
+        badge.style.display = 'none';
+        return;
+    }
+    badge.style.opacity = '0';
+    badge.style.transform = 'translate(-50%, -6px)';
+    if(selFadeTimer) clearTimeout(selFadeTimer);
+    selFadeTimer = setTimeout(()=>{
+        badge.style.display = 'none';
+        selFadeTimer = null;
+    }, 220);
+}
+
+function checkAndDisplaySelectionCount(){
+    if(!selCountEnabled){
+        hideSelToast(true);
+        return;
+    }
+    const sel = window.getSelection();
+    if(!sel || sel.isCollapsed || sel.rangeCount === 0){
+        hideSelToast();
+        return;
+    }
+    const range = sel.getRangeAt(0);
+    const editor = document.getElementById('e');
+    if(!editor) return;
+
+    let isInside = false;
+    try {
+        if(editor.contains(range.commonAncestorContainer)){
+            isInside = true;
+        } else if(range.intersectsNode && range.intersectsNode(editor)){
+            isInside = true;
+        }
+    } catch(err){}
+    
+    if(!isInside){
+        hideSelToast();
+        return;
+    }
+
+    let fragment;
+    try {
+        fragment = range.cloneContents();
+    } catch(err){
+        return;
+    }
+
+    let temp = document.createElement('div');
+    temp.appendChild(fragment);
+
+    temp.querySelectorAll('.hidden-char-badge').forEach(b => b.remove());
+    temp.querySelectorAll('.sp-nonzen').forEach(s => s.replaceWith(s.textContent || ' '));
+
+    let lines = getEditorPureTextFromElement(temp);
+    if(!lines || lines.length === 0 || (lines.length === 1 && lines[0] === '')){
+        let rawStr = sel.toString();
+        if(rawStr){
+            lines = rawStr.split(/[\r\n]+/);
+        }
+    }
+
+    let totalChars = 0;
+    let withoutSpaces = 0;
+    if(lines && lines.length > 0){
+        for(let i = 0; i < lines.length; i++){
+            let line = lines[i];
+            totalChars += line.length;
+            let noSpace = line.replace(/[\s\u3000]/g, '');
+            withoutSpaces += noSpace.length;
+        }
+    }
+
+    if(totalChars === 0){
+        hideSelToast();
+        return;
+    }
+
+    const badge = document.getElementById('selectionCountBadge');
+    if(!badge) return;
+
+    const repBar = document.getElementById('repBar');
+    let topY = 54;
+    if(repBar && repBar.style.display !== 'none'){
+        topY = repBar.offsetTop + repBar.offsetHeight + 4;
+    }
+    badge.style.top = topY + 'px';
+
+    badge.innerHTML = `<span style="opacity:0.85;font-size:10px;margin-right:2px">選択</span><strong style="color:#60a5fa;font-size:12px;font-weight:bold">${withoutSpaces.toLocaleString()}文字</strong><span style="color:#cbd5e1;font-size:10.5px">(空白込 ${totalChars.toLocaleString()}字)</span>`;
+
+    if(selFadeTimer){
+        clearTimeout(selFadeTimer);
+        selFadeTimer = null;
+    }
+
+    badge.style.display = 'inline-flex';
+    requestAnimationFrame(()=>{
+        badge.style.opacity = '1';
+        badge.style.transform = 'translate(-50%, 0)';
+    });
+
+    if(selToastTimer) clearTimeout(selToastTimer);
+    selToastTimer = setTimeout(()=>{
+        hideSelToast();
+    }, 5000);
+}
+
+function handleSelectionEvent(){
+    if(selChangeDebounce) clearTimeout(selChangeDebounce);
+    selChangeDebounce = setTimeout(checkAndDisplaySelectionCount, 120);
+}
+
+document.addEventListener('selectionchange', handleSelectionEvent);
+window.addEventListener('mouseup', handleSelectionEvent);
+window.addEventListener('touchend', handleSelectionEvent);
+
 function norm(){
     if(!e.innerHTML.trim()){e.innerHTML='<div><br></div>';return}
     let hasRawText=false;
@@ -2219,12 +2381,13 @@ const toolDefs={
     'tool_save_txt':{name:'💾 .txtファイルとして保存',desc:'現在の話を.txtファイルとしてダウンロード保存'},
     'tool_fx':{name:'修 (一括修正)',desc:'英数記号1マス化・全角空白化・誤字修正'},
     'tool_spcol':{name:'空白色',desc:'空白の強調色ON/OFF'},
+    'tool_selcount':{name:'選択文字数 (ON/OFF)',desc:'文字選択時にマス数と文字数を5秒間表示'},
     'tool_hm':{name:'ホモグラフ',desc:'紛らわしい類似文字の検出'},
     'tool_hd':{name:'隠し文字',desc:'ゼロ幅スペースなどの検出・削除'},
     'tool_rep':{name:'置換',desc:'文字列の検索・置換バー'},
     'tool_select':{name:'横の文字数設定',desc:'1行あたりの文字数選択 (20〜40字)'}
 };
-const defaultToolOrder=['tool_sb','tool_root','tool_undo','tool_redo','tool_copy','tool_save_txt','tool_fx','tool_spcol','tool_hm','tool_hd','tool_rep','tool_select'];
+const defaultToolOrder=['tool_sb','tool_root','tool_undo','tool_redo','tool_copy','tool_save_txt','tool_fx','tool_spcol','tool_selcount','tool_hm','tool_hd','tool_rep','tool_select'];
 
 function getToolOrder(){
     let saved=localStorage.getItem('n_tool_order');
@@ -2389,6 +2552,7 @@ function renderOrderList(){
 function resetToolOrder(){
     applyToolOrder([...defaultToolOrder]);
     renderOrderList();
+    updateSelCountBtn();
 }
 window.addEventListener('scroll',()=>{if(window.scrollY!==0||window.scrollX!==0)window.scrollTo(0,0)});
 e.addEventListener('focus',()=>{setTimeout(()=>{window.scrollTo(0,0);},50)});
@@ -2744,5 +2908,6 @@ if(window.ResizeObserver){
     </div>
   </div>
 </div>
+<div id="selectionCountBadge" style="position:fixed;top:54px;left:50%;transform:translate(-50%,-6px);background:rgba(15,23,42,0.92);color:#f8fafc;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:500;box-shadow:0 4px 14px rgba(0,0,0,0.2);z-index:10000;display:none;pointer-events:none;align-items:center;gap:5px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.12);opacity:0;transition:opacity 0.2s ease,transform 0.2s ease;white-space:nowrap"></div>
 </body></html>
 
