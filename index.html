@@ -1282,22 +1282,20 @@ function a(isF, optTargetFolderId=null){
     if(isF){
         title.innerHTML='<span>📁</span><span>新規フォルダ作成</span>';
         label.textContent='フォルダ名';
-        input.placeholder='例: 第1部、設定資料など';
+        input.placeholder='';
         input.value='';
         desc.textContent='作成先: '+targetName;
     }else{
         title.innerHTML='<span>📄</span><span>新規話（エピソード）作成</span>';
         label.textContent='話タイトル';
-        let nextEpNum=countTotalFiles(d.r)+1;
-        input.placeholder=`例: 第${nextEpNum}話`;
-        input.value=`第${nextEpNum}話`;
+        input.placeholder='';
+        input.value='';
         desc.textContent='作成先: '+targetName;
     }
     
     modal.style.display='flex';
     setTimeout(()=>{
         input.focus();
-        input.select();
     },50);
 }
 
@@ -1310,9 +1308,7 @@ function submitCreateModal(){
     let input=document.getElementById('createModalInput');
     let n=input.value.trim();
     if(!n){
-        alert(createModalIsFolder?'フォルダ名を入力してください。':'話名を入力してください。');
-        input.focus();
-        return;
+        n=createModalIsFolder?'無題フォルダ':'無題';
     }
     let id='i_'+Date.now()+'_'+Math.random().toString(36).substr(2,4);
     let ni={id,type:createModalIsFolder?'folder':'file',name:n};
