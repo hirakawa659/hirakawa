@@ -5,10 +5,10 @@ html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;overflow:hidde
 button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;background:#f0f0f2;border:1px solid #ccc;border-radius:4px;flex-shrink:0}
 #b{display:flex;position:fixed;top:50px;bottom:0;left:0;right:0;width:100%;height:calc(100% - 50px);height:calc(100dvh - 50px);overflow:hidden}
 #s{width:240px;background:#f8fafc;border-right:1px solid #e2e8f0;padding:8px;display:flex;flex-direction:column;gap:6px;flex-shrink:0;box-sizing:border-box}
-.m{flex:1;padding:16px 12px 75vh 12px;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;-webkit-overflow-scrolling:touch;background:#f1f5f9}
-#w{display:flex;flex-direction:row;align-items:stretch;background:#fff;box-sizing:border-box;flex-shrink:0;margin:0 auto;min-height:calc(100vh + 60vh);min-height:calc(100dvh + 60vh);height:auto;box-shadow:0 1px 4px rgba(0,0,0,0.06);position:relative}
+.m{flex:1;padding:16px 12px 35vh 12px;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;-webkit-overflow-scrolling:touch;background:#f1f5f9}
+#w{display:flex;flex-direction:row;align-items:stretch;background:#fff;box-sizing:border-box;flex-shrink:0;margin:0 auto;min-height:calc(100vh - 80px);min-height:calc(100dvh - 80px);height:auto;box-shadow:0 1px 4px rgba(0,0,0,0.06);position:relative;transform:translateZ(0);contain:layout style}
 .l{width:36px;border-right:1px solid #e5e7eb;padding:0;text-align:right;font-size:12px;color:#aaa;padding-right:6px;user-select:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:#fff}
-#e{flex-grow:1;height:auto;min-height:100%;padding:0;outline:0;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;display:block!important;box-sizing:border-box;font-size:calc(var(--cs)*0.78)!important;line-height:var(--cs)!important;letter-spacing:calc(var(--cs)*0.22)!important;text-align:left!important;caret-color:#2563eb;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","MS Gothic",monospace;font-feature-settings:"halt" 0,"palt" 0,"pkna" 0,"fwid" 1!important;font-variant-east-asian:full-width!important;font-kerning:none!important;background-color:#fff!important;background-image:linear-gradient(90deg,#ececec 1px,transparent 1px),linear-gradient(#ececec 1px,transparent 1px)!important;background-size:var(--cs) var(--cs)!important;background-repeat:repeat!important;background-position:0 0!important;cursor:text}
+#e{flex-grow:1;height:auto;min-height:100%;padding:0;outline:0;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;display:block!important;box-sizing:border-box;font-size:calc(var(--cs)*0.78)!important;line-height:var(--cs)!important;letter-spacing:calc(var(--cs)*0.22)!important;text-align:left!important;caret-color:#2563eb;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","MS Gothic",monospace;font-feature-settings:"halt" 0,"palt" 0,"pkna" 0,"fwid" 1!important;font-variant-east-asian:full-width!important;font-kerning:none!important;background-color:#fff!important;background-image:linear-gradient(90deg,#ececec 1px,transparent 1px),linear-gradient(#ececec 1px,transparent 1px)!important;background-size:var(--cs) var(--cs)!important;background-repeat:repeat!important;background-position:0 0!important;cursor:text;contain:style}
 #e *{background-color:transparent}
 #e div,#e p{min-height:var(--cs)!important;display:block!important;box-sizing:border-box;text-align:left!important;line-height:var(--cs)!important;padding:0!important;padding-left:calc(var(--cs)*0.11)!important;margin:0!important;background:transparent!important;width:100%!important;overflow:visible!important}
 #e span{display:inline;margin:0;padding:0;box-sizing:border-box}
@@ -203,8 +203,27 @@ function cleanExcessiveLeadingLines(root = e){
         }
     }
 }
+function cleanExcessiveTrailingLines(root = e){
+    let divs = root.querySelectorAll('#e>div');
+    if(divs.length === 0) divs = root.querySelectorAll('div');
+    if(divs.length <= 2) return;
+    let lastContentIdx = -1;
+    for(let i = divs.length - 1; i >= 0; i--){
+        let t = divs[i].textContent.replace(/[\s\u3000\r\n]/g, '');
+        if(t.length > 0 || divs[i].querySelector('.sub-sup, .hidden-char-badge, .hm-mark, img')){
+            lastContentIdx = i;
+            break;
+        }
+    }
+    if(lastContentIdx !== -1 && (divs.length - 1 - lastContentIdx) > 2){
+        for(let i = divs.length - 1; i > lastContentIdx + 2; i--){
+            divs[i].remove();
+        }
+    }
+}
 function cleanExcessiveBlankLines(root = e){
     cleanExcessiveLeadingLines(root);
+    cleanExcessiveTrailingLines(root);
 }
 function cleanContaminatedSpans(){
     let nonzens = e.querySelectorAll('.sp-nonzen');
@@ -610,6 +629,7 @@ function z(){
     e.style.width=pw+'px';
     localStorage.setItem('n_w',v);
     ensureGridLines();
+    updateLineNumbers();
 }
 function getEditorPureTextFromElement(el){
     let divs=el.querySelectorAll('#e>div');
@@ -621,6 +641,8 @@ function getEditorPureTextFromElement(el){
             if(!d.firstElementChild || (d.firstElementChild.tagName==='BR' && d.children.length===1)){
                 let t=d.textContent||'';
                 lines.push(t.replace(/[\r\n]/g,''));
+            }else if(!d.querySelector('.hidden-char-badge, .sp-nonzen, .char-box, .hm-mark')){
+                lines.push((d.textContent||'').replace(/[\r\n]/g,''));
             }else{
                 let clone=d.cloneNode(true);
                 clone.querySelectorAll('.hidden-char-badge').forEach(b=>b.remove());
@@ -675,24 +697,19 @@ function ensureGridLines(){
 let lastRenderedVisibleLines = -1;
 let lastRenderedActiveLine = -1;
 
-function v(){
-    ensureGridLines();
-    let divs=e.querySelectorAll('#e>div');
-    if(divs.length===0){
-        divs=e.querySelectorAll('div');
+function updateLineNumbers(divs){
+    if(!divs){
+        divs=e.querySelectorAll('#e>div');
+        if(divs.length===0) divs=e.querySelectorAll('div');
     }
     let totalLines=Math.max(1, divs.length);
-    
-    // 下の方へスクロールしても原稿用紙のマス目と行番号が自然に続くように描画行数を計算
     let cs=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs'))||32;
     let mCont=document.querySelector('.m');
     let mHeight=mCont?mCont.clientHeight:(window.innerHeight||800);
-    let sTop=mCont?mCont.scrollTop:0;
-    let scrollBottom = sTop + mHeight + (mHeight * 1.5);
-    let editorHeight=Math.max(e.clientHeight||0, w.clientHeight||0, scrollBottom);
-    let visibleGridLines=Math.max(totalLines, Math.floor(editorHeight/cs));
+    let minLinesForScreen=Math.ceil(mHeight/cs)+5;
+    // 画面一杯分＋余白15行分を安定描画（スクロール量に依存しないため無限膨張・再描画カクつきが一切起きない）
+    let visibleGridLines=Math.max(totalLines+15, minLinesForScreen);
     
-    // 実際に文字または空白マス目がある最終行を判定（黒字と薄いグレーの切り替え）
     let lastActiveLine = 0;
     for(let i=divs.length-1; i>=0; i--){
         let d = divs[i];
@@ -717,10 +734,11 @@ function v(){
         }
         n.innerHTML=h;
     }
-    
+}
+
+function updateCharCount(){
     let pureLines=getEditorPureTextFromElement(e);
     let st=countCharsFromLines(pureLines);
-    // デフォルト表示はスペースなし（空白除外）文字数をメインに
     k.innerHTML=`<span style="font-weight:bold">${st.withoutSpaces.toLocaleString()}字</span><span style="font-size:10px;color:#64748b;margin-left:4px;font-weight:normal">(空白込${st.totalChars.toLocaleString()})</span>`;
     k.title=`【文字数カウンター】\n文字数（空白なし・デフォルト）: ${st.withoutSpaces.toLocaleString()}字\n総文字数（空白込み）: ${st.totalChars.toLocaleString()}字\n行数: ${st.lines}行`;
     
@@ -730,6 +748,16 @@ function v(){
             curBadge.textContent=st.withoutSpaces.toLocaleString()+'字';
         }
     }
+}
+
+function v(){
+    ensureGridLines();
+    let divs=e.querySelectorAll('#e>div');
+    if(divs.length===0){
+        divs=e.querySelectorAll('div');
+    }
+    updateLineNumbers(divs);
+    updateCharCount();
 }
 function o(id){
     if(typeof flushPendingHeavyTask === 'function' && f && f !== id){
@@ -2473,16 +2501,20 @@ function handleCellClick(ev){
     let targetCol = Math.max(0, Math.floor(clickX / cs));
     targetCol = Math.min(targetCol, maxCols);
     
-    // 2. 目的の行が存在しない場合、そこまでの空行をDOMに同期生成する
+    // 2. 目的の行が存在しない場合、画面外や本文下部をタップしても大量の空行が暴走生成されないよう安全に処理
     if(targetRow >= divs.length){
-        let frag = document.createDocumentFragment();
-        for(let i = divs.length; i <= targetRow; i++){
+        let lastDiv = divs[divs.length - 1];
+        let lastText = lastDiv ? lastDiv.textContent.replace(/[\r\n]/g, '') : '';
+        if(lastText.length > 0){
             let nd = document.createElement('div');
             nd.innerHTML = '<br>';
-            frag.appendChild(nd);
+            e.appendChild(nd);
+            divs = e.querySelectorAll('#e>div');
+            targetRow = divs.length - 1;
+        }else{
+            targetRow = divs.length - 1;
         }
-        e.appendChild(frag);
-        divs = e.querySelectorAll('#e>div');
+        targetCol = 0;
     }
     
     let targetDiv = divs[targetRow];
@@ -2526,14 +2558,6 @@ if(mContainer){
             handleCellClick(ev);
         }
     });
-    let scrollRaf = null;
-    mContainer.addEventListener('scroll',()=>{
-        if(scrollRaf) return;
-        scrollRaf = requestAnimationFrame(()=>{
-            scrollRaf = null;
-            v();
-        });
-    },{passive:true});
 }
 window.addEventListener('resize',()=>{z();window.scrollTo(0,0)});
 if(window.ResizeObserver){
