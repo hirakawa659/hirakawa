@@ -26,10 +26,18 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 .tool-item.drag-over{transform:scale(1.06)}
 #t{overflow-y:auto;flex:1;font-size:12px;padding-right:2px}
 .tree-node{margin-bottom:2px;user-select:none}
-.tree-row{display:flex;align-items:center;justify-content:space-between;padding:4px 6px;border-radius:6px;background:#fff;border:1px solid #e2e8f0;transition:all 0.1s ease;gap:4px}
+.tree-row{display:flex;align-items:center;justify-content:space-between;padding:4px 6px;border-radius:6px;background:#fff;border:1px solid #e2e8f0;transition:all 0.1s ease;gap:4px;position:relative}
 .tree-row:hover{background:#f1f5f9;border-color:#cbd5e1}
 .tree-row.active{background:#eff6ff;border-color:#3b82f6;color:#1d4ed8;font-weight:600}
 .tree-row.folder-active{border-color:#f59e0b;background:#fefce8}
+.tree-drag-handle{display:inline-flex;align-items:center;justify-content:center;width:20px;height:24px;font-size:13px;color:#94a3b8;cursor:grab;user-select:none;touch-action:none;flex-shrink:0;border-radius:4px;transition:all 0.1s ease}
+.tree-drag-handle:hover{background:#e2e8f0;color:#334155}
+.tree-drag-handle:active{cursor:grabbing;color:#2563eb;background:#dbeafe}
+.tree-row.tree-row-dragging{opacity:0.35!important;border:1.5px dashed #3b82f6!important;background:#eff6ff!important}
+.tree-row.tree-drop-top{border-top:3px solid #2563eb!important;box-shadow:0 -3px 6px -1px rgba(37,99,235,0.4)}
+.tree-row.tree-drop-bottom{border-bottom:3px solid #2563eb!important;box-shadow:0 3px 6px -1px rgba(37,99,235,0.4)}
+.tree-row.tree-drop-inside{border:2px solid #2563eb!important;background:#dbeafe!important;box-shadow:0 0 0 2px rgba(37,99,235,0.3)}
+#treeDragGhost{position:fixed;pointer-events:none;z-index:99999;background:#ffffff;border:1.5px solid #3b82f6;border-radius:8px;padding:6px 12px;box-shadow:0 12px 28px rgba(0,0,0,0.18),0 4px 10px rgba(0,0,0,0.08);display:none;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#1e293b;transform:translate3d(0,0,0);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tree-title-btn{flex:1;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;background:none;border:none;padding:0;text-align:left;font-size:12px;font-family:inherit;color:inherit}
 .tree-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 .tree-badge{font-size:10px;color:#64748b;background:#f1f5f9;padding:1px 5px;border-radius:4px;flex-shrink:0;font-weight:normal}
@@ -80,6 +88,10 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <div id="folderBreadcrumb" style="font-size:11px;color:#64748b;padding:2px 2px 6px 2px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between">
   <span id="currentFolderLabel" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px" title="現在の作成先">📁 作成先: ルート</span>
   <button onclick="u()" style="padding:2px 5px;font-size:10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:3px;cursor:pointer" title="ルート階層を作成先に設定">ルート</button>
+</div>
+<div style="font-size:10px;color:#94a3b8;padding:3px 4px 1px 4px;display:flex;align-items:center;gap:4px;user-select:none">
+  <span style="font-size:12px;color:#64748b;font-weight:bold">⠿</span>
+  <span>指やマウスでドラッグして並べ替え</span>
 </div>
 <div id="t"></div>
 </div>
@@ -170,6 +182,7 @@ window.onload=()=>{
     }
     applyToolOrder(getToolOrder());
     initToolDragAndDrop();
+    initTreeDragAndDropTouch();
     norm();cleanSpans();autoFormatEditor();highlightSpaces();z();v();
 };
 function cleanExcessiveLeadingLines(root = e){
@@ -807,6 +820,201 @@ function getFolderStats(folderItem){
     return { files, chars, withoutSpaces, subfolders };
 }
 
+let treeActiveDrag = null;
+let currentTreeDropAction = null;
+
+function getOrCreateDragGhost(){
+    let gEl = document.getElementById('treeDragGhost');
+    if(!gEl){
+        gEl = document.createElement('div');
+        gEl.id = 'treeDragGhost';
+        document.body.appendChild(gEl);
+    }
+    return gEl;
+}
+
+function clearTreeDropIndicators(){
+    document.querySelectorAll('.tree-drop-top, .tree-drop-bottom, .tree-drop-inside').forEach(el=>{
+        el.classList.remove('tree-drop-top', 'tree-drop-bottom', 'tree-drop-inside');
+    });
+    let tEnd = document.getElementById('treeDropEndIndicator');
+    if(tEnd) tEnd.style.display = 'none';
+}
+
+function reorderTreeItem(sourceId, targetId, position){
+    if(!sourceId) return;
+    if(position !== 'root-end' && (!targetId || sourceId === targetId)) return;
+    
+    let sourceCtx = findItemContext(sourceId);
+    if(!sourceCtx) return;
+    
+    // フォルダ自身または自身の子孫階層への移動を防止
+    if(sourceCtx.item.type === 'folder' && targetId && isDescendantOrSelf(sourceCtx.item, targetId)){
+        return;
+    }
+    
+    let itemToMove = sourceCtx.item;
+    
+    if(position === 'root-end'){
+        // 最上層（ルート）の末尾へ移動
+        sourceCtx.list.splice(sourceCtx.index, 1);
+        d.r.push(itemToMove);
+    } else if(position === 'inside'){
+        // フォルダ内部へ移動
+        let targetItem = g(targetId);
+        if(!targetItem || targetItem.type !== 'folder') return;
+        sourceCtx.list.splice(sourceCtx.index, 1);
+        if(!targetItem.children) targetItem.children = [];
+        targetItem.children.push(itemToMove);
+        collapsedFolders.delete(targetItem.id);
+    } else {
+        // 前または後ろへの並び替え
+        let targetCtx = findItemContext(targetId);
+        if(!targetCtx) return;
+        
+        sourceCtx.list.splice(sourceCtx.index, 1);
+        
+        let targetIdx = targetCtx.list.indexOf(targetCtx.item);
+        if(targetIdx === -1){
+            targetCtx.list.push(itemToMove);
+        } else {
+            let insertIdx = (position === 'after') ? targetIdx + 1 : targetIdx;
+            targetCtx.list.splice(insertIdx, 0, itemToMove);
+        }
+    }
+    
+    s();
+    r();
+    v();
+    
+    if(typeof navigator !== 'undefined' && navigator.vibrate){
+        try{ navigator.vibrate(15); }catch(e){}
+    }
+}
+
+function initTreeDragAndDropTouch(){
+    t.ondragover = (ev) => {
+        if(!treeActiveDrag) return;
+        let targetRow = ev.target.closest('.tree-row');
+        if(!targetRow){
+            ev.preventDefault();
+            clearTreeDropIndicators();
+            let tEnd = document.getElementById('treeDropEndIndicator');
+            if(tEnd) tEnd.style.display = 'block';
+            currentTreeDropAction = { targetId: null, position: 'root-end' };
+        }
+    };
+    t.ondrop = (ev) => {
+        let targetRow = ev.target.closest('.tree-row');
+        if(!targetRow && currentTreeDropAction){
+            ev.preventDefault();
+            let srcId = ev.dataTransfer ? ev.dataTransfer.getData('text/plain') : (treeActiveDrag && treeActiveDrag.id);
+            if(srcId){
+                reorderTreeItem(srcId, null, 'root-end');
+            }
+            clearTreeDropIndicators();
+            treeActiveDrag = null;
+            currentTreeDropAction = null;
+        }
+    };
+    
+    window.addEventListener('touchmove', (ev)=>{
+        if(!treeActiveDrag || !treeActiveDrag.isDragging) return;
+        let touch = ev.touches && ev.touches[0];
+        if(!touch) return;
+        
+        ev.preventDefault();
+        
+        let ghost = getOrCreateDragGhost();
+        ghost.style.left = (touch.clientX + 10) + 'px';
+        ghost.style.top = (touch.clientY - 24) + 'px';
+        
+        let tRect = t.getBoundingClientRect();
+        if(touch.clientY < tRect.top + 40){
+            t.scrollTop -= 8;
+        }else if(touch.clientY > tRect.bottom - 40){
+            t.scrollTop += 8;
+        }
+        
+        clearTreeDropIndicators();
+        currentTreeDropAction = null;
+        
+        let pointEl = document.elementFromPoint(touch.clientX, touch.clientY);
+        let targetRow = pointEl ? pointEl.closest('.tree-row') : null;
+        
+        if(!targetRow && pointEl && pointEl.closest('#t')){
+            let rows = Array.from(t.querySelectorAll('.tree-row'));
+            for(let rEl of rows){
+                let rect = rEl.getBoundingClientRect();
+                if(touch.clientY >= rect.top && touch.clientY <= rect.bottom){
+                    targetRow = rEl;
+                    break;
+                }
+            }
+        }
+        
+        if(targetRow){
+            let targetId = targetRow.dataset.id;
+            if(targetId === treeActiveDrag.id) return;
+            
+            let targetCtx = findItemContext(targetId);
+            if(!targetCtx) return;
+            
+            if(treeActiveDrag.item.type === 'folder' && isDescendantOrSelf(treeActiveDrag.item, targetId)){
+                return;
+            }
+            
+            let rect = targetRow.getBoundingClientRect();
+            let relY = touch.clientY - rect.top;
+            let ratio = relY / rect.height;
+            
+            if(targetCtx.item.type === 'folder' && ratio > 0.25 && ratio < 0.75){
+                targetRow.classList.add('tree-drop-inside');
+                currentTreeDropAction = { targetId, position: 'inside' };
+            }else if(ratio <= 0.5){
+                targetRow.classList.add('tree-drop-top');
+                currentTreeDropAction = { targetId, position: 'before' };
+            }else{
+                targetRow.classList.add('tree-drop-bottom');
+                currentTreeDropAction = { targetId, position: 'after' };
+            }
+        }else if(pointEl && pointEl.closest('#t')){
+            let tEnd = document.getElementById('treeDropEndIndicator');
+            if(tEnd) tEnd.style.display = 'block';
+            currentTreeDropAction = { targetId: null, position: 'root-end' };
+        }
+    }, {passive: false});
+    
+    window.addEventListener('touchend', ()=>{
+        if(!treeActiveDrag) return;
+        let ghost = document.getElementById('treeDragGhost');
+        if(ghost) ghost.style.display = 'none';
+        
+        if(treeActiveDrag.rowEl){
+            treeActiveDrag.rowEl.classList.remove('tree-row-dragging');
+        }
+        
+        clearTreeDropIndicators();
+        
+        if(currentTreeDropAction && treeActiveDrag.id){
+            reorderTreeItem(treeActiveDrag.id, currentTreeDropAction.targetId, currentTreeDropAction.position);
+        }
+        
+        treeActiveDrag = null;
+        currentTreeDropAction = null;
+    }, {passive: true});
+    
+    window.addEventListener('touchcancel', ()=>{
+        if(!treeActiveDrag) return;
+        let ghost = document.getElementById('treeDragGhost');
+        if(ghost) ghost.style.display = 'none';
+        if(treeActiveDrag.rowEl) treeActiveDrag.rowEl.classList.remove('tree-row-dragging');
+        clearTreeDropIndicators();
+        treeActiveDrag = null;
+        currentTreeDropAction = null;
+    }, {passive: true});
+}
+
 function r(){
     t.innerHTML='';
     if(!d.r||d.r.length===0){
@@ -819,6 +1027,15 @@ function r(){
     }else{
         d.r.forEach(i=>t.appendChild(m(i,null)));
     }
+    let tEnd=document.createElement('div');
+    tEnd.id='treeDropEndIndicator';
+    tEnd.style.display='none';
+    tEnd.style.height='3px';
+    tEnd.style.background='#2563eb';
+    tEnd.style.borderRadius='2px';
+    tEnd.style.margin='4px 0';
+    tEnd.style.boxShadow='0 0 6px rgba(37,99,235,0.6)';
+    t.appendChild(tEnd);
     updateFolderBreadcrumb();
 }
 
@@ -831,6 +1048,14 @@ function m(i,pid){
     let isCurrentTarget=(i.id===pId);
     row.className='tree-row'+(isCurrentFile?' active':'')+(isCurrentTarget?' folder-active':'');
     row.dataset.id=i.id;
+    
+    // ドラッグ＆ドロップ用ハンドル（指やマウスで掴んで移動）
+    let handle=document.createElement('span');
+    handle.className='tree-drag-handle';
+    handle.innerHTML='⠿';
+    handle.title='指やマウスでドラッグして並べ替え';
+    handle.setAttribute('draggable','true');
+    row.appendChild(handle);
     
     let titleBtn=document.createElement('button');
     titleBtn.className='tree-title-btn';
@@ -891,6 +1116,88 @@ function m(i,pid){
         openItemModal(i.id, ev);
     };
     row.appendChild(infoBtn);
+    
+    // タッチ操作（指で並べ替え）
+    handle.addEventListener('touchstart', (ev)=>{
+        if(ev.touches.length !== 1) return;
+        let touch = ev.touches[0];
+        treeActiveDrag = {
+            id: i.id,
+            rowEl: row,
+            item: i,
+            startX: touch.clientX,
+            startY: touch.clientY,
+            isDragging: true
+        };
+        row.classList.add('tree-row-dragging');
+        
+        let ghost = getOrCreateDragGhost();
+        ghost.innerHTML = (i.type === 'folder' ? '📁 ' : '📄 ') + (i.name || '');
+        ghost.style.left = (touch.clientX + 10) + 'px';
+        ghost.style.top = (touch.clientY - 24) + 'px';
+        ghost.style.display = 'flex';
+        
+        if(typeof navigator !== 'undefined' && navigator.vibrate){
+            try{ navigator.vibrate(15); }catch(e){}
+        }
+        ev.stopPropagation();
+        ev.preventDefault();
+    }, {passive: false});
+    
+    // デスクトップ用ドラッグ＆ドロップ (HTML5 Drag & Drop)
+    handle.ondragstart = (ev) => {
+        ev.stopPropagation();
+        ev.dataTransfer.setData('text/plain', i.id);
+        ev.dataTransfer.effectAllowed = 'move';
+        row.classList.add('tree-row-dragging');
+        treeActiveDrag = { id: i.id, rowEl: row, item: i };
+    };
+    handle.ondragend = (ev) => {
+        ev.stopPropagation();
+        row.classList.remove('tree-row-dragging');
+        clearTreeDropIndicators();
+        treeActiveDrag = null;
+        currentTreeDropAction = null;
+    };
+    row.ondragover = (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if(!treeActiveDrag || treeActiveDrag.id === i.id) return;
+        if(treeActiveDrag.item && treeActiveDrag.item.type === 'folder' && isDescendantOrSelf(treeActiveDrag.item, i.id)){
+            return;
+        }
+        clearTreeDropIndicators();
+        let rect = row.getBoundingClientRect();
+        let relY = ev.clientY - rect.top;
+        let ratio = relY / rect.height;
+        
+        if(i.type === 'folder' && ratio > 0.25 && ratio < 0.75){
+            row.classList.add('tree-drop-inside');
+            currentTreeDropAction = { targetId: i.id, position: 'inside' };
+        }else if(ratio <= 0.5){
+            row.classList.add('tree-drop-top');
+            currentTreeDropAction = { targetId: i.id, position: 'before' };
+        }else{
+            row.classList.add('tree-drop-bottom');
+            currentTreeDropAction = { targetId: i.id, position: 'after' };
+        }
+    };
+    row.ondragleave = (ev) => {
+        if(ev.relatedTarget && !row.contains(ev.relatedTarget)){
+            row.classList.remove('tree-drop-top', 'tree-drop-bottom', 'tree-drop-inside');
+        }
+    };
+    row.ondrop = (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        let srcId = ev.dataTransfer ? ev.dataTransfer.getData('text/plain') : (treeActiveDrag && treeActiveDrag.id);
+        if(srcId && currentTreeDropAction){
+            reorderTreeItem(srcId, currentTreeDropAction.targetId, currentTreeDropAction.position);
+        }
+        clearTreeDropIndicators();
+        treeActiveDrag = null;
+        currentTreeDropAction = null;
+    };
     
     nodeDiv.appendChild(row);
     
