@@ -656,17 +656,12 @@ window.onload=()=>{
     try{document.execCommand('defaultParagraphSeparator', false, 'div');}catch(err){}
     let s=localStorage.getItem('n_d'),sw=localStorage.getItem('n_w'),sc=localStorage.getItem('n_c');
     if(s){try{d=JSON.parse(s)}catch(err){}}
-    if(!d||!d.r||d.r.length===0){
-        let fileId='d_'+Date.now();
-        let folderId='f_'+(Date.now()+1);
+    if(!d||!d.r){
         d={
-            r:[
-                {id:fileId,type:'file',name:'1枚目',content:'<div><br></div>'},
-                {id:folderId,type:'folder',name:'無題フォルダ',children:[]}
-            ],
+            r:[],
             trash:[]
         };
-        f=fileId;
+        f=null;
     }else{
         if(!d.trash) d.trash = [];
         if(sc&&g(sc)){
@@ -679,7 +674,7 @@ window.onload=()=>{
                 }
                 return null;
             }
-            f=findFirst(d.r)||d.r[0].id;
+            f=findFirst(d.r)||(d.r.length > 0 ? d.r[0].id : null);
         }
     }
     function cleanAllStoriesInStorage(){
@@ -1747,11 +1742,17 @@ function o(id){
     if(f && f !== id){
         s();
     }
-    let i=g(id);
+    let i=id?g(id):null;
     if(i){
         e.innerHTML=(i.content&&i.content.trim())?i.content:'<div><br></div>';
         f=id;
         localStorage.setItem('n_c',id);
+        updateCurrentStoryDisplay();
+        applyCurrentTheme();
+    }else{
+        e.innerHTML='<div><br></div>';
+        f=null;
+        localStorage.removeItem('n_c');
         updateCurrentStoryDisplay();
         applyCurrentTheme();
     }
@@ -1765,14 +1766,35 @@ function o(id){
     const mCont=document.querySelector('.m');
     if(mCont)mCont.scrollTop=0;
     document.querySelectorAll('.tree-row').forEach(el=>{
-        if(el.dataset.id === id){
+        if(id && el.dataset.id === id){
             el.classList.add('active');
         }else{
             el.classList.remove('active');
         }
     });
 }
-function s(){let i=g(f);if(i){i.content=e.innerHTML;localStorage.setItem('n_d',JSON.stringify(d))}}
+function s(){
+    if(!f && (!d.r || d.r.length === 0)){
+        let rawText = e.textContent || '';
+        if(rawText.trim().length > 0){
+            let newId = 'd_' + Date.now();
+            let newFile = { id: newId, type: 'file', name: '無題', content: e.innerHTML };
+            if(!d.r) d.r = [];
+            d.r.push(newFile);
+            f = newId;
+            localStorage.setItem('n_c', f);
+            localStorage.setItem('n_d', JSON.stringify(d));
+            r();
+            updateCurrentStoryDisplay();
+        }
+        return;
+    }
+    let i=g(f);
+    if(i){
+        i.content=e.innerHTML;
+        localStorage.setItem('n_d',JSON.stringify(d));
+    }
+}
 function g(id,items=d.r){for(let i of items){if(i.id===id)return i;if(i.children){let found=g(id,i.children);if(found)return found}}return null}
 let collapsedFolders=new Set();
 let currentModalItemId=null;
@@ -2967,10 +2989,8 @@ function deleteModalItem(){
             f=nextF.id;
             o(f);
         }else{
-            let newId='d_'+Date.now();
-            d.r.push({id:newId,type:'file',name:'1枚目',content:'<div><br></div>'});
-            f=newId;
-            o(f);
+            f=null;
+            o(null);
         }
     }
     s();
