@@ -192,8 +192,6 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   <div id="k" class="story-count-display">
     <span style="font-weight:bold;font-size:13px;color:#0f172a">0字</span>
     <span style="font-size:11px;color:#64748b;margin-left:4px">(空白込 0字)</span>
-    <span style="display:inline-block;width:1.5px;height:100%;background:#94a3b8;margin:0 10px;align-self:stretch"></span>
-    <span style="font-size:12px;color:#475569;font-weight:500">1行</span>
   </div>
 </div>
 <div class="m">
@@ -809,7 +807,9 @@ function autoFormatEditor(optActiveLine, optActiveOffset){
 
 function setCaretCharOffset(lineEl,targetOffset){
     let sel=window.getSelection();
-    if(!sel)return;
+    if(!sel||!lineEl)return;
+    if(lineEl.nodeType===3) lineEl=lineEl.parentElement||lineEl;
+    if(!lineEl||lineEl.nodeType!==1)return;
     let walker=document.createTreeWalker(lineEl,NodeFilter.SHOW_TEXT,null,false);
     let count=0;
     let lastNode=null;
@@ -851,7 +851,7 @@ function setCaretCharOffset(lineEl,targetOffset){
                 range.setStart(lastNode,lastNode.nodeValue.length);
             }
         }else{
-            let br=lineEl.querySelector('br');
+            let br=lineEl.querySelector ? lineEl.querySelector('br') : null;
             if(br){
                 range.setStartBefore(br);
             }else{
@@ -1221,15 +1221,7 @@ window.addEventListener('touchend', handleSelectionEvent);
 
 function norm(){
     if(!e.innerHTML.trim()){e.innerHTML='<div><br></div>';return}
-    let hasRawText=false;
-    for(let n of e.childNodes){
-        if(n.nodeType===3 && n.nodeValue.trim()){hasRawText=true;break}
-        if(n.nodeType===1 && n.tagName!=='DIV'){hasRawText=true;break}
-    }
-    if(hasRawText){
-        let lines=e.innerText.split('\n');
-        e.innerHTML=lines.map(l=>`<div>${l?l:'<br>'}</div>`).join('');
-    }
+    ensureGridLines();
     cleanExcessiveBlankLines();
     cleanSpans();
 }
@@ -1320,9 +1312,110 @@ function countCharsFromLines(lines){
 }
 
 function ensureGridLines(){
-    let divs=e.querySelectorAll('#e>div');
-    if(divs.length===0){
-        e.innerHTML='<div><br></div>';
+    let hasNonDiv = false;
+    for(let i = 0; i < e.childNodes.length; i++){
+        let n = e.childNodes[i];
+        if(n.nodeType === 3 && n.nodeValue.length > 0){
+            hasNonDiv = true;
+            break;
+        }
+        if(n.nodeType === 1 && n.tagName !== 'DIV'){
+            hasNonDiv = true;
+            break;
+        }
+    }
+    
+    if(hasNonDiv){
+        let sel = window.getSelection();
+        let savedRange = (sel && sel.rangeCount > 0 && e.contains(sel.anchorNode)) ? sel.getRangeAt(0) : null;
+        let preTextLen = 0;
+        if(savedRange){
+            try {
+                let r = savedRange.cloneRange();
+                r.selectNodeContents(e);
+                r.setEnd(savedRange.startContainer, savedRange.startOffset);
+                preTextLen = r.toString().length;
+            }catch(err){}
+        }
+        
+        let lines = [];
+        let curLine = [];
+        function flushLine(){
+            let div = document.createElement('div');
+            if(curLine.length === 0){
+                div.innerHTML = '<br>';
+            }else{
+                curLine.forEach(node => div.appendChild(node));
+            }
+            lines.push(div);
+            curLine = [];
+        }
+        
+        Array.from(e.childNodes).forEach(node => {
+            if(node.nodeType === 1 && node.tagName === 'DIV'){
+                flushLine();
+                lines.push(node);
+            } else if(node.nodeType === 1 && (node.tagName === 'P' || node.tagName === 'H1' || node.tagName === 'H2' || node.tagName === 'H3')){
+                flushLine();
+                let div = document.createElement('div');
+                while(node.firstChild) div.appendChild(node.firstChild);
+                if(!div.hasChildNodes()) div.innerHTML = '<br>';
+                lines.push(div);
+            } else if(node.nodeType === 1 && node.tagName === 'BR'){
+                flushLine();
+            } else if(node.nodeType === 3){
+                let textParts = node.nodeValue.split(/\r?\n/);
+                for(let i = 0; i < textParts.length; i++){
+                    if(i > 0) flushLine();
+                    if(textParts[i].length > 0){
+                        curLine.push(document.createTextNode(textParts[i]));
+                    }
+                }
+            } else {
+                curLine.push(node);
+            }
+        });
+        flushLine();
+        
+        lines = lines.filter((l, idx) => {
+            if(l.hasChildNodes() && (l.textContent.length > 0 || l.querySelector('br, .sub-sup, .hidden-char-badge, .hm-mark, img'))) return true;
+            return idx === 0;
+        });
+        if(lines.length === 0){
+            let d = document.createElement('div');
+            d.innerHTML = '<br>';
+            lines.push(d);
+        }
+        
+        e.innerHTML = '';
+        lines.forEach(div => e.appendChild(div));
+        
+        if(savedRange && lines.length > 0){
+            try {
+                let count = 0;
+                for(let div of lines){
+                    let len = div.textContent.length;
+                    if(count + len >= preTextLen){
+                        setCaretCharOffset(div, preTextLen - count);
+                        break;
+                    }
+                    count += len;
+                }
+            }catch(err){}
+        }
+    }
+    
+    let divs = e.querySelectorAll('#e>div');
+    if(divs.length === 0){
+        let raw = e.textContent || '';
+        if(raw.replace(/[\r\n]/g, '').length > 0){
+            let d = document.createElement('div');
+            d.textContent = raw;
+            e.innerHTML = '';
+            e.appendChild(d);
+        } else {
+            e.innerHTML = '<div><br></div>';
+        }
     }
 }
 
@@ -1372,8 +1465,8 @@ function updateCharCount(){
     let pureLines=getEditorPureTextFromElement(e);
     let st=countCharsFromLines(pureLines);
     if(k){
-        k.innerHTML=`<span style="font-weight:bold;font-size:13px;color:#0f172a">${st.withoutSpaces.toLocaleString()}字</span><span style="font-size:11px;color:#64748b;margin-left:4px;font-weight:normal">(空白込 ${st.totalChars.toLocaleString()}字)</span><span style="display:inline-block;width:1.5px;height:100%;background:#94a3b8;margin:0 10px;align-self:stretch"></span><span style="font-size:12px;color:#475569;font-weight:500">${st.lines.toLocaleString()}行</span>`;
-        k.title=`【文字数カウンター】\n文字数（空白なし・デフォルト）: ${st.withoutSpaces.toLocaleString()}字\n総文字数（空白込み）: ${st.totalChars.toLocaleString()}字\n行数: ${st.lines}行`;
+        k.innerHTML=`<span style="font-weight:bold;font-size:13px;color:#0f172a">${st.withoutSpaces.toLocaleString()}字</span><span style="font-size:11px;color:#64748b;margin-left:4px;font-weight:normal">(空白込 ${st.totalChars.toLocaleString()}字)</span>`;
+        k.title=`【文字数カウンター】\n文字数（空白なし・デフォルト）: ${st.withoutSpaces.toLocaleString()}字\n総文字数（空白込み）: ${st.totalChars.toLocaleString()}字`;
     }
     
     if(f){
@@ -3288,8 +3381,15 @@ function applyCaretToDiv(targetDiv, targetCol, maxCols){
             let br = targetDiv.querySelector('br');
             if(!br){
                 targetDiv.innerHTML = '<br>';
+                br = targetDiv.querySelector('br');
             }
-            range.setStart(targetDiv, 0);
+            if(targetDiv.firstChild && targetDiv.firstChild.nodeType === 3){
+                range.setStart(targetDiv.firstChild, 0);
+            } else if(br){
+                range.setStartBefore(br);
+            } else {
+                range.setStart(targetDiv, 0);
+            }
             range.collapse(true);
         }
     } else {
