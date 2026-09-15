@@ -126,7 +126,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   </select>
 </div>
 <button id="tool_num" class="tool-item" onclick="tgNumericDigits()" style="background:#fef9c3;color:#854d0e;font-weight:bold;font-size:11px;padding:4px 8px;white-space:nowrap" title="半角・全角・下付き・上付き等の算用数字を検出">算用数字</button>
-<button id="tool_copy" class="tool-item" onclick="c()" title="きれいな原稿文章をコピー（特殊コピー）" style="font-weight:bold;font-size:11px;padding:4px 8px;white-space:nowrap">特殊コピー</button>
+<button id="tool_copy" class="tool-item" onclick="c()" title="エディタの内部装飾タグを除去し、きれいなプレーンテキスト文章にしてコピー" style="font-weight:bold;font-size:10.5px;padding:2px 6px;white-space:normal;line-height:1.15;text-align:center">特殊コピー<br>プレーンコード化</button>
 <button id="tool_fx" class="tool-item" onclick="fx()" style="background:#e0f2fe;color:#0369a1;font-weight:bold;font-size:11px;padding:4px 8px;white-space:nowrap" title="半角空白・英数記号を全角1マス文字に変換">半角→全角</button>
 <button id="orderBtn" onclick="openOrderModal()" style="background:#f8fafc;color:#475569;border:1px dashed #94a3b8;padding:5px 8px;font-size:11px" title="ツールボタンの並び順を変更">⇄ 並替</button>
 <button id="renameBtn" onclick="openToolRenameModal()" style="background:#f8fafc;color:#475569;border:1px dashed #94a3b8;padding:5px 8px;font-size:11px" title="ツールボタンの名前変更・改行設定">✎ 名前/改行</button>
@@ -3447,11 +3447,11 @@ function saveModalItemAsTxt(){
     }
 }
 
-/* 特殊コピーボタン：画面表示用の箱を消して、本物のきれいな文章に戻してクリップボードに送る設定 */
+/* 特殊コピーボタン：画面表示用の箱・マーク・タグを消して、プレーンテキストに戻してクリップボードにコピー */
 function c(){
     if(typeof flushPendingHeavyTask === 'function') flushPendingHeavyTask();
     let t=getStoryPlainText(e.innerHTML);
-    navigator.clipboard.writeText(t).then(()=>alert('✨ 特殊コピー：きれいな小説文章をコピーしました！'));
+    navigator.clipboard.writeText(t).then(()=>alert('✨ 特殊コピー（プレーンコード化）：\n装飾タグやマークを除去したプレーンテキストをコピーしました！'));
 }
 
 function sc(){
@@ -3719,7 +3719,7 @@ const toolDefs={
     'tool_selcount':{name:'選択文字数 (ON/OFF)',desc:'文字選択時にマス数と文字数を5秒間表示'},
     'tool_select':{name:'横の文字数設定',desc:'1行あたりの文字数選択 (20〜40字)'},
     'tool_num':{name:'算用数字',desc:'半角・全角・下付き・上付きなどの算用数字を検出'},
-    'tool_copy':{name:'特殊コピー',desc:'きれいな小説原稿をクリップボードにコピー'},
+    'tool_copy':{name:'特殊コピー\nプレーンコード化',desc:'装飾タグを除去しプレーンテキストとしてコピー'},
     'tool_fx':{name:'半角→全角',desc:'半角空白・英数記号を全角1マス文字に変換'}
 };
 const defaultToolOrder=['tool_sb','tool_shelf','tool_undo','tool_redo','tool_save_txt','tool_rep','tool_hd','tool_hm','tool_spcol','tool_selcount','tool_select','tool_num','tool_copy','tool_fx'];
@@ -3915,7 +3915,7 @@ const defaultToolHTML = {
     'tool_selcount': '選択文字数<br>ON',
     'tool_select': '横の文字数',
     'tool_num': '算用数字',
-    'tool_copy': '特殊コピー',
+    'tool_copy': '特殊コピー<br>プレーンコード化',
     'tool_fx': '半角→全角'
 };
 
@@ -3932,7 +3932,7 @@ const defaultToolPreviewHTML = {
     'tool_selcount': '選択文字数',
     'tool_select': '横の文字数',
     'tool_num': '算用数字',
-    'tool_copy': '特殊コピー',
+    'tool_copy': '特殊コピー<br>プレーン化',
     'tool_fx': '半角→全角'
 };
 
@@ -4020,6 +4020,11 @@ function applyCustomToolLabels(){
                 el.style.padding = '5px 7px';
             }else if(toolId === 'tool_sb'){
                 el.style.padding = '0 3px';
+            }else if(toolId === 'tool_copy'){
+                el.style.whiteSpace = 'normal';
+                el.style.lineHeight = '1.15';
+                el.style.textAlign = 'center';
+                el.style.padding = '2px 6px';
             }else{
                 el.style.whiteSpace = 'nowrap';
             }
