@@ -148,7 +148,10 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button onclick="a(0)" style="flex:1;font-size:11px;white-space:nowrap;padding:6px 4px;background:#fee2e2;color:#000000;font-weight:bold;border:1px solid #fca5a5;border-radius:4px;cursor:pointer" title="新しい紙を作成">+紙</button>
 </div>
 <div id="folderBreadcrumb" style="padding:4px 2px 2px 2px;display:flex;align-items:center;width:100%">
-  <button type="button" onclick="u()" style="background:transparent;border:none;color:#0f172a;font-weight:bold;font-size:12px;padding:2px 0;cursor:pointer;display:block;width:100%;text-align:left;touch-action:manipulation;line-height:1.2" title="最上層の一覧を表示">最上層</button>
+  <button type="button" onclick="u()" style="background:transparent;border:none;color:#0f172a;font-weight:bold;font-size:12px;padding:2px 0;cursor:pointer;display:inline-flex;align-items:center;gap:5px;width:100%;text-align:left;touch-action:manipulation;line-height:1.2" title="最上層の一覧を表示">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0"><path d="M3 8V6.5A2 2 0 0 1 5 4.5H9.5A2 2 0 0 1 11.2 5.4L13 8H20A2 2 0 0 1 22 10V17A2 2 0 0 1 20 19H5A2 2 0 0 1 3 17Z"></path><line x1="3" y1="8" x2="22" y2="8"></line></svg>
+    <span id="currentFolderLabel">最上層</span>
+  </button>
 </div>
 </div>
 <div id="t"></div>
@@ -170,14 +173,17 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#ffffff;border-bottom:1px solid #e2e8f0;flex-shrink:0;gap:8px;position:sticky;top:0;z-index:10">
     <div id="shelfBreadcrumbs" style="display:flex;align-items:center;gap:6px;min-width:0;flex:1"></div>
     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-      <button onclick="a(1, currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しいフォルダを作成">+フォルダ</button>
-      <button onclick="a(0, currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しい紙を作成">+紙</button>
+      <button onclick="a(1, currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#dbeafe;color:#000000;border:1px solid #93c5fd;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しいフォルダを作成">+フォルダ</button>
+      <button onclick="a(0, currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#fee2e2;color:#000000;border:1px solid #fca5a5;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しい紙を作成">+紙</button>
     </div>
   </div>
   <div style="padding:16px 20px 80px 20px;display:flex;flex-direction:column;gap:24px">
     <div id="shelfFoldersSec" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <span style="font-size:12.5px;font-weight:bold;color:#334155;letter-spacing:0.5px">📁 フォルダ</span>
+        <span style="font-size:12.5px;font-weight:bold;color:#334155;letter-spacing:0.5px;display:inline-flex;align-items:center;gap:6px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0"><path d="M3 8V6.5A2 2 0 0 1 5 4.5H9.5A2 2 0 0 1 11.2 5.4L13 8H20A2 2 0 0 1 22 10V17A2 2 0 0 1 20 19H5A2 2 0 0 1 3 17Z"></path><line x1="3" y1="8" x2="22" y2="8"></line></svg>
+          フォルダ
+        </span>
         <span style="font-size:10px;color:#94a3b8;font-weight:500">長押しで並び替え・移動</span>
       </div>
       <div id="shelfFoldersGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(110px, 1fr));gap:14px;align-items:start"></div>
@@ -185,7 +191,10 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
     <div id="shelfNotesSec" style="display:none">
       <div style="font-size:12.5px;font-weight:bold;color:#334155;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
         <div style="display:flex;align-items:center;gap:6px">
-          <span>📄 ノート</span>
+          <span style="display:inline-flex;align-items:center;gap:6px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            紙
+          </span>
           <span id="shelfNotesCount" style="font-size:11px;font-weight:normal;color:#94a3b8"></span>
         </div>
         <span style="font-size:10px;color:#94a3b8;font-weight:500">長押しで並び替え</span>
@@ -499,6 +508,7 @@ function renderShelfView(){
                             <polyline points="15 18 9 12 15 6"/>
                         </svg>
                     </button>
+                    <span style="display:inline-flex;align-items:center;margin-right:2px">${getFolderIconSvg(false, '#2563eb')}</span>
                     <span style="font-size:15px;font-weight:bold;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" onclick="openItemModal('${folderItem.id}', event)" title="フォルダ設定・名前変更">${escapeHtml(folderItem.name)}</span>
                     <button type="button" class="shelf-card-info-btn" onclick="openItemModal('${folderItem.id}', event)" title="フォルダ設定・名前変更・削除" style="padding:1px 5px;font-size:11px;line-height:1.2;flex-shrink:0">ℹ️</button>
                 </div>
@@ -513,6 +523,7 @@ function renderShelfView(){
         breadcrumbsEl.innerHTML = `
             <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
                 <div style="display:flex;align-items:center;gap:6px;overflow:hidden">
+                    <span style="display:inline-flex;align-items:center;margin-right:2px">${getFolderIconSvg(false, '#2563eb')}</span>
                     <span style="font-size:15px;font-weight:bold;color:#0f172a">最上層</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#0f172a;font-weight:500">
@@ -562,7 +573,7 @@ function renderShelfView(){
     notesGrid.innerHTML = '';
     if(notes.length > 0){
         notesSec.style.display = 'block';
-        if(notesCount) notesCount.textContent = `(${notes.length}冊)`;
+        if(notesCount) notesCount.textContent = `(${notes.length}枚)`;
         notes.forEach(nt=>{
             let st = getChapterStats(nt);
             let cardWrap = document.createElement('div');
@@ -1813,18 +1824,20 @@ function getOrCreateDragGhost(){
 function updateGhostContent(item, action){
     let ghost = getOrCreateDragGhost();
     if(!item) return;
-    let icon = (item.type === 'folder' ? '📁' : '📄');
+    let icon = (item.type === 'folder'
+        ? getFolderIconSvg(false, '#2563eb')
+        : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`);
     let rawName = item.name || (item.type === 'folder' ? '新規フォルダ' : '無題');
     let displayName = rawName.length > 15 ? rawName.substring(0, 14) + '…' : rawName;
     
-    let html = `<div class="ghost-title-line"><span>${icon}</span><span>${escapeHtml(displayName)}</span></div>`;
+    let html = `<div class="ghost-title-line"><span style="display:inline-flex;align-items:center">${icon}</span><span>${escapeHtml(displayName)}</span></div>`;
     
     if(action){
         if(action.position === 'inside'){
             let targetCtx = findItemContext(action.targetId);
             let targetRawName = (targetCtx && targetCtx.item.name) ? targetCtx.item.name : 'フォルダ';
             let targetDisplayName = targetRawName.length > 12 ? targetRawName.substring(0, 11) + '…' : targetRawName;
-            html += `<span class="ghost-action-badge ghost-action-inside">📂 「${escapeHtml(targetDisplayName)}」の中に入れる</span>`;
+            html += `<span class="ghost-action-badge ghost-action-inside">${getFolderIconSvg(false, '#ffffff')} 「${escapeHtml(targetDisplayName)}」の中に入れる</span>`;
         }else if(action.position === 'before'){
             let targetCtx = findItemContext(action.targetId);
             let targetRawName = (targetCtx && targetCtx.item.name) ? targetCtx.item.name : '項目';
@@ -2148,7 +2161,7 @@ function m(i,pid,level=0){
     let isCurrentActive=false;
     
     if(currentViewMode==='shelf'){
-        // 本棚ビュー（フォルダ一覧・ノート一覧表示時）: 閲覧中のフォルダが選択中（濃色ハイライト）
+        // 本棚ビュー（フォルダ一覧・紙一覧表示時）: 閲覧中のフォルダが選択中（濃色ハイライト）
         if(currentShelfFolderId && i.id===currentShelfFolderId){
             isCurrentActive=true;
         }
