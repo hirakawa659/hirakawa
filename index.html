@@ -7,7 +7,7 @@ button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;backgroun
 #s{width:240px;background:#f8fafc;border-right:1px solid #e2e8f0;padding:8px 0 0 0;display:flex;flex-direction:column;gap:4px;flex-shrink:0;box-sizing:border-box}
 .m{flex:1;padding:8px 12px 35vh 12px;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;-webkit-overflow-scrolling:touch;background:#f1f5f9}
 #w{display:flex;flex-direction:row;align-items:stretch;background:#fff;box-sizing:border-box;flex-shrink:0;margin:0 auto;min-height:calc(100vh - 100px);min-height:calc(100dvh - 100px);height:auto;box-shadow:0 1px 4px rgba(0,0,0,0.06);position:relative;transform:translateZ(0);contain:layout style}
-.editor-header-info{display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;padding:0 12px;background:#ffffff;border-bottom:1px solid #e2e8f0;height:34px;flex-shrink:0;user-select:none;width:100%;z-index:90}
+.editor-header-info{display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;padding:0 12px 0 4px;background:#ffffff;border-bottom:1px solid #e2e8f0;height:34px;flex-shrink:0;user-select:none;width:100%;z-index:90}
 .story-count-display{display:inline-flex;align-items:center;height:100%;white-space:nowrap;font-size:12px;cursor:default}
 .l{width:36px;border-right:1px solid #e5e7eb;padding:0;text-align:right;font-size:12px;color:#aaa;padding-right:6px;user-select:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:#fff}
 #e{flex-grow:1;height:auto;min-height:100%;padding:0;outline:0;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;display:block!important;box-sizing:border-box;font-size:calc(var(--cs)*0.78)!important;line-height:var(--cs)!important;letter-spacing:calc(var(--cs)*0.22)!important;text-align:left!important;caret-color:#2563eb;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","MS Gothic",monospace;font-feature-settings:"halt" 0,"palt" 0,"pkna" 0,"fwid" 1!important;font-variant-east-asian:full-width!important;font-kerning:none!important;background-color:#fff!important;background-image:linear-gradient(90deg,#ececec 1px,transparent 1px),linear-gradient(#ececec 1px,transparent 1px)!important;background-size:var(--cs) var(--cs)!important;background-repeat:repeat!important;background-position:0 0!important;cursor:text;contain:style}
@@ -21,6 +21,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 .sp{background:#e4e4e7!important;color:#71717a!important;border-radius:2px}
 .hm-mark{background:#ffedd5!important;border-bottom:2px solid #ea580c!important;color:#c2410c!important;font-weight:bold!important;border-radius:2px}
 .hidden-char-badge{display:inline-block!important;background:#fce7f3!important;color:#be185d!important;border:1px dashed #db2777!important;border-radius:2px!important;font-size:10px!important;padding:0 3px!important;line-height:normal!important;vertical-align:middle!important;margin:0 1px!important;user-select:all!important;cursor:pointer}
+.num-mark{background:#fef08a!important;border-bottom:2px solid #ca8a04!important;color:#854d0e!important;font-weight:bold!important;border-radius:2px}
 .er{background-color:#fce7f3!important;border-bottom:2px dotted #db2777!important}
 .tool-item{cursor:grab;user-select:none;flex-shrink:0;transition:transform 0.15s ease,opacity 0.15s ease}
 .tool-item:active{cursor:grabbing}
@@ -74,15 +75,10 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 .shelf-folder-card:active{transform:scale(0.96)}
 .shelf-folder-title{font-size:12px;font-weight:600;color:#1e293b;margin-top:4px;max-width:115px;text-align:center;word-break:break-word;line-height:1.25}
 .shelf-note-card-wrap{display:flex;flex-direction:column;align-items:center;cursor:pointer;user-select:none;touch-action:manipulation;width:100%;transition:transform 0.12s ease}
-.shelf-note-card{width:100%;aspect-ratio:1 / 1.38;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04);display:flex;flex-direction:column;justify-content:space-between;padding:8px 8px;box-sizing:border-box;position:relative;transition:transform 0.15s ease,box-shadow 0.15s ease,border-color 0.15s ease}
+.shelf-note-card{width:100%;aspect-ratio:1 / 1.38;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04);display:flex;flex-direction:column;justify-content:space-between;padding:10px 10px;box-sizing:border-box;position:relative;transition:transform 0.15s ease,box-shadow 0.15s ease,border-color 0.15s ease}
 .shelf-note-card-wrap:hover .shelf-note-card{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,0.1),0 2px 5px rgba(0,0,0,0.05);border-color:#cbd5e1}
 .shelf-note-card-wrap:active .shelf-note-card{transform:scale(0.96)}
-.shelf-note-card.active-note-card{border-color:#2563eb;box-shadow:0 0 0 2px #bfdbfe,0 4px 12px rgba(37,99,235,0.15)}
-.shelf-note-preview-lines{display:flex;flex-direction:column;gap:5px;opacity:0.22;padding:6px 2px;flex:1}
-.shelf-note-line{height:2.5px;background:#64748b;border-radius:2px;width:100%}
-.shelf-note-line:nth-child(2){width:85%}
-.shelf-note-line:nth-child(3){width:92%}
-.shelf-note-line:nth-child(4){width:60%}
+.shelf-note-body-spacer{flex:1}
 .shelf-note-meta{font-size:10px;color:#94a3b8;font-weight:600;display:flex;align-items:center;justify-content:flex-end}
 .shelf-note-title{font-size:12px;font-weight:600;color:#1e293b;margin-top:6px;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.25}
 .shelf-card-info-btn{background:#ffffff;border:1px solid #cbd5e1;border-radius:4px;font-size:10px;padding:1px 4px;cursor:pointer;line-height:1.2;color:#475569;transition:background 0.1s ease,border-color 0.1s ease}
@@ -94,22 +90,33 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 .shelf-note-card-wrap.shelf-drop-before{box-shadow:-4px 0 0 0 #2563eb, -8px 0 16px -2px rgba(37,99,235,0.35)!important;border-radius:8px}
 .shelf-folder-card.shelf-drop-after,
 .shelf-note-card-wrap.shelf-drop-after{box-shadow:4px 0 0 0 #2563eb, 8px 0 16px -2px rgba(37,99,235,0.35)!important;border-radius:8px}
+#tool_sb,#tool_sb:hover,#tool_sb:active,#tool_sb:focus,#tool_sb:focus-visible{color:#6b21a8!important;background:transparent!important;outline:none!important;border:none!important;box-shadow:none!important}
 </style></head>
-<body>
+<body class="sp-color-off">
 <div class="h">
-<button id="tool_sb" class="tool-item" onclick="tgS()" title="フォルダ・紙一覧の表示切替" style="background:#e0e7ff;color:#1e3a8a;line-height:1.15;padding:3px 8px;font-size:11px;text-align:center">フォルダ<br>紙</button>
-<button id="tool_shelf" class="tool-item" onclick="toggleShelfOrEditor()" title="紙一覧と原稿用紙エディタの切り替え" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;padding:3px 8px;font-size:11px;font-weight:bold;line-height:1.15;text-align:center">紙<br>一覧</button>
-<button id="tool_root" class="tool-item" onclick="u()" title="最上層（ルート）">戻</button>
-<button id="tool_undo" class="tool-item" onclick="document.execCommand('undo')" title="元に戻す">撤</button>
-<button id="tool_redo" class="tool-item" onclick="document.execCommand('redo')" title="やり直す">進</button>
-<button id="tool_copy" class="tool-item" onclick="c()" title="きれいな原稿文章をコピー">複</button>
+<button id="tool_sb" class="tool-item" onclick="tgS()" title="フォルダ・紙・注意事項の表示切替" style="background:transparent;border:none;box-shadow:none;outline:none;color:#6b21a8;padding:0 3px;text-align:center;cursor:pointer;display:inline-flex;flex-direction:column;justify-content:space-between;align-items:center;height:42px;margin-bottom:-7px;margin-top:1px;box-sizing:border-box">
+  <span style="font-size:9.5px;font-weight:bold;line-height:1.05">フォルダ<br>紙</span>
+  <span style="font-size:8.5px;font-weight:bold;line-height:1;letter-spacing:-0.2px">注意事項</span>
+</button>
+<button id="tool_shelf" class="tool-item" onclick="toggleShelfOrEditor()" title="最上層と原稿用紙エディタの切り替え" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;padding:3px 8px;font-size:11px;font-weight:bold;line-height:1.15;text-align:center">最上層</button>
+<button id="tool_undo" class="tool-item" onclick="document.execCommand('undo')" title="元に戻す（アンドゥ）" style="display:inline-flex;align-items:center;justify-content:center;padding:5px 7px;color:#334155;background:#f8fafc;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="9 14 4 9 9 4"/>
+    <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/>
+  </svg>
+</button>
+<button id="tool_redo" class="tool-item" onclick="document.execCommand('redo')" title="やり直す（リドゥ）" style="display:inline-flex;align-items:center;justify-content:center;padding:5px 7px;color:#334155;background:#f8fafc;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="15 14 20 9 15 4"/>
+    <path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v0A5.5 5.5 0 0 0 9.5 20H13"/>
+  </svg>
+</button>
 <button id="tool_save_txt" class="tool-item" onclick="saveAsTxt()" style="background:#f0fdf4;color:#166534;font-weight:bold;white-space:nowrap" title="現在の紙を.txtファイルとして保存">.txt保存</button>
-<button id="tool_fx" class="tool-item" onclick="fx()" style="background:#e0f2fe;color:#0369a1" title="一括修正（英数記号1マス化・誤字修正）">修</button>
-<button id="tool_spcol" class="tool-item" onclick="tgSpColor()" style="background:#fef08a;color:#854d0e;font-weight:bold" title="全角以外の空白の色をON/OFF">空白色:ON</button>
-<button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:#dbeafe;color:#1e40af;font-weight:bold;line-height:1.15;padding:3px 8px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
-<button id="tool_hm" class="tool-item" onclick="tgHomoglyphs()" style="background:#fed7aa;color:#9a3412;font-weight:bold" title="紛らわしい類似文字・異言語文字を検出">ホモグラフ</button>
-<button id="tool_hd" class="tool-item" onclick="tgHiddenChars()" style="background:#f3e8ff;color:#6b21a8;font-weight:bold" title="ゼロ幅スペース等の隠し文字/Unicodeを検出">隠し文字</button>
 <button id="tool_rep" class="tool-item" onclick="tgRep()" style="background:#fef3c7;color:#92400e;font-weight:bold" title="検索・置換バー">置換</button>
+<button id="tool_hd" class="tool-item" onclick="tgHiddenChars()" style="background:#eff6ff;color:#1e3a8a;font-weight:bold" title="ゼロ幅スペース等の隠し文字/Unicodeを検出">隠し文字</button>
+<button id="tool_hm" class="tool-item" onclick="tgHomoglyphs()" style="background:#fed7aa;color:#9a3412;font-weight:bold" title="紛らわしい類似文字・異言語文字を検出">ホモグラフ</button>
+<button id="tool_spcol" class="tool-item" onclick="tgSpColor()" style="background:#f0f0f2;color:#666;font-weight:normal" title="全角以外の空白の色をON/OFF">空白色:OFF</button>
+<button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:#dbeafe;color:#1e40af;font-weight:bold;line-height:1.15;padding:3px 8px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
 <div id="tool_select" class="tool-item" style="position:relative;display:inline-flex;align-items:center">
   <button id="tool_select_btn" type="button" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px 8px;height:36px;border:1px solid #cbd5e1;background:#fff;border-radius:5px;cursor:pointer;box-sizing:border-box;pointer-events:none">
     <span style="font-size:9px;color:#64748b;font-weight:bold;line-height:1.1;margin-bottom:2px;letter-spacing:0.2px">横の文字数</span>
@@ -118,6 +125,9 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   <select id="l" onchange="updateColsDisplay();z()" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2">
   </select>
 </div>
+<button id="tool_num" class="tool-item" onclick="tgNumericDigits()" style="background:#fef9c3;color:#854d0e;font-weight:bold;font-size:11px;padding:4px 8px;white-space:nowrap" title="半角・全角・下付き・上付き等の算用数字を検出">算用数字</button>
+<button id="tool_copy" class="tool-item" onclick="c()" title="きれいな原稿文章をコピー（特殊コピー）" style="font-weight:bold;font-size:11px;padding:4px 8px;white-space:nowrap">特殊コピー</button>
+<button id="tool_fx" class="tool-item" onclick="fx()" style="background:#e0f2fe;color:#0369a1;font-weight:bold;font-size:11px;padding:4px 8px;white-space:nowrap" title="半角空白・英数記号を全角1マス文字に変換">半角→全角</button>
 <button id="orderBtn" onclick="openOrderModal()" style="background:#f8fafc;color:#475569;border:1px dashed #94a3b8;padding:5px 8px;font-size:11px" title="ツールボタンの並び順を変更">⇄ 並替</button>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
@@ -137,12 +147,22 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button onclick="a(1)" style="flex:1;font-size:11px;white-space:nowrap;padding:6px 4px;background:#dbeafe;color:#000000;font-weight:bold;border:1px solid #93c5fd;border-radius:4px;cursor:pointer" title="新規フォルダ作成">+フォルダ</button>
 <button onclick="a(0)" style="flex:1;font-size:11px;white-space:nowrap;padding:6px 4px;background:#fee2e2;color:#000000;font-weight:bold;border:1px solid #fca5a5;border-radius:4px;cursor:pointer" title="新しい紙を作成">+紙</button>
 </div>
-<div id="folderBreadcrumb" style="font-size:11px;color:#64748b;padding:2px 2px 4px 2px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between">
-  <span id="currentFolderLabel" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px" title="現在の作成先">📁 作成先: ルート</span>
-  <button onclick="u()" style="padding:2px 5px;font-size:10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:3px;cursor:pointer" title="ルート階層を作成先に設定">ルート</button>
+<div id="folderBreadcrumb" style="padding:4px 2px 2px 2px;display:flex;align-items:center;width:100%">
+  <button type="button" onclick="u()" style="background:transparent;border:none;color:#0f172a;font-weight:bold;font-size:12px;padding:2px 0;cursor:pointer;display:block;width:100%;text-align:left;touch-action:manipulation;line-height:1.2" title="最上層の一覧を表示">最上層</button>
 </div>
 </div>
 <div id="t"></div>
+<div id="sidebarNoticeBar" style="border-top:1px solid #e2e8f0;background:#f8fafc;display:flex;align-items:stretch;user-select:none;flex-shrink:0;height:28px">
+  <div onclick="openNoticeModal(1)" style="flex:1;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;color:#475569;cursor:pointer;border-right:1px solid #e2e8f0;transition:background 0.1s ease" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'" title="注意事項1を表示">
+    注意事項1
+  </div>
+  <div onclick="openNoticeModal(2)" style="flex:1;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;color:#475569;cursor:pointer;border-right:1px solid #e2e8f0;transition:background 0.1s ease" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'" title="注意事項2を表示">
+    注意事項2
+  </div>
+  <div onclick="openTrashModal()" id="sidebarTrashBtn" style="flex:1;display:flex;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:bold;color:#64748b;cursor:pointer;transition:all 0.1s ease" onmouseover="this.style.background='#fee2e2';this.style.color='#b91c1c'" onmouseout="this.style.background='transparent';this.style.color='#64748b'" title="ゴミ箱を開く">
+    🗑️ ゴミ箱<span id="sidebarTrashCount"></span>
+  </div>
+</div>
 </div>
 <div id="mainArea" style="flex:1;display:flex;flex-direction:column;height:100%;min-width:0;overflow:hidden;position:relative">
 <!-- Shelf (GoodNotes-like Notebook & Folder Grid) View -->
@@ -157,18 +177,18 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   <div style="padding:16px 20px 80px 20px;display:flex;flex-direction:column;gap:24px">
     <div id="shelfFoldersSec" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <span style="font-size:12px;font-weight:bold;color:#64748b;letter-spacing:0.5px">フォルダ</span>
-        <span style="font-size:10px;color:#94a3b8;font-weight:500">指やマウスで長押しして並び替え・移動</span>
+        <span style="font-size:12.5px;font-weight:bold;color:#334155;letter-spacing:0.5px">📁 フォルダ</span>
+        <span style="font-size:10px;color:#94a3b8;font-weight:500">長押しで並び替え・移動</span>
       </div>
       <div id="shelfFoldersGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(110px, 1fr));gap:14px;align-items:start"></div>
     </div>
     <div id="shelfNotesSec" style="display:none">
-      <div style="font-size:13px;font-weight:bold;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:12.5px;font-weight:bold;color:#334155;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
         <div style="display:flex;align-items:center;gap:6px">
-          <span>紙</span>
+          <span>📄 ノート</span>
           <span id="shelfNotesCount" style="font-size:11px;font-weight:normal;color:#94a3b8"></span>
         </div>
-        <span style="font-size:10px;color:#94a3b8;font-weight:500">指やマウスで長押しして並び替え</span>
+        <span style="font-size:10px;color:#94a3b8;font-weight:500">長押しで並び替え</span>
       </div>
       <div id="shelfNotesGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(110px, 135px));gap:16px;align-items:start"></div>
     </div>
@@ -183,15 +203,29 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <div id="editorView" style="flex:1;display:flex;flex-direction:column;height:100%;min-width:0;overflow:hidden">
 <div id="editorHeaderInfo" class="editor-header-info">
   <div style="display:flex;align-items:center;gap:6px;max-width:65%;overflow:hidden">
-    <button id="backToShelfBtn" onclick="showShelfView()" style="display:inline-flex;align-items:center;justify-content:center;font-size:14px;padding:3px 8px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;font-weight:bold;color:#1e293b;flex-shrink:0" title="一覧に戻る">←</button>
+    <button id="backToShelfBtn" onclick="showShelfView()" style="display:inline-flex;align-items:center;justify-content:center;padding:4px 3px;margin:0;background:transparent;border:none;box-shadow:none;cursor:pointer;color:#334155;flex-shrink:0;line-height:1;border-radius:4px" title="最上層へ戻る">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" style="display:block">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
     <div id="currentStoryTitleDisplay" style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
       <span id="storyTitleText" onclick="if(f)openItemModal(f)" style="font-weight:bold;color:#0f172a;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" title="紙の設定・タイトル変更">紙タイトル</span>
       <button type="button" class="shelf-card-info-btn" onclick="if(f)openItemModal(f, event)" style="font-size:11px;padding:1px 5px;line-height:1.2;cursor:pointer" title="紙の設定・タイトル変更・削除">ℹ️</button>
     </div>
   </div>
   <div id="k" class="story-count-display">
-    <span style="font-weight:bold;font-size:13px;color:#0f172a">0字</span>
-    <span style="font-size:11px;color:#64748b;margin-left:4px">(空白込 0字)</span>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;line-height:1.15">
+      <span style="font-weight:bold;font-size:12.5px;color:#0f172a">0文字</span>
+      <span style="font-size:9.5px;color:#94a3b8;font-weight:normal">(空白と改行抜き)</span>
+    </div>
+    <div style="width:1px;height:22px;background:#cbd5e1;margin:0 8px;flex-shrink:0"></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;line-height:1.15" title="【セリフの文字数カウントルール】&#10;1. 抽出対象: 「」または『』で囲まれた部分&#10;2. 括弧の扱い: セリフ両端の括弧自体もカウント（各1文字）&#10;3. 空白の除外: 内部の空白・改行は除外&#10;4. 重複の禁止: 入れ子の括弧は重複カウントなし">
+      <div style="display:flex;align-items:center;gap:3px">
+        <span style="font-size:11px;color:#475569;font-weight:500">セリフ</span>
+        <span style="font-weight:bold;font-size:12.5px;color:#0f172a">0文字</span>
+      </div>
+      <span style="font-size:9.5px;color:#94a3b8;font-weight:normal;cursor:help">(定義注意)</span>
+    </div>
   </div>
 </div>
 <div class="m">
@@ -454,17 +488,41 @@ function renderShelfView(){
         currentShelfFolderId = null;
     }
 
-    let titleText = folderItem ? folderItem.name : 'すべて';
     let folderStat = folderItem ? getFolderStats(folderItem) : getFolderStats({ children: d.r || [] });
-    breadcrumbsEl.innerHTML = `
-        <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
-            <div style="font-size:15px;font-weight:bold;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(titleText)}</div>
-            <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b;font-weight:500">
-                <span>${folderStat.withoutSpaces.toLocaleString()}字</span>
-                ${folderItem ? `<button type="button" class="shelf-card-info-btn" onclick="openItemModal('${folderItem.id}', event)" title="フォルダ設定・名前変更・削除" style="padding:1px 5px;font-size:10px;line-height:1.2">ℹ️</button>` : ''}
+    
+    if(folderItem){
+        breadcrumbsEl.innerHTML = `
+            <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+                <div style="display:flex;align-items:center;gap:6px;overflow:hidden">
+                    <button type="button" onclick="u()" style="background:transparent;border:none;color:#334155;font-size:14px;font-weight:bold;cursor:pointer;padding:2px 4px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation;transition:all 0.15s ease" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'" title="戻る">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" style="display:block">
+                            <polyline points="15 18 9 12 15 6"/>
+                        </svg>
+                    </button>
+                    <span style="font-size:15px;font-weight:bold;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" onclick="openItemModal('${folderItem.id}', event)" title="フォルダ設定・名前変更">${escapeHtml(folderItem.name)}</span>
+                    <button type="button" class="shelf-card-info-btn" onclick="openItemModal('${folderItem.id}', event)" title="フォルダ設定・名前変更・削除" style="padding:1px 5px;font-size:11px;line-height:1.2;flex-shrink:0">ℹ️</button>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#0f172a;font-weight:500">
+                    <span style="font-weight:bold;color:#0f172a">${folderStat.withoutSpaces.toLocaleString()}文字</span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:1px">(空白と改行抜き)</span>
+                    <span style="display:inline-block;width:1px;height:12px;background:#cbd5e1;margin:0 2px"></span>
+                    <span style="color:#475569">セリフ <strong style="color:#0f172a;font-weight:bold">${folderStat.dialogueChars.toLocaleString()}文字</strong></span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:1px">(定義注意)</span>
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    }else{
+        breadcrumbsEl.innerHTML = `
+            <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+                <div style="display:flex;align-items:center;gap:6px;overflow:hidden">
+                    <span style="font-size:15px;font-weight:bold;color:#0f172a">最上層</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#0f172a;font-weight:500">
+                    <span style="font-weight:bold;color:#0f172a">${folderStat.withoutSpaces.toLocaleString()}文字</span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:1px">(空白と改行抜き)</span>
+                    <span style="display:inline-block;width:1px;height:12px;background:#cbd5e1;margin:0 2px"></span>
+                    <span style="color:#475569">セリフ <strong style="color:#0f172a;font-weight:bold">${folderStat.dialogueChars.toLocaleString()}文字</strong></span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:1px">(定義注意)</span>
+                </div>
+            </div>
+        `;
+    }
 
     let items = currentShelfFolderId ? (g(currentShelfFolderId)?.children || []) : (d.r || []);
     let subfolders = items.filter(it => it.type === 'folder');
@@ -507,7 +565,6 @@ function renderShelfView(){
         if(notesCount) notesCount.textContent = `(${notes.length}冊)`;
         notes.forEach(nt=>{
             let st = getChapterStats(nt);
-            let isCurrent = (nt.id === f);
             let cardWrap = document.createElement('div');
             cardWrap.className = 'shelf-note-card-wrap';
             cardWrap.title = nt.name;
@@ -518,18 +575,13 @@ function renderShelfView(){
             };
 
             cardWrap.innerHTML = `
-                <div class="shelf-note-card ${isCurrent?'active-note-card':''}">
+                <div class="shelf-note-card">
                     <div style="display:flex;justify-content:flex-end">
-                        <button type="button" class="shelf-card-info-btn" onclick="event.stopPropagation();openItemModal('${nt.id}', event)" title="紙の設定・タイトル変更・削除">ℹ️</button>
+                        <button type="button" class="shelf-card-info-btn" onclick="event.stopPropagation();openItemModal('${nt.id}', event)" title="設定・タイトル変更・削除">ℹ️</button>
                     </div>
-                    <div class="shelf-note-preview-lines">
-                        <div class="shelf-note-line"></div>
-                        <div class="shelf-note-line"></div>
-                        <div class="shelf-note-line"></div>
-                        <div class="shelf-note-line" style="width:60%"></div>
-                    </div>
+                    <div class="shelf-note-body-spacer"></div>
                     <div class="shelf-note-meta">
-                        <span>${st.withoutSpaces.toLocaleString()}字</span>
+                        <span>${st.withoutSpaces.toLocaleString()}文字</span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:2px">(空白と改行抜き)</span>
                     </div>
                 </div>
                 <div class="shelf-note-title" title="${escapeHtml(nt.name)}">${escapeHtml(nt.name || '無題')}</div>
@@ -569,10 +621,18 @@ window.onload=()=>{
     let s=localStorage.getItem('n_d'),sw=localStorage.getItem('n_w'),sc=localStorage.getItem('n_c');
     if(s){try{d=JSON.parse(s)}catch(err){}}
     if(!d||!d.r||d.r.length===0){
-        let id='d_'+Date.now();
-        d={r:[{id,type:'file',name:'1枚目',content:'<div><br></div>'}]};
-        f=id;
+        let fileId='d_'+Date.now();
+        let folderId='f_'+(Date.now()+1);
+        d={
+            r:[
+                {id:fileId,type:'file',name:'1枚目',content:'<div><br></div>'},
+                {id:folderId,type:'folder',name:'無題フォルダ',children:[]}
+            ],
+            trash:[]
+        };
+        f=fileId;
     }else{
+        if(!d.trash) d.trash = [];
         if(sc&&g(sc)){
             f=sc;
         }else{
@@ -640,15 +700,21 @@ window.onload=()=>{
     r();
     o(f);
     updateCurrentStoryDisplay();
-    if(localStorage.getItem('n_sp_color')==='off'){
+    let spSetting=localStorage.getItem('n_sp_color');
+    if(spSetting==='on'){
+        document.body.classList.remove('sp-color-off');
+        const btn=document.getElementById('tool_spcol');
+        if(btn){btn.textContent='空白色:ON';btn.style.background='#fef08a';btn.style.color='#854d0e';btn.style.fontWeight='bold'}
+    }else{
         document.body.classList.add('sp-color-off');
         const btn=document.getElementById('tool_spcol');
-        if(btn){btn.textContent='空白色:OFF';btn.style.background='#f0f0f2';btn.style.color='#666'}
+        if(btn){btn.textContent='空白色:OFF';btn.style.background='#f0f0f2';btn.style.color='#666';btn.style.fontWeight='normal'}
     }
     applyToolOrder(getToolOrder());
     initToolDragAndDrop();
     initTreeDragAndDropTouch();
     updateSelCountBtn();
+    updateTrashCount();
     norm();cleanSpans();autoFormatEditor();highlightSpaces();z();v();
 };
 function cleanExcessiveLeadingLines(root = e){
@@ -1044,6 +1110,119 @@ function tgHiddenChars(){
         alert('✨ 不可視・隠し文字（ゼロ幅スペースや特殊Unicode制御文字）は1つも見つかりませんでした。正常です！');
     }
 }
+let numActive=false;
+function tgNumericDigits(){
+    const btn=document.getElementById('tool_num');
+    if(numActive){
+        let marks=e.querySelectorAll('.num-mark');
+        marks.forEach(m=>{
+            if(m.classList.contains('sub-sup')){
+                m.classList.remove('num-mark');
+            }else{
+                let p=m.parentNode;
+                if(p){
+                    while(m.firstChild)p.insertBefore(m.firstChild,m);
+                    p.removeChild(m);
+                }
+            }
+        });
+        numActive=false;
+        if(btn){
+            btn.style.background='#fef9c3';
+            btn.style.color='#854d0e';
+            btn.textContent='算用数字';
+        }
+        alert('算用数字の強調表示を解除しました。');
+        return;
+    }
+    
+    let divs=e.querySelectorAll('#e>div');
+    if(divs.length===0){
+        e.innerHTML='<div>'+e.innerHTML+'</div>';
+        divs=e.querySelectorAll('#e>div');
+    }
+    
+    let countHalf=0;   // 半角数字
+    let countFull=0;   // 全角数字
+    let countSubSup=0; // 下付き・上付き・添え字数字
+    let countCircled=0;// 丸数字等
+    
+    const regHalf=/[0-9]/;
+    const regFull=/[\uFF10-\uFF19]/;
+    const regSubSup=/[\u2070\u00B9\u00B2\u00B3\u2074-\u2079\u2080-\u2089]/;
+    const regCircled=/[\u2460-\u2473\u3251-\u325F\u32B1-\u32BF\u3280-\u3289\u2474-\u2487\u2488-\u249B]/;
+    const regAllNum=/[0-9\uFF10-\uFF19\u2070\u00B9\u00B2\u00B3\u2074-\u2079\u2080-\u2089\u2460-\u2473\u3251-\u325F\u32B1-\u32BF\u3280-\u3289\u2474-\u2487\u2488-\u249B]/g;
+    
+    divs.forEach(d=>{
+        // 既存の sub-sup スパン（下付き・上付き添え字）の中の数字もチェック
+        let subSups=d.querySelectorAll('.sub-sup');
+        subSups.forEach(sp=>{
+            let txt=sp.textContent||'';
+            if(regAllNum.test(txt)){
+                countSubSup++;
+                sp.classList.add('num-mark');
+            }
+        });
+        
+        let walker=document.createTreeWalker(d,NodeFilter.SHOW_TEXT,null,false);
+        let textNodes=[];
+        while(walker.nextNode()){
+            let p=walker.currentNode.parentNode;
+            if(p&&(p.classList.contains('sub-sup')||p.classList.contains('sp-nonzen')||p.classList.contains('hidden-char-badge')||p.classList.contains('char-box')||p.classList.contains('num-mark')))continue;
+            textNodes.push(walker.currentNode);
+        }
+        
+        textNodes.forEach(tn=>{
+            let val=tn.nodeValue;
+            if(regAllNum.test(val)){
+                let frag=document.createDocumentFragment();
+                let lastIdx=0;
+                regAllNum.lastIndex=0;
+                let match;
+                while((match=regAllNum.exec(val))!==null){
+                    if(match.index>lastIdx){
+                        frag.appendChild(document.createTextNode(val.substring(lastIdx,match.index)));
+                    }
+                    let ch=match[0];
+                    if(regHalf.test(ch)) countHalf++;
+                    else if(regFull.test(ch)) countFull++;
+                    else if(regSubSup.test(ch)) countSubSup++;
+                    else countCircled++;
+                    
+                    let span=document.createElement('span');
+                    span.className='num-mark';
+                    span.textContent=ch;
+                    span.title=`算用数字: ${ch}`;
+                    frag.appendChild(span);
+                    lastIdx=match.index+match[0].length;
+                }
+                if(lastIdx<val.length){
+                    frag.appendChild(document.createTextNode(val.substring(lastIdx)));
+                }
+                tn.parentNode.replaceChild(frag,tn);
+            }
+        });
+    });
+    
+    let total=countHalf+countFull+countSubSup+countCircled;
+    if(total>0){
+        numActive=true;
+        if(btn){
+            btn.style.background='#eab308';
+            btn.style.color='#fff';
+            btn.textContent=`算用数字(${total})`;
+        }
+        let details=[];
+        if(countHalf>0) details.push(`・半角数字 (0-9): ${countHalf} 箇所`);
+        if(countFull>0) details.push(`・全角数字 (０-９): ${countFull} 箇所`);
+        if(countSubSup>0) details.push(`・下付き/上付き・添え字数字: ${countSubSup} 箇所`);
+        if(countCircled>0) details.push(`・丸数字・特殊数字: ${countCircled} 箇所`);
+        
+        alert(`🔍 算用数字を計 ${total} 箇所検出しました！黄色で強調表示しています。\n\n${details.join('\n')}\n\n※ もう一度押すと強調表示を解除します。`);
+    }else{
+        alert('✨ 算用数字（半角・全角・下付き・上付き等）は検出されませんでした。');
+    }
+}
 function tgSpColor(){
     const isOff=document.body.classList.toggle('sp-color-off');
     const btn=document.getElementById('tool_spcol')||document.getElementById('spColBtn');
@@ -1191,7 +1370,7 @@ function checkAndDisplaySelectionCount(){
     }
     badge.style.top = topY + 'px';
 
-    badge.innerHTML = `<span style="opacity:0.85;font-size:10px;margin-right:2px">選択</span><strong style="color:#60a5fa;font-size:12px;font-weight:bold">${withoutSpaces.toLocaleString()}文字</strong><span style="color:#cbd5e1;font-size:10.5px">(空白込 ${totalChars.toLocaleString()}字)</span>`;
+    badge.innerHTML = `<span style="opacity:0.85;font-size:10px;margin-right:2px">選択</span><strong style="color:#60a5fa;font-size:12px;font-weight:bold">${withoutSpaces.toLocaleString()}文字</strong><span style="color:#94a3b8;font-size:9.5px;margin-left:2px">(空白と改行抜き)</span>`;
 
     if(selFadeTimer){
         clearTimeout(selFadeTimer);
@@ -1291,6 +1470,29 @@ function getEditorPureTextFromHtml(html){
     return getEditorPureTextFromElement(wrapper);
 }
 
+function countDialogueChars(fullText){
+    if(!fullText) return 0;
+    let count = 0;
+    let depth = 0;
+    for(let i = 0; i < fullText.length; i++){
+        let ch = fullText[i];
+        if(ch === '「' || ch === '『'){
+            depth++;
+            count++;
+        } else if(ch === '」' || ch === '』'){
+            if(depth > 0){
+                count++;
+                depth--;
+            }
+        } else if(depth > 0){
+            if(!/[\s\u3000\r\n]/.test(ch)){
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
 function countCharsFromLines(lines){
     let totalChars=0;
     let withoutSpaces=0;
@@ -1304,9 +1506,11 @@ function countCharsFromLines(lines){
             lastContentIdx = i;
         }
     }
+    let dialogueChars = countDialogueChars(lines.join('\n'));
     return {
         totalChars,
         withoutSpaces,
+        dialogueChars,
         lines: Math.max(1, lastContentIdx + 1)
     };
 }
@@ -1465,14 +1669,27 @@ function updateCharCount(){
     let pureLines=getEditorPureTextFromElement(e);
     let st=countCharsFromLines(pureLines);
     if(k){
-        k.innerHTML=`<span style="font-weight:bold;font-size:13px;color:#0f172a">${st.withoutSpaces.toLocaleString()}字</span><span style="font-size:11px;color:#64748b;margin-left:4px;font-weight:normal">(空白込 ${st.totalChars.toLocaleString()}字)</span>`;
-        k.title=`【文字数カウンター】\n文字数（空白なし・デフォルト）: ${st.withoutSpaces.toLocaleString()}字\n総文字数（空白込み）: ${st.totalChars.toLocaleString()}字`;
+        k.innerHTML=`
+            <div style="display:flex;flex-direction:column;align-items:flex-end;line-height:1.15">
+                <span style="font-weight:bold;font-size:12.5px;color:#0f172a">${st.withoutSpaces.toLocaleString()}文字</span>
+                <span style="font-size:9.5px;color:#94a3b8;font-weight:normal">(空白と改行抜き)</span>
+            </div>
+            <div style="width:1px;height:22px;background:#cbd5e1;margin:0 8px;flex-shrink:0"></div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;line-height:1.15" title="【セリフの文字数カウントルール】&#10;1. 抽出対象: 「」または『』で囲まれた部分&#10;2. 括弧の扱い: セリフ両端の括弧自体もカウント（各1文字）&#10;3. 空白の除外: 内部の空白・改行は除外&#10;4. 重複の禁止: 入れ子の括弧は重複カウントなし">
+                <div style="display:flex;align-items:center;gap:3px">
+                    <span style="font-size:11px;color:#475569;font-weight:500">セリフ</span>
+                    <span style="font-weight:bold;font-size:12.5px;color:#0f172a">${st.dialogueChars.toLocaleString()}文字</span>
+                </div>
+                <span style="font-size:9.5px;color:#94a3b8;font-weight:normal;cursor:help">(定義注意)</span>
+            </div>
+        `;
+        k.title=`【文字数カウンター】\n本文: ${st.withoutSpaces.toLocaleString()}文字(空白と改行抜き)\nセリフ: ${st.dialogueChars.toLocaleString()}文字(定義注意)`;
     }
     
     if(f){
         let curBadge=document.querySelector(`.tree-row[data-id="${f}"] .tree-badge`);
         if(curBadge){
-            curBadge.textContent=st.withoutSpaces.toLocaleString()+'字';
+            curBadge.textContent=st.withoutSpaces.toLocaleString()+'文字';
         }
     }
 }
@@ -1530,31 +1747,8 @@ function getFolderIconSvg(isFolded, color='#2563eb'){
 function updateFolderBreadcrumb(){
     let lbl=document.getElementById('currentFolderLabel');
     if(!lbl)return;
-    let icon = getFolderIconSvg(true, '#3b82f6');
-    lbl.innerHTML = '';
-    let wrap = document.createElement('span');
-    wrap.style.display = 'inline-flex';
-    wrap.style.alignItems = 'center';
-    wrap.style.gap = '4px';
-    let iconWrap = document.createElement('span');
-    iconWrap.innerHTML = icon;
-    let txtWrap = document.createElement('span');
-    if(!pId){
-        txtWrap.textContent = '作成先: ルート';
-        lbl.title = '新規作成は最上層に行われます';
-    }else{
-        let p=g(pId);
-        if(p&&p.type==='folder'){
-            txtWrap.textContent = '作成先: '+p.name;
-            lbl.title = '新規作成は「'+p.name+'」内に行われます';
-        }else{
-            pId=null;
-            txtWrap.textContent = '作成先: ルート';
-        }
-    }
-    wrap.appendChild(iconWrap);
-    wrap.appendChild(txtWrap);
-    lbl.appendChild(wrap);
+    lbl.textContent = '最上層';
+    lbl.title = '最上層の一覧を表示';
 }
 
 function findItemContext(id, list=d.r, parentFolder=null){
@@ -1583,24 +1777,25 @@ function getChapterStats(item){
     let content=(item.id===f)?e.innerHTML:(item.content||'');
     let pureLines=getEditorPureTextFromHtml(content);
     let st=countCharsFromLines(pureLines);
-    return { chars:st.totalChars, withoutSpaces:st.withoutSpaces, lines:st.lines };
+    return { chars:st.totalChars, withoutSpaces:st.withoutSpaces, dialogueChars:st.dialogueChars, lines:st.lines };
 }
 
 function getFolderStats(folderItem){
-    let files=0, chars=0, withoutSpaces=0, subfolders=0;
+    let files=0, chars=0, withoutSpaces=0, dialogueChars=0, subfolders=0;
     function walk(it){
         if(it.type==='file'){
             files++;
             let st=getChapterStats(it);
             chars+=st.chars;
             withoutSpaces+=st.withoutSpaces;
+            dialogueChars+=st.dialogueChars;
         }else if(it.children){
             subfolders+=it.children.filter(c=>c.type==='folder').length;
             it.children.forEach(walk);
         }
     }
     if(folderItem.children) folderItem.children.forEach(walk);
-    return { files, chars, withoutSpaces, subfolders };
+    return { files, chars, withoutSpaces, dialogueChars, subfolders };
 }
 
 // treeActiveDrag, currentTreeDropAction, lastDragEndTime declared at top of script
@@ -2275,20 +2470,20 @@ function a(isF, optTargetFolderId=null){
     let label=document.getElementById('createModalLabel');
     let input=document.getElementById('createModalInput');
     
-    let targetName='最上層（ルート）';
+    let targetName='最上層';
     if(createModalTargetFolderId){
         let targetP=g(createModalTargetFolderId);
-        if(targetP)targetName=`📁 ${targetP.name}`;
+        if(targetP)targetName=targetP.name;
     }
     
     if(isF){
-        title.innerHTML='<span>📁</span><span>新規フォルダ作成</span>';
+        title.innerHTML='<span>新規フォルダ作成</span>';
         label.textContent='フォルダ名';
         input.placeholder='';
         input.value='';
         desc.textContent='作成先: '+targetName;
     }else{
-        title.innerHTML='<span>📄</span><span>新規紙作成</span>';
+        title.innerHTML='<span>新規紙作成</span>';
         label.textContent='紙タイトル';
         input.placeholder='';
         input.value='';
@@ -2349,10 +2544,7 @@ function u(){
     pId=null;
     currentShelfFolderId=null;
     updateFolderBreadcrumb();
-    r();
-    if(currentViewMode==='shelf'){
-        renderShelfView();
-    }
+    showShelfView(null);
 }
 
 /* 情報・操作モーダル制御 */
@@ -2382,31 +2574,27 @@ function updateModalContent(id){
     let titleEl=document.getElementById('modalHeaderTitle');
     if(titleEl){
         titleEl.innerHTML=isFolder
-            ? `<span>📁</span><span>フォルダの情報・操作</span>`
-            : `<span>📄</span><span>紙の情報・操作</span>`;
+            ? `<span>フォルダの設定・操作</span>`
+            : `<span>紙の設定・操作</span>`;
     }
     
     let statsEl=document.getElementById('modalInfoStats');
     if(statsEl){
-        let parentName=ctx.parentFolder?`📁 ${ctx.parentFolder.name}`:'最上層（ルート）';
         if(isFolder){
             let st=getFolderStats(it);
             statsEl.innerHTML=`
-                <div><strong>フォルダ名:</strong> ${it.name}</div>
-                <div><strong>所属階層:</strong> ${parentName}</div>
+                <div><strong>フォルダ名:</strong> ${escapeHtml(it.name)}</div>
                 <div><strong>含まれる枚数:</strong> ${st.files} 枚</div>
-                <div><strong>文字数（空白なし・デフォルト）:</strong> <span style="font-size:13px;color:#2563eb;font-weight:bold">${st.withoutSpaces.toLocaleString()} 字</span></div>
-                <div><strong>総文字数（空白込み）:</strong> ${st.chars.toLocaleString()} 字</div>
+                <div><strong>文字数:</strong> <span style="font-size:13px;color:#0f172a;font-weight:bold">${st.withoutSpaces.toLocaleString()}文字</span><span style="font-size:11px;color:#94a3b8;margin-left:3px">(空白と改行抜き)</span></div>
+                <div><strong>セリフ文字数:</strong> <span style="font-size:13px;color:#0f172a;font-weight:bold">${st.dialogueChars.toLocaleString()}文字</span><span style="font-size:11px;color:#94a3b8;margin-left:3px">(定義注意)</span></div>
                 <div><strong>サブフォルダ:</strong> ${st.subfolders} 件</div>
             `;
         }else{
             let st=getChapterStats(it);
             statsEl.innerHTML=`
-                <div><strong>紙タイトル:</strong> ${it.name}</div>
-                <div><strong>所属フォルダ:</strong> ${parentName}</div>
-                <div><strong>文字数（空白なし・デフォルト）:</strong> <span style="font-size:13px;color:#2563eb;font-weight:bold">${st.withoutSpaces.toLocaleString()} 字</span></div>
-                <div><strong>総文字数（空白込み）:</strong> ${st.chars.toLocaleString()} 字</div>
-                <div><strong>行数:</strong> ${st.lines.toLocaleString()} 行</div>
+                <div><strong>紙タイトル:</strong> ${escapeHtml(it.name)}</div>
+                <div><strong>文字数:</strong> <span style="font-size:13px;color:#0f172a;font-weight:bold">${st.withoutSpaces.toLocaleString()}文字</span><span style="font-size:11px;color:#94a3b8;margin-left:3px">(空白と改行抜き)</span></div>
+                <div><strong>セリフ文字数:</strong> <span style="font-size:13px;color:#0f172a;font-weight:bold">${st.dialogueChars.toLocaleString()}文字</span><span style="font-size:11px;color:#94a3b8;margin-left:3px">(定義注意)</span></div>
             `;
         }
     }
@@ -2418,17 +2606,17 @@ function updateModalContent(id){
     
     let dupBtn=document.getElementById('modalDuplicateBtn');
     if(dupBtn){
-        dupBtn.textContent=isFolder?'📋 このフォルダを複製':'📋 この紙を複製';
+        dupBtn.textContent=isFolder?'このフォルダを複製':'この紙を複製';
     }
     
     let saveTxtBtn=document.getElementById('modalSaveTxtBtn');
     if(saveTxtBtn){
-        saveTxtBtn.textContent=isFolder?'💾 フォルダ内の全紙をまとめて.txt保存':'💾 .txtファイルとして保存';
+        saveTxtBtn.textContent=isFolder?'フォルダ内の全紙をまとめて.txt保存':'.txtファイルとして保存';
     }
     
     let delBtn=document.getElementById('modalDeleteBtn');
     if(delBtn){
-        delBtn.textContent=isFolder?'🗑️ このフォルダと中身を削除':'🗑️ この紙を削除';
+        delBtn.textContent=isFolder?'このフォルダと中身を削除':'この紙を削除';
     }
     
     let targetSelect=document.getElementById('modalMoveTarget');
@@ -2436,7 +2624,7 @@ function updateModalContent(id){
         targetSelect.innerHTML='';
         let rootOpt=document.createElement('option');
         rootOpt.value='root';
-        rootOpt.textContent='📁 最上層（ルート）';
+        rootOpt.textContent='最上層';
         targetSelect.appendChild(rootOpt);
         
         function populateOptions(items, depth=0){
@@ -2445,7 +2633,7 @@ function updateModalContent(id){
                     if(isFolder&&isDescendantOrSelf(it, item.id)) continue;
                     let opt=document.createElement('option');
                     opt.value=item.id;
-                    opt.textContent='　'.repeat(depth+1)+'📁 '+item.name;
+                    opt.textContent='　'.repeat(depth+1)+item.name;
                     targetSelect.appendChild(opt);
                     if(item.children) populateOptions(item.children, depth+1);
                 }
@@ -2587,7 +2775,7 @@ function modalAddFolderInCurrentFolder(){
 }
 
 function saveModalRename(){
-    if(!currentModalItemId)return;
+    if(!currentModalItemId || currentModalItemId === 'root')return;
     let inputEl=document.getElementById('modalRenameInput');
     let val=inputEl.value.trim();
     if(!val){
@@ -2604,7 +2792,7 @@ function saveModalRename(){
 }
 
 function duplicateModalItem(){
-    if(!currentModalItemId)return;
+    if(!currentModalItemId || currentModalItemId === 'root')return;
     let ctx=findItemContext(currentModalItemId);
     if(!ctx)return;
     
@@ -2696,15 +2884,20 @@ function moveModalItemToFolder(){
 }
 
 function deleteModalItem(){
-    if(!currentModalItemId)return;
+    if(!currentModalItemId || currentModalItemId === 'root')return;
     let ctx=findItemContext(currentModalItemId);
     if(!ctx)return;
     
     let isF=(ctx.item.type==='folder');
     let msg=isF
-        ? `フォルダ「${ctx.item.name}」を削除しますか？\n（フォルダ内のすべての紙も削除されます）`
-        : `紙「${ctx.item.name}」を削除しますか？`;
+        ? `フォルダ「${ctx.item.name}」をゴミ箱に移動しますか？\n（フォルダ内のすべての紙もゴミ箱に移動します）`
+        : `紙「${ctx.item.name}」をゴミ箱に移動しますか？`;
     if(!confirm(msg))return;
+    
+    let itemToTrash = JSON.parse(JSON.stringify(ctx.item));
+    itemToTrash.deletedAt = Date.now();
+    if(!d.trash) d.trash = [];
+    d.trash.unshift(itemToTrash);
     
     let wasActive=(ctx.item.id===f||(isF&&isDescendantOrSelf(ctx.item, f)));
     ctx.list.splice(ctx.index,1);
@@ -2734,6 +2927,10 @@ function deleteModalItem(){
     }
     s();
     r();
+    updateTrashCount();
+    if(currentViewMode==='shelf'){
+        renderShelfView();
+    }
     closeItemModal();
 }
 
@@ -2788,7 +2985,7 @@ function doRep(isAll){
     }
 }
 
-/* 【修】ボタン：半角空白の全角化（1マス化・カーソル跳ね防止）、英数記号の全角化、下つき添え字固定、誤字チェックを一括実行 */
+/* 【半角→全角】ボタン：半角空白の全角化（1マス化・カーソル跳ね防止）、英数記号の全角化、下つき添え字固定を実行 */
 function fx(){
     cleanExcessiveLeadingLines();
     norm();
@@ -2803,6 +3000,11 @@ function fx(){
         clone.querySelectorAll('.hm-mark').forEach(s=>{
             let p=s.parentNode;while(s.firstChild)p.insertBefore(s.firstChild,s);p.removeChild(s);
         });
+        clone.querySelectorAll('.num-mark').forEach(s=>{
+            if(!s.classList.contains('sub-sup')){
+                let p=s.parentNode;if(p){while(s.firstChild)p.insertBefore(s.firstChild,s);p.removeChild(s);}
+            }
+        });
         let txt=clone.innerText;if(txt==='\n'||txt==='')return;let h='';
         for(let i=0;i<txt.length;i++){
             let c=txt[i];
@@ -2815,16 +3017,13 @@ function fx(){
             }else if(/[!-~]/.test(c)){
                 // 半角の英字・数字・記号を日本の原稿用紙の標準である全角（1マス1文字）に自動変換
                 h+=String.fromCharCode(c.charCodeAt(0)+0xFEE0);
-            }else if(c==='言'&&txt[i+1]==='頭'){
-                h+=`<span class="er">言</span><span class="er">頭</span>`;
-                i++;
             }else{
                 h+=c;
             }
         }
         d.innerHTML=h;
     });
-    alert('✨ 半角空白の全角化、英数記号の全角1マス化、下つき添え字固定、誤字チェックを一括実行しました！');
+    alert('✨ 半角空白の全角化、英数記号の全角1マス化を実行しました！');
     v();s();
 }
 
@@ -2912,11 +3111,11 @@ function saveModalItemAsTxt(){
     }
 }
 
-/* 複（コピー）ボタン：画面表示用の箱を消して、本物のきれいな文章に戻してクリップボードに送る設定 */
+/* 特殊コピーボタン：画面表示用の箱を消して、本物のきれいな文章に戻してクリップボードに送る設定 */
 function c(){
     if(typeof flushPendingHeavyTask === 'function') flushPendingHeavyTask();
     let t=getStoryPlainText(e.innerHTML);
-    navigator.clipboard.writeText(t).then(()=>alert('きれいな小説文章をコピーしました！'));
+    navigator.clipboard.writeText(t).then(()=>alert('✨ 特殊コピー：きれいな小説文章をコピーしました！'));
 }
 
 function sc(){
@@ -3172,34 +3371,42 @@ e.addEventListener('paste', (ev)=>{
 
 /* ツールバーの並び替え機能 */
 const toolDefs={
-    'tool_sb':{name:'フォルダ / 紙',desc:'サイドバー（フォルダ・紙一覧）の表示・非表示'},
+    'tool_sb':{name:'フォルダ / 紙 / 注意事項',desc:'サイドバー（フォルダ・紙・注意事項）の表示・非表示'},
     'tool_shelf':{name:'紙一覧',desc:'フォルダ・紙一覧と原稿エディタの切替'},
-    'tool_root':{name:'戻 (ルート)',desc:'最上層階層に移動'},
-    'tool_undo':{name:'撤 (アンドゥ)',desc:'1つ前の操作を取り消す'},
-    'tool_redo':{name:'進 (リドゥ)',desc:'取り消した操作をやり直す'},
-    'tool_copy':{name:'複 (コピー)',desc:'きれいな小説原稿をクリップボードにコピー'},
+    'tool_undo':{name:'↩ (元に戻す)',desc:'1つ前の操作を取り消す（アンドゥ）'},
+    'tool_redo':{name:'↪ (やり直す)',desc:'取り消した操作をやり直す（リドゥ）'},
     'tool_save_txt':{name:'.txtファイルとして保存',desc:'現在の紙を.txtファイルとしてダウンロード保存'},
-    'tool_fx':{name:'修 (一括修正)',desc:'英数記号1マス化・全角空白化・誤字修正'},
+    'tool_rep':{name:'置換',desc:'文字列の検索・置換バー'},
+    'tool_hd':{name:'隠し文字',desc:'ゼロ幅スペースなどの検出・削除'},
+    'tool_hm':{name:'ホモグラフ',desc:'紛らわしい類似文字の検出'},
     'tool_spcol':{name:'空白色',desc:'空白の強調色ON/OFF'},
     'tool_selcount':{name:'選択文字数 (ON/OFF)',desc:'文字選択時にマス数と文字数を5秒間表示'},
-    'tool_hm':{name:'ホモグラフ',desc:'紛らわしい類似文字の検出'},
-    'tool_hd':{name:'隠し文字',desc:'ゼロ幅スペースなどの検出・削除'},
-    'tool_rep':{name:'置換',desc:'文字列の検索・置換バー'},
-    'tool_select':{name:'横の文字数設定',desc:'1行あたりの文字数選択 (20〜40字)'}
+    'tool_select':{name:'横の文字数設定',desc:'1行あたりの文字数選択 (20〜40字)'},
+    'tool_num':{name:'算用数字',desc:'半角・全角・下付き・上付きなどの算用数字を検出'},
+    'tool_copy':{name:'特殊コピー',desc:'きれいな小説原稿をクリップボードにコピー'},
+    'tool_fx':{name:'半角→全角',desc:'半角空白・英数記号を全角1マス文字に変換'}
 };
-const defaultToolOrder=['tool_sb','tool_shelf','tool_root','tool_undo','tool_redo','tool_copy','tool_save_txt','tool_fx','tool_spcol','tool_selcount','tool_hm','tool_hd','tool_rep','tool_select'];
+const defaultToolOrder=['tool_sb','tool_shelf','tool_undo','tool_redo','tool_save_txt','tool_rep','tool_hd','tool_hm','tool_spcol','tool_selcount','tool_select','tool_num','tool_copy','tool_fx'];
 
 function getToolOrder(){
-    let saved=localStorage.getItem('n_tool_order');
+    let saved=localStorage.getItem('n_tool_order_v7')||localStorage.getItem('n_tool_order_v6');
     if(saved){
         try{
             let arr=JSON.parse(saved);
             if(Array.isArray(arr)&&arr.length>0){
-                arr=arr.filter(id=>id!=='tool_count'&&toolDefs[id]);
+                arr=arr.filter(id=>id!=='tool_count'&&id!=='tool_root'&&toolDefs[id]);
                 let set=new Set(arr);
                 let full=[...arr];
                 defaultToolOrder.forEach(id=>{
-                    if(!set.has(id))full.push(id);
+                    if(!set.has(id)){
+                        if(id==='tool_num'){
+                            let copyIdx=full.indexOf('tool_copy');
+                            if(copyIdx>=0) full.splice(copyIdx,0,id);
+                            else full.push(id);
+                        }else{
+                            full.push(id);
+                        }
+                    }
                 });
                 return full;
             }
@@ -3219,7 +3426,7 @@ function applyToolOrder(orderList){
         }
     });
     if(orderBtn)header.appendChild(orderBtn);
-    localStorage.setItem('n_tool_order',JSON.stringify(orderList));
+    localStorage.setItem('n_tool_order_v7',JSON.stringify(orderList));
 }
 
 function initToolDragAndDrop(){
@@ -3266,7 +3473,7 @@ function saveCurrentToolOrderFromDOM(){
             newOrder.push(el.id);
         }
     });
-    localStorage.setItem('n_tool_order',JSON.stringify(newOrder));
+    localStorage.setItem('n_tool_order_v6',JSON.stringify(newOrder));
 }
 
 function openOrderModal(){
@@ -3575,6 +3782,263 @@ if(window.ResizeObserver){
     let obsEl = document.querySelector('.m');
     if(obsEl) new ResizeObserver(()=>{z()}).observe(obsEl);
 }
+
+const noticeText1 = `【注意事項1】
+
+1️⃣データの保存
+・データはブラウザ（ローカルストレージ）に自動保存されます。
+・キャッシュ削除やシークレットモード利用で消える可能性があるため、定期的な「.txt保存」を推奨します。
+
+2️⃣著作権について
+・作成された作品の著作権は、すべてユーザー自身に帰属します。
+
+3️⃣ 免責事項
+・本ツールの利用は自己責任となります。
+・万が一のデータ消失やシステムエラーによる損害について、当サイトは一切の責任を負いかねます。
+・予告なく機能変更やサービスを停止する場合があります。`;
+
+const noticeText2 = `【注意事項2】
+
+1️⃣【セリフの文字数カウントルール】
+1. 抽出対象：
+   「 」（かぎ括弧）または『 』（二重かぎ括弧）で囲まれた部分を「セリフ」として抽出。
+
+そのため、「絵画名」などと強調するために書いた場合、これも含まれてしまいますのでご注意。
+
+2. 括弧の扱い
+   セリフの両端にある括弧（「 」や『 』）自体も、それぞれ1文字（合計2文字）としてカウント。
+
+3. 空白の除外
+   セリフの内部に含まれるスペース（全角・半角スペース、改行）は、文字数にカウントしない。
+
+4. 重複（入れ子）の禁止
+   セリフの中に、さらに別の括弧が含まれている場合（例：「〇〇『〇〇』」や『〇〇「〇〇」』など）、内側の括弧を二重にカウント（重複カウント）してはいけません。全体を1つの繋がったセリフとして扱う。
+
+【計算例】
+・「あい」 ── 4文字（括弧2文字 ＋ 中身2文字）
+・『あいう』 ── 5文字（括弧2文字 ＋ 中身3文字）
+・「あい　う」 ── 5文字（括弧2文字 ＋ 中身3文字 ※空白は除外）
+・「あい『うえお』」 ── 9文字（外側括弧2文字 ＋ 内側括弧2文字 ＋ 文字5文字）
+・『あい「うえお」』 ── 9文字（外側括弧2文字 ＋ 内側括弧2文字 ＋ 文字5文字）
+
+2️⃣ホモグラフ検出ボタン、隠し文字検出ボタンについて
+・精度は高くないので、過信はしないでください。特にホモグラフ検出ボタンは改良を検討しています。
+
+3⃣半角→全角について
+マイナーな半角記号は変換できないとおもいます。`;
+
+function openNoticeModal(num){
+    let modal = document.getElementById('noticeModal');
+    let titleEl = document.getElementById('noticeHeaderTitle');
+    let bodyEl = document.getElementById('noticeBody');
+    let n = num || 1;
+    if(titleEl) titleEl.textContent = `注意事項${n}`;
+    if(bodyEl) bodyEl.textContent = (n === 2) ? noticeText2 : noticeText1;
+    if(modal) modal.style.display = 'flex';
+}
+function closeNoticeModal(){
+    let modal = document.getElementById('noticeModal');
+    if(modal) modal.style.display = 'none';
+}
+
+/* ゴミ箱機能 */
+function updateTrashCount(){
+    if(!d.trash) d.trash = [];
+    let count = d.trash.length;
+    let badge = document.getElementById('sidebarTrashCount');
+    if(badge){
+        badge.textContent = count > 0 ? `(${count})` : '';
+        badge.style.color = count > 0 ? '#dc2626' : '#94a3b8';
+        badge.style.fontSize = '10px';
+        badge.style.marginLeft = '2px';
+        badge.style.fontWeight = 'bold';
+    }
+}
+
+function openTrashModal(){
+    let modal = document.getElementById('trashModal');
+    if(modal) {
+        modal.style.display = 'flex';
+        renderTrashList();
+    }
+}
+
+function closeTrashModal(){
+    let modal = document.getElementById('trashModal');
+    if(modal) modal.style.display = 'none';
+}
+
+function cloneItemWithNewIds(it){
+    let ni = {
+        id: (it.type === 'folder' ? 'f_' : 'd_') + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        type: it.type,
+        name: it.name || (it.type === 'folder' ? '無題フォルダ' : '無題')
+    };
+    if(it.type === 'file'){
+        ni.content = it.content || '<div><br></div>';
+    } else if(it.children && Array.isArray(it.children)){
+        ni.children = it.children.map(cloneItemWithNewIds);
+    } else {
+        ni.children = [];
+    }
+    return ni;
+}
+
+function restoreTrashItem(idx){
+    if(!d.trash || !d.trash[idx]) return;
+    let target = d.trash[idx];
+    let restored = cloneItemWithNewIds(target);
+    d.r.push(restored);
+    d.trash.splice(idx, 1);
+    s();
+    r();
+    updateTrashCount();
+    if(currentViewMode === 'shelf'){
+        renderShelfView();
+    }
+    renderTrashList();
+}
+
+function deleteSingleTrashItem(idx){
+    if(!d.trash || !d.trash[idx]) return;
+    let target = d.trash[idx];
+    let msg = `「${target.name || '無題'}」を完全に削除しますか？\n\n※この操作は取り消せず、二度と復元できなくなります。`;
+    if(!confirm(msg)) return;
+    d.trash.splice(idx, 1);
+    s();
+    updateTrashCount();
+    renderTrashList();
+}
+
+function emptyAllTrash(){
+    if(!d.trash || d.trash.length === 0){
+        alert('ゴミ箱はすでに空です。');
+        return;
+    }
+    let msg = `ゴミ箱内のすべての項目（${d.trash.length}件）を完全に削除しますか？\n\n※完全に削除されたデータは二度と復元できません。`;
+    if(!confirm(msg)) return;
+    d.trash = [];
+    s();
+    updateTrashCount();
+    renderTrashList();
+    alert('ゴミ箱を完全に空にしました。');
+}
+
+function renderTrashList(){
+    let cont = document.getElementById('trashListContainer');
+    let summaryEl = document.getElementById('trashCountSummary');
+    let emptyBtn = document.getElementById('emptyTrashBtn');
+    if(!cont) return;
+    if(!d.trash) d.trash = [];
+    
+    let count = d.trash.length;
+    if(summaryEl) summaryEl.textContent = `保管中の項目: ${count}件`;
+    if(emptyBtn) {
+        emptyBtn.disabled = (count === 0);
+        emptyBtn.style.opacity = (count === 0) ? '0.5' : '1';
+        emptyBtn.style.cursor = (count === 0) ? 'not-allowed' : 'pointer';
+    }
+    
+    updateTrashCount();
+    
+    if(count === 0){
+        cont.innerHTML = `
+            <div style="text-align:center;padding:32px 12px;color:#94a3b8;font-size:12px;background:#f8fafc;border-radius:6px;border:1px dashed #cbd5e1">
+                <div style="font-size:24px;margin-bottom:6px">🗑️</div>
+                ゴミ箱は空です
+            </div>
+        `;
+        return;
+    }
+    
+    cont.innerHTML = '';
+    d.trash.forEach((it, idx) => {
+        let card = document.createElement('div');
+        card.style.background = '#ffffff';
+        card.style.border = '1px solid #e2e8f0';
+        card.style.borderRadius = '6px';
+        card.style.padding = '10px 12px';
+        card.style.display = 'flex';
+        card.style.alignItems = 'center';
+        card.style.justifyContent = 'space-between';
+        card.style.gap = '10px';
+        
+        let isF = (it.type === 'folder');
+        let dateStr = it.deletedAt ? new Date(it.deletedAt).toLocaleString('ja-JP', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
+        
+        let detailStr = '';
+        if(isF){
+            let fc = countTotalFiles(it.children || []);
+            detailStr = `フォルダ（紙 ${fc}枚）`;
+        } else {
+            let pure = getStoryPlainText(it.content || '').replace(/[\s\u3000]/g, '');
+            detailStr = `紙（${pure.length.toLocaleString()}文字）`;
+        }
+        
+        let infoDiv = document.createElement('div');
+        infoDiv.style.flex = '1';
+        infoDiv.style.minWidth = '0';
+        infoDiv.innerHTML = `
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+                <span style="font-size:10px;font-weight:bold;padding:1px 5px;border-radius:3px;background:${isF?'#dbeafe':'#fee2e2'};color:${isF?'#1e40af':'#991b1b'}">${isF?'フォルダ':'紙'}</span>
+                <span style="font-size:13px;font-weight:bold;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(it.name || '無題')}</span>
+            </div>
+            <div style="font-size:11px;color:#64748b;display:flex;align-items:center;gap:8px">
+                <span>${detailStr}</span>
+                ${dateStr ? `<span style="color:#94a3b8">• 削除: ${dateStr}</span>` : ''}
+            </div>
+        `;
+        card.appendChild(infoDiv);
+        
+        let btnGroup = document.createElement('div');
+        btnGroup.style.display = 'flex';
+        btnGroup.style.gap = '6px';
+        btnGroup.style.flexShrink = '0';
+        
+        let restoreBtn = document.createElement('button');
+        restoreBtn.type = 'button';
+        restoreBtn.innerHTML = '📋 複製（復元）';
+        restoreBtn.title = 'この項目を最上層に複製して復元';
+        restoreBtn.style.background = '#f0fdf4';
+        restoreBtn.style.border = '1px solid #86efac';
+        restoreBtn.style.color = '#166534';
+        restoreBtn.style.padding = '5px 8px';
+        restoreBtn.style.borderRadius = '4px';
+        restoreBtn.style.fontSize = '11px';
+        restoreBtn.style.fontWeight = 'bold';
+        restoreBtn.style.cursor = 'pointer';
+        restoreBtn.onclick = () => restoreTrashItem(idx);
+        btnGroup.appendChild(restoreBtn);
+        
+        let delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.innerHTML = '🗑️ 削除';
+        delBtn.title = 'この項目を完全に削除';
+        delBtn.style.background = '#fff5f5';
+        delBtn.style.border = '1px solid #fecaca';
+        delBtn.style.color = '#b91c1c';
+        delBtn.style.padding = '5px 8px';
+        delBtn.style.borderRadius = '4px';
+        delBtn.style.fontSize = '11px';
+        delBtn.style.fontWeight = 'bold';
+        delBtn.style.cursor = 'pointer';
+        delBtn.onclick = () => deleteSingleTrashItem(idx);
+        btnGroup.appendChild(delBtn);
+        
+        card.appendChild(btnGroup);
+        cont.appendChild(card);
+    });
+}
+
+window.addEventListener('keydown', (ev)=>{
+    if(ev.key === 'Escape'){
+        closeNoticeModal();
+        closeItemModal();
+        closeCreateModal();
+        closeOrderModal();
+        closeTrashModal();
+    }
+});
 </script>
 
 <!-- 紙・フォルダの管理モーダル -->
@@ -3712,6 +4176,56 @@ if(window.ResizeObserver){
         <button onclick="resetToolOrder()" style="flex:1;background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;padding:7px;border-radius:5px;font-size:12px;cursor:pointer">初期順に戻す</button>
         <button onclick="closeOrderModal()" style="flex:1;background:#2563eb;color:#fff;border:none;padding:7px;border-radius:5px;font-size:12px;font-weight:bold;cursor:pointer">完了</button>
       </div>
+    </div>
+  </div>
+</div>
+<!-- 注意事項モーダル -->
+<div id="noticeModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeNoticeModal()">
+  <div class="modal-card" style="max-width:480px;max-height:85vh;display:flex;flex-direction:column" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div style="font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px;color:#1e293b">
+        <span>ℹ️</span><span id="noticeHeaderTitle">注意事項1</span>
+      </div>
+      <button type="button" onclick="closeNoticeModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;padding:0 4px;line-height:1" title="閉じる">✕</button>
+    </div>
+    <div class="modal-body" style="padding:16px;font-size:12.5px;line-height:1.65;color:#334155;white-space:pre-wrap;overflow-y:auto;max-height:65vh" id="noticeBody"></div>
+    <div style="padding:10px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end">
+      <button type="button" onclick="closeNoticeModal()" style="background:#e2e8f0;border:1px solid #cbd5e1;color:#334155;padding:6px 14px;border-radius:5px;font-size:12px;cursor:pointer">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- ゴミ箱モーダル -->
+<div id="trashModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeTrashModal()">
+  <div class="modal-card" style="max-width:540px;max-height:85vh;display:flex;flex-direction:column" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div style="font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px;color:#1e293b">
+        <span>🗑️</span><span>ゴミ箱</span>
+      </div>
+      <button type="button" onclick="closeTrashModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;padding:0 4px;line-height:1" title="閉じる">✕</button>
+    </div>
+    <div class="modal-body" style="padding:14px;gap:12px;overflow-y:auto;max-height:65vh">
+      <!-- テンプレ注意書き -->
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:10px 12px;font-size:11.5px;color:#92400e;line-height:1.6">
+        <div style="font-weight:bold;margin-bottom:2px">⚠️ 一度削除した項目について</div>
+        <div>
+          一度削除した項目はゴミ箱に保管されます。<br>
+          ゴミ箱内の項目は、<strong>「📋 複製（復元）」</strong>を押すことで最上層に復元できます。<br>
+          <strong>「🗑️ 削除」</strong>または<strong>「ゴミ箱を完全に空にする」</strong>を実行すると、データは完全に消去され二度と復旧できませんのでご注意ください。
+        </div>
+      </div>
+      <!-- 一括削除アクションバー -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
+        <span id="trashCountSummary" style="font-size:12px;font-weight:bold;color:#475569">保管中の項目: 0件</span>
+        <button id="emptyTrashBtn" onclick="emptyAllTrash()" style="background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:5px 10px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+          🗑️ ゴミ箱を完全に空にする
+        </button>
+      </div>
+      <!-- ゴミ箱アイテムリスト -->
+      <div id="trashListContainer" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+    <div style="padding:10px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end">
+      <button type="button" onclick="closeTrashModal()" style="background:#e2e8f0;border:1px solid #cbd5e1;color:#334155;padding:6px 14px;border-radius:5px;font-size:12px;cursor:pointer">閉じる</button>
     </div>
   </div>
 </div>
