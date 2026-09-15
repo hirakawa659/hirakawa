@@ -194,7 +194,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#ffffff;border-bottom:1px solid #e2e8f0;flex-shrink:0;gap:8px;position:sticky;top:0;z-index:10">
     <div id="shelfBreadcrumbs" style="display:flex;align-items:center;gap:6px;min-width:0;flex:1"></div>
     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-      <button type="button" onclick="openFolderSaveTxtModal(currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#f0fdf4;color:#166534;border:1px solid #86efac;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="このフォルダ内の紙をまとめて保存（個別.txt / zip選択）">💾 一括保存</button>
+      <button type="button" onclick="openFolderSaveTxtModal(currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#f0fdf4;color:#166534;border:1px solid #86efac;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="このフォルダ内の紙をまとめて保存（個別.txt / zip選択）">一括保存</button>
       <button onclick="a(1, currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#dbeafe;color:#000000;border:1px solid #93c5fd;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しいフォルダを作成">+フォルダ</button>
       <button onclick="a(0, currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#fee2e2;color:#000000;border:1px solid #fca5a5;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しい紙を作成">+紙</button>
     </div>
@@ -2651,7 +2651,7 @@ function updateModalContent(id){
     
     let saveTxtBtn=document.getElementById('modalSaveTxtBtn');
     if(saveTxtBtn){
-        saveTxtBtn.textContent=isFolder?'📁 フォルダ内の一括保存 (.txt / zip)':'.txtファイルとして保存';
+        saveTxtBtn.textContent=isFolder?'フォルダ内の一括保存 (.txt / zip)':'.txtファイルとして保存';
     }
     
     let delBtn=document.getElementById('modalDeleteBtn');
@@ -3269,7 +3269,7 @@ function openFolderSaveTxtModal(folderId){
 
     let titleEl = document.getElementById('folderSaveModalTitle');
     if(titleEl){
-        titleEl.textContent = `📁 「${targetTitle}」の一括保存 (.txt / zip)`;
+        titleEl.textContent = `「${targetTitle}」の一括保存 (.txt / zip)`;
     }
 
     let listEl = document.getElementById('folderSaveFileList');
@@ -5463,7 +5463,7 @@ window.addEventListener('keydown', (ev)=>{
   <div class="modal-card" style="max-width:540px;max-height:88vh;display:flex;flex-direction:column" onclick="event.stopPropagation()">
     <div class="modal-header">
       <div style="font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px;color:#1e293b">
-        <span>📁</span><span id="folderSaveModalTitle">フォルダ内の一括保存 (.txt / zip)</span>
+        <span id="folderSaveModalTitle">フォルダ内の一括保存 (.txt / zip)</span>
       </div>
       <button type="button" onclick="closeFolderSaveTxtModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;padding:0 4px;line-height:1" title="閉じる">✕</button>
     </div>
