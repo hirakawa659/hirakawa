@@ -26,40 +26,39 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 .tool-item:active{cursor:grabbing}
 .tool-item.dragging{opacity:0.35;outline:2px dashed #2563eb;outline-offset:2px;border-radius:4px}
 .tool-item.drag-over{transform:scale(1.06)}
-#t{overflow-y:auto;flex:1;font-size:12px;padding:0;border-top:1px solid #e2e8f0;background:#f8fafc}
+#t{overflow-y:auto;flex:1;font-size:12px;padding:0;border-top:1px solid #e2e8f0;background:#f5f5f5}
 .tree-node{margin-bottom:0;user-select:none;width:100%}
-.tree-row{display:flex;align-items:flex-start;padding-top:6px;padding-bottom:6px;padding-right:8px;padding-left:calc(8px + var(--tree-level, 0) * 14px);border-radius:0;background:transparent;border:none;transition:background 0.1s ease;gap:4px;position:relative;cursor:pointer;touch-action:manipulation;user-select:none;width:100%;box-sizing:border-box}
-.tree-row:hover{background:#f1f5f9}
-.tree-row.active{background:#374151;color:#ffffff;font-weight:600}
-.tree-row.active:hover{background:#4b5563}
-.tree-drag-handle{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;font-size:13px;color:#94a3b8;cursor:grab;user-select:none;touch-action:none;flex-shrink:0;border-radius:3px;transition:all 0.1s ease;margin-left:auto}
-.tree-drag-handle:hover{background:rgba(0,0,0,0.06);color:#1e293b}
-.tree-drag-handle:active{cursor:grabbing;color:#2563eb;background:#dbeafe}
-.tree-row.tree-row-dragging{opacity:0.35!important;background:#eff6ff!important;outline:1.5px dashed #3b82f6!important;outline-offset:-1.5px}
-.tree-row.tree-drop-top{border-top:2px solid #2563eb!important;box-shadow:0 -2px 4px -1px rgba(37,99,235,0.4)}
-.tree-row.tree-drop-bottom{border-bottom:2px solid #2563eb!important;box-shadow:0 2px 4px -1px rgba(37,99,235,0.4)}
-.tree-row.tree-drop-inside{border:2px solid #2563eb!important;background:#dbeafe!important}
-#treeDragGhost{position:fixed;pointer-events:none;z-index:99999;background:#ffffff;border:1.5px solid #3b82f6;border-radius:8px;padding:6px 12px;box-shadow:0 12px 28px rgba(0,0,0,0.18),0 4px 10px rgba(0,0,0,0.08);display:none;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#1e293b;transform:translate3d(0,0,0);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tree-content{flex:1;display:flex;flex-direction:column;min-width:0;gap:2px;width:100%}
-.tree-main-line{display:flex;align-items:center;gap:4px;width:100%;min-width:0;justify-content:space-between}
-.tree-title-btn{flex:1;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;background:none;border:none;padding:0;text-align:left;font-size:12px;font-family:inherit;color:inherit;min-width:0;min-height:20px;line-height:20px}
-.tree-row.active .tree-title-btn{color:#ffffff}
+.tree-row{display:flex;align-items:center;padding-top:7px;padding-bottom:7px;padding-right:8px;padding-left:calc(8px + var(--tree-level, 0) * 14px);border-radius:0;background:#f5f5f5;border:none;transition:background 0.1s ease;gap:4px;position:relative;cursor:pointer;touch-action:manipulation;user-select:none;width:100%;box-sizing:border-box;min-height:32px;color:#000000}
+.tree-row:hover{background:#ebebeb;color:#000000}
+.tree-row.active{background:#a9a9a9;color:inherit;font-weight:normal}
+.tree-row.active:hover{background:#9e9e9e}
+.tree-row.tree-row-dragging{opacity:0.4!important;background:#eff6ff!important;outline:2px dashed #2563eb!important;outline-offset:-2px}
+.tree-row.tree-drop-top{box-shadow:inset 0 3px 0 0 #2563eb!important;background:#f0f7ff!important}
+.tree-row.tree-drop-bottom{box-shadow:inset 0 -3px 0 0 #2563eb!important;background:#f0f7ff!important}
+.tree-row.tree-drop-inside{background:#dbeafe!important;box-shadow:inset 0 0 0 2px #2563eb!important;border-radius:4px}
+#treeDragGhost{position:fixed;pointer-events:none;z-index:99999;background:#ffffff;border:1.5px solid #2563eb;border-radius:8px;padding:6px 10px;box-shadow:0 12px 28px rgba(0,0,0,0.22),0 4px 10px rgba(0,0,0,0.08);display:none;flex-direction:column;gap:4px;font-size:12px;color:#1e293b;transform:translate3d(0,0,0);max-width:260px;min-width:140px;box-sizing:border-box}
+.ghost-title-line{display:flex;align-items:center;gap:4px;font-weight:600;font-size:12px;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ghost-action-badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-flex;align-items:center;gap:3px;white-space:nowrap;width:fit-content}
+.ghost-action-inside{background:#2563eb;color:#ffffff}
+.ghost-action-before,.ghost-action-after{background:#059669;color:#ffffff}
+.ghost-action-root{background:#475569;color:#ffffff}
+.tree-content{flex:1;display:flex;align-items:center;min-width:0;width:100%;justify-content:space-between;gap:4px}
+.tree-title-btn{flex:1;display:flex;align-items:center;gap:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;background:none;border:none;padding:0;text-align:left;font-size:12px;font-family:inherit;color:inherit;min-width:0;line-height:1.4}
+.tree-row.active .tree-title-btn{color:inherit;font-weight:normal}
 .tree-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 .tree-sub-line{display:flex;align-items:center;gap:6px;width:100%;min-width:0}
-.tree-badge{font-size:10px;color:#64748b;background:#e2e8f0;padding:1px 5px;border-radius:3px;flex-shrink:0;font-weight:normal;line-height:1.3;border:none}
-.tree-row.active .tree-badge{background:rgba(255,255,255,0.22);color:#f9fafb;border:none}
+.tree-badge{font-size:10px;color:#475569;background:#e2e8f0;padding:1px 5px;border-radius:3px;flex-shrink:0;font-weight:normal;line-height:1.3;border:none}
+.tree-row.active .tree-badge{background:rgba(0,0,0,0.12);color:#000000;border:none}
 .tree-actions{display:flex;align-items:center;gap:3px;flex-shrink:0}
-.tree-info-btn{background:transparent;border:none;border-radius:4px;padding:1px 4px;font-size:10px;cursor:pointer;color:#64748b;flex-shrink:0;line-height:1.2;transition:all 0.1s ease;display:inline-flex;align-items:center;justify-content:center}
+.tree-info-btn{background:transparent;border:none;border-radius:4px;padding:1px 4px;font-size:10px;cursor:pointer;color:#475569;flex-shrink:0;line-height:1.2;transition:all 0.1s ease;display:inline-flex;align-items:center;justify-content:center}
 .tree-info-btn:hover{background:rgba(0,0,0,0.06);color:#0f172a}
-.tree-row.active .tree-info-btn{background:rgba(255,255,255,0.18);color:#f9fafb}
-.tree-row.active .tree-info-btn:hover{background:rgba(255,255,255,0.28)}
+.tree-row.active .tree-info-btn{background:rgba(0,0,0,0.1);color:#000000}
+.tree-row.active .tree-info-btn:hover{background:rgba(0,0,0,0.18)}
 .tree-toggle-btn{background:transparent;border:none;border-radius:4px;padding:2px;cursor:pointer;color:#2563eb;flex-shrink:0;min-width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;transition:all 0.1s ease;margin-left:auto}
 .tree-toggle-btn:hover{background:rgba(0,0,0,0.06)}
 .tree-toggle-btn:active{background:rgba(37,99,235,0.12)}
-.tree-row.active .tree-drag-handle{color:#cbd5e1}
-.tree-row.active .tree-drag-handle:hover{color:#ffffff;background:rgba(255,255,255,0.15)}
-.tree-row.active .tree-toggle-btn{background:transparent;border:none;color:#93c5fd}
-.tree-row.active .tree-toggle-btn svg{stroke:#93c5fd!important}
+.tree-row.active .tree-toggle-btn{background:transparent;border:none;color:#1e3a8a}
+.tree-row.active .tree-toggle-btn svg{stroke:#1e3a8a!important}
 .tree-children{padding-left:0;border-left:none;margin-left:0;margin-top:0;background:transparent;transition:background 0.15s ease;width:100%;box-sizing:border-box}
 .tree-children.tree-drop-inside{background:#dbeafe!important;border-left:2px solid #2563eb!important;border-radius:4px}
 .tree-empty-folder-label{color:#94a3b8;font-size:11px;padding:6px 8px;margin:0;user-select:none;display:flex;align-items:center;gap:4px;background:#f8fafc}
@@ -84,20 +83,27 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 .shelf-note-line:nth-child(2){width:85%}
 .shelf-note-line:nth-child(3){width:92%}
 .shelf-note-line:nth-child(4){width:60%}
-.shelf-note-meta{font-size:10px;color:#94a3b8;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.shelf-note-meta{font-size:10px;color:#94a3b8;font-weight:600;display:flex;align-items:center;justify-content:flex-end}
 .shelf-note-title{font-size:12px;font-weight:600;color:#1e293b;margin-top:6px;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.25}
 .shelf-card-info-btn{background:#ffffff;border:1px solid #cbd5e1;border-radius:4px;font-size:10px;padding:1px 4px;cursor:pointer;line-height:1.2;color:#475569;transition:background 0.1s ease,border-color 0.1s ease}
 .shelf-card-info-btn:hover{background:#f1f5f9;border-color:#94a3b8;color:#0f172a}
+.shelf-folder-card.shelf-card-dragging,
+.shelf-note-card-wrap.shelf-card-dragging{opacity:0.35!important;outline:2px dashed #2563eb!important;outline-offset:3px;border-radius:8px}
+.shelf-folder-card.shelf-drop-inside{background:#dbeafe!important;box-shadow:0 0 0 3px #2563eb!important;border-radius:10px;transform:scale(1.05)!important}
+.shelf-folder-card.shelf-drop-before,
+.shelf-note-card-wrap.shelf-drop-before{box-shadow:-4px 0 0 0 #2563eb, -8px 0 16px -2px rgba(37,99,235,0.35)!important;border-radius:8px}
+.shelf-folder-card.shelf-drop-after,
+.shelf-note-card-wrap.shelf-drop-after{box-shadow:4px 0 0 0 #2563eb, 8px 0 16px -2px rgba(37,99,235,0.35)!important;border-radius:8px}
 </style></head>
 <body>
 <div class="h">
-<button id="tool_sb" class="tool-item" onclick="tgS()" title="フォルダ・話一覧の表示切替" style="background:#e0e7ff;color:#1e3a8a;line-height:1.15;padding:3px 8px;font-size:11px;text-align:center">フォルダ<br>話</button>
-<button id="tool_shelf" class="tool-item" onclick="toggleShelfOrEditor()" title="ノート一覧（本棚ビュー）と原稿用紙エディタの切り替え" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;padding:3px 8px;font-size:11px;font-weight:bold;line-height:1.15;text-align:center">ノート<br>一覧</button>
+<button id="tool_sb" class="tool-item" onclick="tgS()" title="フォルダ・紙一覧の表示切替" style="background:#e0e7ff;color:#1e3a8a;line-height:1.15;padding:3px 8px;font-size:11px;text-align:center">フォルダ<br>紙</button>
+<button id="tool_shelf" class="tool-item" onclick="toggleShelfOrEditor()" title="紙一覧と原稿用紙エディタの切り替え" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;padding:3px 8px;font-size:11px;font-weight:bold;line-height:1.15;text-align:center">紙<br>一覧</button>
 <button id="tool_root" class="tool-item" onclick="u()" title="最上層（ルート）">戻</button>
 <button id="tool_undo" class="tool-item" onclick="document.execCommand('undo')" title="元に戻す">撤</button>
 <button id="tool_redo" class="tool-item" onclick="document.execCommand('redo')" title="やり直す">進</button>
 <button id="tool_copy" class="tool-item" onclick="c()" title="きれいな原稿文章をコピー">複</button>
-<button id="tool_save_txt" class="tool-item" onclick="saveAsTxt()" style="background:#f0fdf4;color:#166534;font-weight:bold;white-space:nowrap" title="現在の話を.txtファイルとして保存">💾 .txt保存</button>
+<button id="tool_save_txt" class="tool-item" onclick="saveAsTxt()" style="background:#f0fdf4;color:#166534;font-weight:bold;white-space:nowrap" title="現在の紙を.txtファイルとして保存">.txt保存</button>
 <button id="tool_fx" class="tool-item" onclick="fx()" style="background:#e0f2fe;color:#0369a1" title="一括修正（英数記号1マス化・誤字修正）">修</button>
 <button id="tool_spcol" class="tool-item" onclick="tgSpColor()" style="background:#fef08a;color:#854d0e;font-weight:bold" title="全角以外の空白の色をON/OFF">空白色:ON</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:#dbeafe;color:#1e40af;font-weight:bold;line-height:1.15;padding:3px 8px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
@@ -129,15 +135,11 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button onclick="tgS()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:4px;padding:6px;font-size:11px;background:#f1f5f9;border:1px solid #cbd5e1;color:#475569;border-radius:4px;cursor:pointer;font-weight:bold;margin-bottom:2px" title="サイドバーを閉じて原稿用紙を全幅拡大">◀ 畳んで拡大</button>
 <div style="display:flex;gap:4px;margin-bottom:2px">
 <button onclick="a(1)" style="flex:1;font-size:11px;white-space:nowrap;padding:6px 4px;background:#dbeafe;color:#000000;font-weight:bold;border:1px solid #93c5fd;border-radius:4px;cursor:pointer" title="新規フォルダ作成">+フォルダ</button>
-<button onclick="a(0)" style="flex:1;font-size:11px;white-space:nowrap;padding:6px 4px;background:#fee2e2;color:#000000;font-weight:bold;border:1px solid #fca5a5;border-radius:4px;cursor:pointer" title="新しい話（エピソード）を作成">+話</button>
+<button onclick="a(0)" style="flex:1;font-size:11px;white-space:nowrap;padding:6px 4px;background:#fee2e2;color:#000000;font-weight:bold;border:1px solid #fca5a5;border-radius:4px;cursor:pointer" title="新しい紙を作成">+紙</button>
 </div>
 <div id="folderBreadcrumb" style="font-size:11px;color:#64748b;padding:2px 2px 4px 2px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between">
   <span id="currentFolderLabel" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px" title="現在の作成先">📁 作成先: ルート</span>
   <button onclick="u()" style="padding:2px 5px;font-size:10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:3px;cursor:pointer" title="ルート階層を作成先に設定">ルート</button>
-</div>
-<div style="font-size:10px;color:#94a3b8;padding:2px 2px 2px 2px;display:flex;align-items:center;gap:4px;user-select:none">
-  <span style="font-size:11px">ℹ️</span>
-  <span>指やマウスでなぞって並び替え</span>
 </div>
 </div>
 <div id="t"></div>
@@ -146,28 +148,33 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <!-- Shelf (GoodNotes-like Notebook & Folder Grid) View -->
 <div id="shelfView" class="shelf-view-container">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#ffffff;border-bottom:1px solid #e2e8f0;flex-shrink:0;gap:8px;position:sticky;top:0;z-index:10">
-    <div id="shelfBreadcrumbs" style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:bold;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1"></div>
+    <div id="shelfBreadcrumbs" style="display:flex;align-items:center;gap:6px;min-width:0;flex:1"></div>
     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
       <button onclick="a(1, currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しいフォルダを作成">+フォルダ</button>
-      <button onclick="a(0, currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しい話（ノート）を作成">+話 (ノート)</button>
-      <button id="shelfBackToEditorBtn" onclick="showEditorView()" style="font-size:11px;padding:5px 10px;background:#374151;color:#ffffff;border:1px solid #1f2937;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="原稿用紙エディタを開く">エディタ ›</button>
+      <button onclick="a(0, currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しい紙を作成">+紙</button>
     </div>
   </div>
   <div style="padding:16px 20px 80px 20px;display:flex;flex-direction:column;gap:24px">
     <div id="shelfFoldersSec" style="display:none">
-      <div style="font-size:12px;font-weight:bold;color:#64748b;margin-bottom:10px;letter-spacing:0.5px">フォルダ</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:12px;font-weight:bold;color:#64748b;letter-spacing:0.5px">フォルダ</span>
+        <span style="font-size:10px;color:#94a3b8;font-weight:500">指やマウスで長押しして並び替え・移動</span>
+      </div>
       <div id="shelfFoldersGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(110px, 1fr));gap:14px;align-items:start"></div>
     </div>
     <div id="shelfNotesSec" style="display:none">
-      <div style="font-size:13px;font-weight:bold;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;gap:6px">
-        <span>ノートブック</span>
-        <span id="shelfNotesCount" style="font-size:11px;font-weight:normal;color:#94a3b8"></span>
+      <div style="font-size:13px;font-weight:bold;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span>紙</span>
+          <span id="shelfNotesCount" style="font-size:11px;font-weight:normal;color:#94a3b8"></span>
+        </div>
+        <span style="font-size:10px;color:#94a3b8;font-weight:500">指やマウスで長押しして並び替え</span>
       </div>
       <div id="shelfNotesGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(110px, 135px));gap:16px;align-items:start"></div>
     </div>
     <div id="shelfEmptyMsg" style="display:none;padding:48px 16px;text-align:center;color:#94a3b8;font-size:13px">
       このフォルダにはまだ項目がありません。<br>
-      右上の「+フォルダ」または「+話 (ノート)」から作成できます。
+      右上の「+フォルダ」または「+紙」から作成できます。
     </div>
   </div>
 </div>
@@ -176,12 +183,10 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <div id="editorView" style="flex:1;display:flex;flex-direction:column;height:100%;min-width:0;overflow:hidden">
 <div id="editorHeaderInfo" class="editor-header-info">
   <div style="display:flex;align-items:center;gap:6px;max-width:65%;overflow:hidden">
-    <button id="backToShelfBtn" onclick="showShelfView()" style="display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:3px 8px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;font-weight:bold;color:#1e293b;flex-shrink:0" title="フォルダ・ノート一覧（本棚）に戻る">
-      <span>‹</span><span>ノート一覧</span>
-    </button>
-    <div id="currentStoryTitleDisplay" onclick="if(f)openItemModal(f)" title="話の設定・タイトル変更" style="display:flex;align-items:center;gap:6px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-      <span id="storyTitleText" style="font-weight:bold;color:#0f172a;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">話タイトル</span>
-      <span style="font-size:10px;color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0;padding:1px 5px;border-radius:3px;flex-shrink:0">設定</span>
+    <button id="backToShelfBtn" onclick="showShelfView()" style="display:inline-flex;align-items:center;justify-content:center;font-size:14px;padding:3px 8px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;font-weight:bold;color:#1e293b;flex-shrink:0" title="一覧に戻る">←</button>
+    <div id="currentStoryTitleDisplay" style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+      <span id="storyTitleText" onclick="if(f)openItemModal(f)" style="font-weight:bold;color:#0f172a;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" title="紙の設定・タイトル変更">紙タイトル</span>
+      <button type="button" class="shelf-card-info-btn" onclick="if(f)openItemModal(f, event)" style="font-size:11px;padding:1px 5px;line-height:1.2;cursor:pointer" title="紙の設定・タイトル変更・削除">ℹ️</button>
     </div>
   </div>
   <div id="k" class="story-count-display">
@@ -202,6 +207,9 @@ const e=document.getElementById('e'),l=document.getElementById('l'),t=document.g
 let d={r:[]},f=null,pId=null;
 let currentViewMode='editor';
 let currentShelfFolderId=null;
+let treeActiveDrag=null;
+let currentTreeDropAction=null;
+let lastDragEndTime=0;
 
 function escapeHtml(str){
     if(!str) return '';
@@ -282,6 +290,157 @@ function openStoryFromShelf(id){
     r();
 }
 
+function bindShelfCardDrag(cardEl, item){
+    cardEl.dataset.id = item.id;
+    cardEl.dataset.itemType = item.type;
+    cardEl.setAttribute('draggable', 'true');
+    
+    let longPressTimer = null;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isLongPressTriggered = false;
+    
+    function startShelfDrag(clientX, clientY){
+        if(treeActiveDrag) return;
+        treeActiveDrag = { id: item.id, rowEl: cardEl, item: item, isDragging: true };
+        cardEl.classList.add('shelf-card-dragging');
+        
+        let ghost = getOrCreateDragGhost();
+        updateGhostContent(item, null);
+        let ghostY = Math.max(8, clientY - 64);
+        let ghostX = Math.max(8, Math.min(window.innerWidth - 270, clientX - 40));
+        ghost.style.left = ghostX + 'px';
+        ghost.style.top = ghostY + 'px';
+        ghost.style.display = 'flex';
+        
+        if(typeof navigator !== 'undefined' && navigator.vibrate){
+            try{ navigator.vibrate(28); }catch(e){}
+        }
+    }
+    
+    cardEl.addEventListener('touchstart', (ev)=>{
+        if(ev.touches.length !== 1) return;
+        if(ev.target.closest('.shelf-card-info-btn')) return;
+        
+        let touch = ev.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        isLongPressTriggered = false;
+        
+        clearTimeout(longPressTimer);
+        longPressTimer = setTimeout(()=>{
+            isLongPressTriggered = true;
+            startShelfDrag(touchStartX, touchStartY);
+        }, 260);
+    }, {passive: true});
+    
+    cardEl.addEventListener('touchmove', (ev)=>{
+        if(!isLongPressTriggered){
+            let touch = ev.touches && ev.touches[0];
+            if(touch){
+                let dx = Math.abs(touch.clientX - touchStartX);
+                let dy = Math.abs(touch.clientY - touchStartY);
+                if(dx > 9 || dy > 9){
+                    clearTimeout(longPressTimer);
+                }
+            }
+        }
+    }, {passive: true});
+    
+    cardEl.addEventListener('touchend', ()=>{
+        clearTimeout(longPressTimer);
+        if(isLongPressTriggered){
+            lastDragEndTime = Date.now();
+        }
+    }, {passive: true});
+    
+    cardEl.addEventListener('touchcancel', ()=>{
+        clearTimeout(longPressTimer);
+    }, {passive: true});
+    
+    // PC mouse drag
+    cardEl.ondragstart = (ev)=>{
+        if(ev.target.closest('.shelf-card-info-btn')){
+            ev.preventDefault();
+            return;
+        }
+        ev.stopPropagation();
+        if(ev.dataTransfer){
+            ev.dataTransfer.setData('text/plain', item.id);
+            ev.dataTransfer.effectAllowed = 'move';
+        }
+        cardEl.classList.add('shelf-card-dragging');
+        treeActiveDrag = { id: item.id, rowEl: cardEl, item: item, isDragging: true };
+        let ghost = getOrCreateDragGhost();
+        updateGhostContent(item, null);
+        ghost.style.left = (ev.clientX + 15) + 'px';
+        ghost.style.top = (ev.clientY - 25) + 'px';
+        ghost.style.display = 'flex';
+    };
+    
+    cardEl.ondragend = (ev)=>{
+        ev.stopPropagation();
+        lastDragEndTime = Date.now();
+        cardEl.classList.remove('shelf-card-dragging');
+        clearTreeDropIndicators();
+        let ghost = document.getElementById('treeDragGhost');
+        if(ghost) ghost.style.display = 'none';
+        treeActiveDrag = null;
+        currentTreeDropAction = null;
+    };
+    
+    cardEl.ondragover = (ev)=>{
+        ev.preventDefault();
+        ev.stopPropagation();
+        if(!treeActiveDrag || treeActiveDrag.id === item.id) return;
+        if(treeActiveDrag.item && treeActiveDrag.item.type === 'folder' && isDescendantOrSelf(treeActiveDrag.item, item.id)){
+            updateGhostContent(treeActiveDrag.item, null);
+            return;
+        }
+        clearTreeDropIndicators();
+        
+        let rect = cardEl.getBoundingClientRect();
+        let relX = ev.clientX - rect.left;
+        let relY = ev.clientY - rect.top;
+        
+        if(item.type === 'folder' && relX > rect.width * 0.2 && relX < rect.width * 0.8 && relY > rect.height * 0.15 && relY < rect.height * 0.85){
+            cardEl.classList.add('shelf-drop-inside');
+            currentTreeDropAction = { targetId: item.id, position: 'inside' };
+        }else if(relX <= rect.width * 0.5){
+            cardEl.classList.add('shelf-drop-before');
+            currentTreeDropAction = { targetId: item.id, position: 'before' };
+        }else{
+            cardEl.classList.add('shelf-drop-after');
+            currentTreeDropAction = { targetId: item.id, position: 'after' };
+        }
+        
+        updateGhostContent(treeActiveDrag.item, currentTreeDropAction);
+        let ghost = getOrCreateDragGhost();
+        ghost.style.left = (ev.clientX + 15) + 'px';
+        ghost.style.top = (ev.clientY - 25) + 'px';
+    };
+    
+    cardEl.ondragleave = (ev)=>{
+        if(ev.relatedTarget && !cardEl.contains(ev.relatedTarget)){
+            cardEl.classList.remove('shelf-drop-inside', 'shelf-drop-before', 'shelf-drop-after');
+        }
+    };
+    
+    cardEl.ondrop = (ev)=>{
+        ev.preventDefault();
+        ev.stopPropagation();
+        let srcId = (ev.dataTransfer && ev.dataTransfer.getData('text/plain')) || (treeActiveDrag && treeActiveDrag.id);
+        if(srcId && currentTreeDropAction && currentTreeDropAction.targetId !== srcId){
+            reorderTreeItem(srcId, currentTreeDropAction.targetId, currentTreeDropAction.position);
+        }
+        clearTreeDropIndicators();
+        let ghost = document.getElementById('treeDragGhost');
+        if(ghost) ghost.style.display = 'none';
+        treeActiveDrag = null;
+        currentTreeDropAction = null;
+    };
+}
+
 function renderShelfView(){
     const breadcrumbsEl = document.getElementById('shelfBreadcrumbs');
     const foldersSec = document.getElementById('shelfFoldersSec');
@@ -297,29 +456,17 @@ function renderShelfView(){
         currentShelfFolderId = null;
     }
 
-    let path = [];
-    let curr = currentShelfFolderId;
-    while(curr){
-        let ctx = findItemContext(curr);
-        if(ctx && ctx.item){
-            path.unshift(ctx.item);
-            curr = ctx.parentFolder ? ctx.parentFolder.id : null;
-        }else{
-            break;
-        }
-    }
-
-    let bHtml = `<span onclick="openShelfFolder(null)" style="cursor:pointer;color:${path.length>0?'#2563eb':'#0f172a'};display:inline-flex;align-items:center;gap:4px">📁 すべて</span>`;
-    path.forEach((p, idx)=>{
-        let isLast = (idx === path.length - 1);
-        bHtml += ` <span style="color:#94a3b8;font-size:12px">›</span> `;
-        if(isLast){
-            bHtml += `<span style="color:#0f172a;font-weight:bold">${escapeHtml(p.name)}</span>`;
-        }else{
-            bHtml += `<span onclick="openShelfFolder('${p.id}')" style="cursor:pointer;color:#2563eb">${escapeHtml(p.name)}</span>`;
-        }
-    });
-    breadcrumbsEl.innerHTML = bHtml;
+    let titleText = folderItem ? folderItem.name : 'すべて';
+    let folderStat = folderItem ? getFolderStats(folderItem) : getFolderStats({ children: d.r || [] });
+    breadcrumbsEl.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+            <div style="font-size:15px;font-weight:bold;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(titleText)}</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b;font-weight:500">
+                <span>${folderStat.withoutSpaces.toLocaleString()}字</span>
+                ${folderItem ? `<button type="button" class="shelf-card-info-btn" onclick="openItemModal('${folderItem.id}', event)" title="フォルダ設定・名前変更・削除" style="padding:1px 5px;font-size:10px;line-height:1.2">ℹ️</button>` : ''}
+            </div>
+        </div>
+    `;
 
     let items = currentShelfFolderId ? (g(currentShelfFolderId)?.children || []) : (d.r || []);
     let subfolders = items.filter(it => it.type === 'folder');
@@ -335,6 +482,7 @@ function renderShelfView(){
             card.className = 'shelf-folder-card';
             card.title = sf.name;
             card.onclick = (ev)=>{
+                if(Date.now() - lastDragEndTime < 350) return;
                 ev.stopPropagation();
                 openShelfFolder(sf.id);
             };
@@ -348,6 +496,7 @@ function renderShelfView(){
                 <div style="font-size:11px;color:#94a3b8;margin-top:4px;font-weight:500">${totalItems}項目</div>
                 <div class="shelf-folder-title">${escapeHtml(sf.name)}</div>
             `;
+            bindShelfCardDrag(card, sf);
             foldersGrid.appendChild(card);
         });
     }else{
@@ -365,6 +514,7 @@ function renderShelfView(){
             cardWrap.className = 'shelf-note-card-wrap';
             cardWrap.title = nt.name;
             cardWrap.onclick = (ev)=>{
+                if(Date.now() - lastDragEndTime < 350) return;
                 ev.stopPropagation();
                 openStoryFromShelf(nt.id);
             };
@@ -372,7 +522,7 @@ function renderShelfView(){
             cardWrap.innerHTML = `
                 <div class="shelf-note-card ${isCurrent?'active-note-card':''}">
                     <div style="display:flex;justify-content:flex-end">
-                        <button type="button" class="shelf-card-info-btn" onclick="event.stopPropagation();openItemModal('${nt.id}', event)" title="話の設定・タイトル変更・削除">ℹ️</button>
+                        <button type="button" class="shelf-card-info-btn" onclick="event.stopPropagation();openItemModal('${nt.id}', event)" title="紙の設定・タイトル変更・削除">ℹ️</button>
                     </div>
                     <div class="shelf-note-preview-lines">
                         <div class="shelf-note-line"></div>
@@ -381,12 +531,12 @@ function renderShelfView(){
                         <div class="shelf-note-line" style="width:60%"></div>
                     </div>
                     <div class="shelf-note-meta">
-                        <span>1m</span>
                         <span>${st.withoutSpaces.toLocaleString()}字</span>
                     </div>
                 </div>
                 <div class="shelf-note-title" title="${escapeHtml(nt.name)}">${escapeHtml(nt.name || '無題')}</div>
             `;
+            bindShelfCardDrag(cardWrap, nt);
             notesGrid.appendChild(cardWrap);
         });
     }else{
@@ -412,8 +562,8 @@ function updateCurrentStoryDisplay(){
     let titleEl=document.getElementById('storyTitleText');
     if(titleEl){
         let item=f?g(f):null;
-        titleEl.textContent=item?(item.name||'無題'):'（話未選択）';
-        titleEl.title=item?`現在の話: ${item.name}`:'';
+        titleEl.textContent=item?(item.name||'無題'):'（紙未選択）';
+        titleEl.title=item?`現在の紙: ${item.name}`:'';
     }
 }
 window.onload=()=>{
@@ -422,7 +572,7 @@ window.onload=()=>{
     if(s){try{d=JSON.parse(s)}catch(err){}}
     if(!d||!d.r||d.r.length===0){
         let id='d_'+Date.now();
-        d={r:[{id,type:'file',name:'第1話',content:'<div><br></div>'}]};
+        d={r:[{id,type:'file',name:'1枚目',content:'<div><br></div>'}]};
         f=id;
     }else{
         if(sc&&g(sc)){
@@ -1360,8 +1510,7 @@ function getFolderStats(folderItem){
     return { files, chars, withoutSpaces, subfolders };
 }
 
-let treeActiveDrag = null;
-let currentTreeDropAction = null;
+// treeActiveDrag, currentTreeDropAction, lastDragEndTime declared at top of script
 
 function getOrCreateDragGhost(){
     let gEl = document.getElementById('treeDragGhost');
@@ -1373,9 +1522,43 @@ function getOrCreateDragGhost(){
     return gEl;
 }
 
+function updateGhostContent(item, action){
+    let ghost = getOrCreateDragGhost();
+    if(!item) return;
+    let icon = (item.type === 'folder' ? '📁' : '📄');
+    let rawName = item.name || (item.type === 'folder' ? '新規フォルダ' : '無題');
+    let displayName = rawName.length > 15 ? rawName.substring(0, 14) + '…' : rawName;
+    
+    let html = `<div class="ghost-title-line"><span>${icon}</span><span>${escapeHtml(displayName)}</span></div>`;
+    
+    if(action){
+        if(action.position === 'inside'){
+            let targetCtx = findItemContext(action.targetId);
+            let targetRawName = (targetCtx && targetCtx.item.name) ? targetCtx.item.name : 'フォルダ';
+            let targetDisplayName = targetRawName.length > 12 ? targetRawName.substring(0, 11) + '…' : targetRawName;
+            html += `<span class="ghost-action-badge ghost-action-inside">📂 「${escapeHtml(targetDisplayName)}」の中に入れる</span>`;
+        }else if(action.position === 'before'){
+            let targetCtx = findItemContext(action.targetId);
+            let targetRawName = (targetCtx && targetCtx.item.name) ? targetCtx.item.name : '項目';
+            let targetDisplayName = targetRawName.length > 12 ? targetRawName.substring(0, 11) + '…' : targetRawName;
+            html += `<span class="ghost-action-badge ghost-action-before">↑ 「${escapeHtml(targetDisplayName)}」の上に並べる</span>`;
+        }else if(action.position === 'after'){
+            let targetCtx = findItemContext(action.targetId);
+            let targetRawName = (targetCtx && targetCtx.item.name) ? targetCtx.item.name : '項目';
+            let targetDisplayName = targetRawName.length > 12 ? targetRawName.substring(0, 11) + '…' : targetRawName;
+            html += `<span class="ghost-action-badge ghost-action-after">↓ 「${escapeHtml(targetDisplayName)}」の下に並べる</span>`;
+        }else if(action.position === 'root-end'){
+            html += `<span class="ghost-action-badge ghost-action-root">⬇ リストの末尾に並べる</span>`;
+        }
+    }else{
+        html += `<span class="ghost-action-badge" style="background:#64748b;color:#ffffff">移動先へドラッグ</span>`;
+    }
+    ghost.innerHTML = html;
+}
+
 function clearTreeDropIndicators(){
-    document.querySelectorAll('.tree-drop-top, .tree-drop-bottom, .tree-drop-inside').forEach(el=>{
-        el.classList.remove('tree-drop-top', 'tree-drop-bottom', 'tree-drop-inside');
+    document.querySelectorAll('.tree-drop-top, .tree-drop-bottom, .tree-drop-inside, .shelf-drop-inside, .shelf-drop-before, .shelf-drop-after').forEach(el=>{
+        el.classList.remove('tree-drop-top', 'tree-drop-bottom', 'tree-drop-inside', 'shelf-drop-inside', 'shelf-drop-before', 'shelf-drop-after');
     });
     let tEnd = document.getElementById('treeDropEndIndicator');
     if(tEnd) tEnd.style.display = 'none';
@@ -1426,6 +1609,9 @@ function reorderTreeItem(sourceId, targetId, position){
     s();
     r();
     v();
+    if(typeof renderShelfView === 'function' && currentViewMode === 'shelf'){
+        renderShelfView();
+    }
     
     if(typeof navigator !== 'undefined' && navigator.vibrate){
         try{ navigator.vibrate(15); }catch(e){}
@@ -1440,11 +1626,12 @@ function initTreeDragAndDropTouch(){
         let childCont = ev.target.closest('.tree-children');
         if(childCont && childCont.dataset.folderId){
             let folderId = childCont.dataset.folderId;
-            if(folderId !== treeActiveDrag.id){
+            if(folderId !== treeActiveDrag.id && !(treeActiveDrag.item && treeActiveDrag.item.type === 'folder' && isDescendantOrSelf(treeActiveDrag.item, folderId))){
                 ev.preventDefault();
                 clearTreeDropIndicators();
                 childCont.classList.add('tree-drop-inside');
                 currentTreeDropAction = { targetId: folderId, position: 'inside' };
+                updateGhostContent(treeActiveDrag.item, currentTreeDropAction);
                 return;
             }
         }
@@ -1453,6 +1640,7 @@ function initTreeDragAndDropTouch(){
         let tEnd = document.getElementById('treeDropEndIndicator');
         if(tEnd) tEnd.style.display = 'block';
         currentTreeDropAction = { targetId: null, position: 'root-end' };
+        updateGhostContent(treeActiveDrag.item, currentTreeDropAction);
     };
     t.ondrop = (ev) => {
         let targetRow = ev.target.closest('.tree-row');
@@ -1463,6 +1651,8 @@ function initTreeDragAndDropTouch(){
                 reorderTreeItem(srcId, currentTreeDropAction.targetId, currentTreeDropAction.position);
             }
             clearTreeDropIndicators();
+            let ghost = document.getElementById('treeDragGhost');
+            if(ghost) ghost.style.display = 'none';
             treeActiveDrag = null;
             currentTreeDropAction = null;
         }
@@ -1476,14 +1666,28 @@ function initTreeDragAndDropTouch(){
         ev.preventDefault();
         
         let ghost = getOrCreateDragGhost();
-        ghost.style.left = (touch.clientX + 10) + 'px';
-        ghost.style.top = (touch.clientY - 24) + 'px';
+        let ghostY = Math.max(8, touch.clientY - 64);
+        let ghostX = Math.max(8, Math.min(window.innerWidth - 270, touch.clientX - 40));
+        ghost.style.left = ghostX + 'px';
+        ghost.style.top = ghostY + 'px';
         
         let tRect = t.getBoundingClientRect();
-        if(touch.clientY < tRect.top + 40){
-            t.scrollTop -= 8;
-        }else if(touch.clientY > tRect.bottom - 40){
-            t.scrollTop += 8;
+        if(touch.clientY < tRect.top + 45){
+            t.scrollTop -= 10;
+        }else if(touch.clientY > tRect.bottom - 45){
+            t.scrollTop += 10;
+        }
+        
+        let shelfEl = document.getElementById('shelfView');
+        if(shelfEl && shelfEl.style.display !== 'none'){
+            let sRect = shelfEl.getBoundingClientRect();
+            if(touch.clientX >= sRect.left && touch.clientX <= sRect.right){
+                if(touch.clientY < sRect.top + 50){
+                    shelfEl.scrollTop -= 10;
+                }else if(touch.clientY > sRect.bottom - 50){
+                    shelfEl.scrollTop += 10;
+                }
+            }
         }
         
         clearTreeDropIndicators();
@@ -1491,6 +1695,7 @@ function initTreeDragAndDropTouch(){
         
         let pointEl = document.elementFromPoint(touch.clientX, touch.clientY);
         let targetRow = pointEl ? pointEl.closest('.tree-row') : null;
+        let targetShelfCard = pointEl ? pointEl.closest('.shelf-folder-card, .shelf-note-card-wrap') : null;
         
         if(!targetRow && pointEl && pointEl.closest('#t')){
             let rows = Array.from(t.querySelectorAll('.tree-row'));
@@ -1505,12 +1710,19 @@ function initTreeDragAndDropTouch(){
         
         if(targetRow){
             let targetId = targetRow.dataset.id;
-            if(targetId === treeActiveDrag.id) return;
+            if(targetId === treeActiveDrag.id) {
+                updateGhostContent(treeActiveDrag.item, null);
+                return;
+            }
             
             let targetCtx = findItemContext(targetId);
-            if(!targetCtx) return;
+            if(!targetCtx) {
+                updateGhostContent(treeActiveDrag.item, null);
+                return;
+            }
             
             if(treeActiveDrag.item.type === 'folder' && isDescendantOrSelf(treeActiveDrag.item, targetId)){
+                updateGhostContent(treeActiveDrag.item, null);
                 return;
             }
             
@@ -1528,6 +1740,40 @@ function initTreeDragAndDropTouch(){
                 targetRow.classList.add('tree-drop-bottom');
                 currentTreeDropAction = { targetId, position: 'after' };
             }
+            updateGhostContent(treeActiveDrag.item, currentTreeDropAction);
+        }else if(targetShelfCard){
+            let targetId = targetShelfCard.dataset.id;
+            if(targetId === treeActiveDrag.id) {
+                updateGhostContent(treeActiveDrag.item, null);
+                return;
+            }
+            
+            let targetCtx = findItemContext(targetId);
+            if(!targetCtx) {
+                updateGhostContent(treeActiveDrag.item, null);
+                return;
+            }
+            
+            if(treeActiveDrag.item.type === 'folder' && isDescendantOrSelf(treeActiveDrag.item, targetId)){
+                updateGhostContent(treeActiveDrag.item, null);
+                return;
+            }
+            
+            let rect = targetShelfCard.getBoundingClientRect();
+            let relX = touch.clientX - rect.left;
+            let relY = touch.clientY - rect.top;
+            
+            if(targetCtx.item.type === 'folder' && relX > rect.width * 0.2 && relX < rect.width * 0.8 && relY > rect.height * 0.15 && relY < rect.height * 0.85){
+                targetShelfCard.classList.add('shelf-drop-inside');
+                currentTreeDropAction = { targetId, position: 'inside' };
+            }else if(relX <= rect.width * 0.5){
+                targetShelfCard.classList.add('shelf-drop-before');
+                currentTreeDropAction = { targetId, position: 'before' };
+            }else{
+                targetShelfCard.classList.add('shelf-drop-after');
+                currentTreeDropAction = { targetId, position: 'after' };
+            }
+            updateGhostContent(treeActiveDrag.item, currentTreeDropAction);
         }else if(pointEl && pointEl.closest('.tree-children')){
             let childEl = pointEl.closest('.tree-children');
             let folderId = childEl.dataset.folderId;
@@ -1536,16 +1782,18 @@ function initTreeDragAndDropTouch(){
                 if(targetCtx && !(treeActiveDrag.item.type === 'folder' && isDescendantOrSelf(treeActiveDrag.item, folderId))){
                     childEl.classList.add('tree-drop-inside');
                     currentTreeDropAction = { targetId: folderId, position: 'inside' };
+                    updateGhostContent(treeActiveDrag.item, currentTreeDropAction);
                 }
             }
         }else if(pointEl && pointEl.closest('#t')){
             let tEnd = document.getElementById('treeDropEndIndicator');
             if(tEnd) tEnd.style.display = 'block';
             currentTreeDropAction = { targetId: null, position: 'root-end' };
+            updateGhostContent(treeActiveDrag.item, currentTreeDropAction);
+        }else{
+            updateGhostContent(treeActiveDrag.item, null);
         }
     }, {passive: false});
-    
-    let lastDragEndTime = 0;
     
     window.addEventListener('touchend', ()=>{
         if(!treeActiveDrag) return;
@@ -1554,7 +1802,7 @@ function initTreeDragAndDropTouch(){
         if(ghost) ghost.style.display = 'none';
         
         if(treeActiveDrag.rowEl){
-            treeActiveDrag.rowEl.classList.remove('tree-row-dragging');
+            treeActiveDrag.rowEl.classList.remove('tree-row-dragging', 'shelf-card-dragging');
         }
         
         clearTreeDropIndicators();
@@ -1572,7 +1820,7 @@ function initTreeDragAndDropTouch(){
         lastDragEndTime = Date.now();
         let ghost = document.getElementById('treeDragGhost');
         if(ghost) ghost.style.display = 'none';
-        if(treeActiveDrag.rowEl) treeActiveDrag.rowEl.classList.remove('tree-row-dragging');
+        if(treeActiveDrag.rowEl) treeActiveDrag.rowEl.classList.remove('tree-row-dragging', 'shelf-card-dragging');
         clearTreeDropIndicators();
         treeActiveDrag = null;
         currentTreeDropAction = null;
@@ -1586,7 +1834,7 @@ function r(){
         emptyDiv.style.color='#94a3b8';
         emptyDiv.style.fontSize='11px';
         emptyDiv.style.padding='8px';
-        emptyDiv.textContent='「+話」を押して作成してください';
+        emptyDiv.textContent='「+紙」を押して作成してください';
         t.appendChild(emptyDiv);
     }else{
         d.r.forEach(i=>t.appendChild(m(i,null,0)));
@@ -1627,100 +1875,51 @@ function m(i,pid,level=0){
     row.style.setProperty('--tree-level', level);
     row.style.paddingLeft=(8 + level * 14)+'px';
     
-    // ドラッグ用ハンドル（行のクリックやタップ操作を阻害しないようドラッグ操作を完全分離）
-    let dragHandle=document.createElement('span');
-    dragHandle.className='tree-drag-handle';
-    dragHandle.innerHTML='⋮⋮';
-    dragHandle.title='ドラッグして並び替え';
-    dragHandle.setAttribute('draggable', 'true');
-    dragHandle.ondragstart=(ev)=>{
-        ev.stopPropagation();
-        ev.dataTransfer.setData('text/plain', i.id);
-        ev.dataTransfer.effectAllowed='move';
-        row.classList.add('tree-row-dragging');
-        treeActiveDrag = { id: i.id, rowEl: row, item: i, isDragging: true };
-    };
-    dragHandle.ondragend=(ev)=>{
-        ev.stopPropagation();
-        row.classList.remove('tree-row-dragging');
-        clearTreeDropIndicators();
-        treeActiveDrag=null;
-        currentTreeDropAction=null;
-    };
-    dragHandle.addEventListener('touchstart', (ev)=>{
-        if(ev.touches.length !== 1) return;
-        let touch = ev.touches[0];
-        triggerDragStart(touch.clientX, touch.clientY);
-    }, {passive: true});
+    let isFold=collapsedFolders.has(i.id);
+    let hasChildren = i.type === 'folder' && i.children && i.children.length > 0;
     
     let contentDiv=document.createElement('div');
     contentDiv.className='tree-content';
     
-    // 1行目: アイコン + 名前 (左寄せ) と 並び替えボタン (右上)
-    let mainLine=document.createElement('div');
-    mainLine.className='tree-main-line';
+    let titleEl=document.createElement('div');
+    titleEl.className='tree-title-btn';
     
-    let titleBtn=document.createElement('button');
-    titleBtn.className='tree-title-btn';
-    titleBtn.type='button';
-    
-    let isFold=collapsedFolders.has(i.id);
     if(i.type==='folder'){
         let iconSpan=document.createElement('span');
         iconSpan.className='tree-folder-icon';
-        iconSpan.innerHTML=getFolderIconSvg(isFold, isCurrentActive ? '#93c5fd' : '#2563eb');
+        iconSpan.innerHTML=getFolderIconSvg(isFold, isCurrentActive ? '#1e3a8a' : '#2563eb');
         iconSpan.style.display='inline-flex';
         iconSpan.style.alignItems='center';
-        iconSpan.style.marginRight='3px';
+        iconSpan.style.marginRight='4px';
         iconSpan.style.marginLeft='0';
-        titleBtn.appendChild(iconSpan);
+        iconSpan.style.flexShrink='0';
+        titleEl.appendChild(iconSpan);
+    }else{
+        let iconSpan=document.createElement('span');
+        iconSpan.className='tree-file-icon';
+        iconSpan.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
+        iconSpan.style.display='inline-flex';
+        iconSpan.style.alignItems='center';
+        iconSpan.style.marginRight='4px';
+        iconSpan.style.marginLeft='0';
+        iconSpan.style.flexShrink='0';
+        titleEl.appendChild(iconSpan);
     }
     
     let nameSpan=document.createElement('span');
     nameSpan.className='tree-name';
     nameSpan.textContent=i.name;
     nameSpan.title=i.name;
-    titleBtn.appendChild(nameSpan);
+    titleEl.appendChild(nameSpan);
     
-    mainLine.appendChild(titleBtn);
-    mainLine.appendChild(dragHandle);
-    contentDiv.appendChild(mainLine);
+    contentDiv.appendChild(titleEl);
     
-    // 2行目: 文字数とℹ️を左に寄せ、フォルダの展開ボタン（開閉）を右に寄せる
-    let subLine=document.createElement('div');
-    subLine.className='tree-sub-line';
-    
-    let badgeSpan=document.createElement('span');
-    badgeSpan.className='tree-badge';
-    if(i.type==='folder'){
-        let st=getFolderStats(i);
-        badgeSpan.textContent=st.files+'話 ('+st.withoutSpaces.toLocaleString()+'字)';
-        badgeSpan.title=`フォルダ「${i.name}」: ${st.files}話 / 文字数(空白なし): ${st.withoutSpaces.toLocaleString()}字 (空白込: ${st.chars.toLocaleString()}字)`;
-    }else{
-        let st=getChapterStats(i);
-        badgeSpan.textContent=st.withoutSpaces.toLocaleString()+'字';
-        badgeSpan.title=`「${i.name}」: 文字数(空白なし): ${st.withoutSpaces.toLocaleString()}字 (空白込: ${st.chars.toLocaleString()}字 / ${st.lines}行)`;
-    }
-    subLine.appendChild(badgeSpan);
-    
-    let infoBtn=document.createElement('button');
-    infoBtn.className='tree-info-btn';
-    infoBtn.type='button';
-    infoBtn.innerHTML='ℹ️';
-    infoBtn.title='「'+i.name+'」の情報・操作（名前変更・複製・移動・削除）';
-    infoBtn.onclick=(ev)=>{
-        ev.stopPropagation();
-        openItemModal(i.id, ev);
-    };
-    subLine.appendChild(infoBtn);
-    
-    let hasChildren = i.type === 'folder' && i.children && i.children.length > 0;
     if(hasChildren){
         let toggleBtn=document.createElement('button');
         toggleBtn.className='tree-toggle-btn';
         toggleBtn.type='button';
-        let chevronDownSvg=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M6 9 L12 15 L18 9"/></svg>`;
-        let chevronRightSvg=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 6 L15 12 L9 18"/></svg>`;
+        let chevronDownSvg=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${isCurrentActive ? '#93c5fd' : '#2563eb'}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M6 9 L12 15 L18 9"/></svg>`;
+        let chevronRightSvg=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${isCurrentActive ? '#93c5fd' : '#2563eb'}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 6 L15 12 L9 18"/></svg>`;
         toggleBtn.innerHTML=isFold ? chevronRightSvg : chevronDownSvg;
         toggleBtn.title=isFold ? '「'+i.name+'」の中身を展開' : '「'+i.name+'」の中身を閉じる';
         toggleBtn.onclick=(ev)=>{
@@ -1732,10 +1931,10 @@ function m(i,pid,level=0){
             }
             r();
         };
-        subLine.appendChild(toggleBtn);
+        contentDiv.appendChild(toggleBtn);
     }
     
-    contentDiv.appendChild(subLine);
+    row.appendChild(contentDiv);
     
     function handleItemSelect(){
         if(i.type==='file'){
@@ -1752,20 +1951,22 @@ function m(i,pid,level=0){
         }
     }
     
-    titleBtn.onclick=(ev)=>{
-        ev.stopPropagation();
-        handleItemSelect();
-    };
-    
     row.onclick=(ev)=>{
-        if(ev.target.closest('.tree-info-btn') || ev.target.closest('.tree-toggle-btn') || ev.target.closest('.tree-drag-handle')){
+        if(ev.target.closest('.tree-toggle-btn')){
+            return;
+        }
+        if(Date.now() - lastDragEndTime < 350){
             return;
         }
         ev.stopPropagation();
         handleItemSelect();
     };
     
-    row.appendChild(contentDiv);
+    // タッチによる指のなぞり（長押し判定でスクロールと分離）
+    let longPressTimer = null;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isLongPressTriggered = false;
     
     function triggerDragStart(clientX, clientY){
         if(treeActiveDrag) return;
@@ -1780,15 +1981,86 @@ function m(i,pid,level=0){
         row.classList.add('tree-row-dragging');
         
         let ghost = getOrCreateDragGhost();
-        ghost.innerHTML = (i.type === 'folder' ? getFolderIconSvg(isFold, '#2563eb') + '&nbsp;' : '') + (i.name || '');
-        ghost.style.left = (clientX + 10) + 'px';
-        ghost.style.top = (clientY - 24) + 'px';
+        updateGhostContent(i, null);
+        let ghostY = Math.max(8, clientY - 64);
+        let ghostX = Math.max(8, Math.min(window.innerWidth - 270, clientX - 40));
+        ghost.style.left = ghostX + 'px';
+        ghost.style.top = ghostY + 'px';
         ghost.style.display = 'flex';
         
         if(typeof navigator !== 'undefined' && navigator.vibrate){
-            try{ navigator.vibrate(15); }catch(e){}
+            try{ navigator.vibrate(28); }catch(e){}
         }
     }
+    
+    row.addEventListener('touchstart', (ev)=>{
+        if(ev.touches.length !== 1) return;
+        if(ev.target.closest('.tree-toggle-btn')) return;
+        
+        let touch = ev.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        isLongPressTriggered = false;
+        
+        clearTimeout(longPressTimer);
+        longPressTimer = setTimeout(()=>{
+            isLongPressTriggered = true;
+            triggerDragStart(touchStartX, touchStartY);
+        }, 280);
+    }, {passive: true});
+    
+    row.addEventListener('touchmove', (ev)=>{
+        if(!isLongPressTriggered){
+            let touch = ev.touches && ev.touches[0];
+            if(touch){
+                let dx = Math.abs(touch.clientX - touchStartX);
+                let dy = Math.abs(touch.clientY - touchStartY);
+                if(dx > 9 || dy > 9){
+                    clearTimeout(longPressTimer);
+                }
+            }
+        }
+    }, {passive: true});
+    
+    row.addEventListener('touchend', ()=>{
+        clearTimeout(longPressTimer);
+        if(isLongPressTriggered){
+            lastDragEndTime = Date.now();
+        }
+    }, {passive: true});
+    
+    row.addEventListener('touchcancel', ()=>{
+        clearTimeout(longPressTimer);
+    }, {passive: true});
+    
+    // マウスドラッグ対応（PCでもボタン不要でドラッグ移動可能）
+    row.setAttribute('draggable', 'true');
+    row.ondragstart = (ev) => {
+        if(ev.target.closest('.tree-toggle-btn')){
+            ev.preventDefault();
+            return;
+        }
+        ev.stopPropagation();
+        ev.dataTransfer.setData('text/plain', i.id);
+        ev.dataTransfer.effectAllowed = 'move';
+        row.classList.add('tree-row-dragging');
+        treeActiveDrag = { id: i.id, rowEl: row, item: i, isDragging: true };
+        let ghost = getOrCreateDragGhost();
+        updateGhostContent(i, null);
+        ghost.style.left = (ev.clientX + 15) + 'px';
+        ghost.style.top = (ev.clientY - 25) + 'px';
+        ghost.style.display = 'flex';
+    };
+    row.ondragend = (ev) => {
+        ev.stopPropagation();
+        lastDragEndTime = Date.now();
+        row.classList.remove('tree-row-dragging');
+        clearTreeDropIndicators();
+        let ghost = document.getElementById('treeDragGhost');
+        if(ghost) ghost.style.display = 'none';
+        treeActiveDrag = null;
+        currentTreeDropAction = null;
+    };
     
     // ドロップターゲット（ドラッグ中のアイテムの挿入先として動作）
     row.ondragover = (ev) => {
@@ -1796,6 +2068,7 @@ function m(i,pid,level=0){
         ev.stopPropagation();
         if(!treeActiveDrag || treeActiveDrag.id === i.id) return;
         if(treeActiveDrag.item && treeActiveDrag.item.type === 'folder' && isDescendantOrSelf(treeActiveDrag.item, i.id)){
+            updateGhostContent(treeActiveDrag.item, null);
             return;
         }
         clearTreeDropIndicators();
@@ -1813,6 +2086,10 @@ function m(i,pid,level=0){
             row.classList.add('tree-drop-bottom');
             currentTreeDropAction = { targetId: i.id, position: 'after' };
         }
+        updateGhostContent(treeActiveDrag.item, currentTreeDropAction);
+        let ghost = getOrCreateDragGhost();
+        ghost.style.left = (ev.clientX + 15) + 'px';
+        ghost.style.top = (ev.clientY - 25) + 'px';
     };
     row.ondragleave = (ev) => {
         if(ev.relatedTarget && !row.contains(ev.relatedTarget)){
@@ -1827,6 +2104,8 @@ function m(i,pid,level=0){
             reorderTreeItem(srcId, currentTreeDropAction.targetId, currentTreeDropAction.position);
         }
         clearTreeDropIndicators();
+        let ghost = document.getElementById('treeDragGhost');
+        if(ghost) ghost.style.display = 'none';
         treeActiveDrag = null;
         currentTreeDropAction = null;
     };
@@ -1846,6 +2125,10 @@ function m(i,pid,level=0){
             clearTreeDropIndicators();
             childCont.classList.add('tree-drop-inside');
             currentTreeDropAction = { targetId: i.id, position: 'inside' };
+            updateGhostContent(treeActiveDrag.item, currentTreeDropAction);
+            let ghost = getOrCreateDragGhost();
+            ghost.style.left = (ev.clientX + 15) + 'px';
+            ghost.style.top = (ev.clientY - 25) + 'px';
         };
         childCont.ondragleave = (ev) => {
             if(ev.relatedTarget && !childCont.contains(ev.relatedTarget)){
@@ -1861,6 +2144,8 @@ function m(i,pid,level=0){
                 reorderTreeItem(srcId, i.id, 'inside');
             }
             clearTreeDropIndicators();
+            let ghost = document.getElementById('treeDragGhost');
+            if(ghost) ghost.style.display = 'none';
             treeActiveDrag = null;
             currentTreeDropAction = null;
         };
@@ -1910,8 +2195,8 @@ function a(isF, optTargetFolderId=null){
         input.value='';
         desc.textContent='作成先: '+targetName;
     }else{
-        title.innerHTML='<span>新規話（エピソード）作成</span>';
-        label.textContent='話タイトル';
+        title.innerHTML='<span>📄</span><span>新規紙作成</span>';
+        label.textContent='紙タイトル';
         input.placeholder='';
         input.value='';
         desc.textContent='作成先: '+targetName;
@@ -2005,7 +2290,7 @@ function updateModalContent(id){
     if(titleEl){
         titleEl.innerHTML=isFolder
             ? `<span>📁</span><span>フォルダの情報・操作</span>`
-            : `<span>話（エピソード）の情報・操作</span>`;
+            : `<span>📄</span><span>紙の情報・操作</span>`;
     }
     
     let statsEl=document.getElementById('modalInfoStats');
@@ -2016,7 +2301,7 @@ function updateModalContent(id){
             statsEl.innerHTML=`
                 <div><strong>フォルダ名:</strong> ${it.name}</div>
                 <div><strong>所属階層:</strong> ${parentName}</div>
-                <div><strong>含まれる話数:</strong> ${st.files} 話</div>
+                <div><strong>含まれる枚数:</strong> ${st.files} 枚</div>
                 <div><strong>文字数（空白なし・デフォルト）:</strong> <span style="font-size:13px;color:#2563eb;font-weight:bold">${st.withoutSpaces.toLocaleString()} 字</span></div>
                 <div><strong>総文字数（空白込み）:</strong> ${st.chars.toLocaleString()} 字</div>
                 <div><strong>サブフォルダ:</strong> ${st.subfolders} 件</div>
@@ -2024,7 +2309,7 @@ function updateModalContent(id){
         }else{
             let st=getChapterStats(it);
             statsEl.innerHTML=`
-                <div><strong>話タイトル:</strong> ${it.name}</div>
+                <div><strong>紙タイトル:</strong> ${it.name}</div>
                 <div><strong>所属フォルダ:</strong> ${parentName}</div>
                 <div><strong>文字数（空白なし・デフォルト）:</strong> <span style="font-size:13px;color:#2563eb;font-weight:bold">${st.withoutSpaces.toLocaleString()} 字</span></div>
                 <div><strong>総文字数（空白込み）:</strong> ${st.chars.toLocaleString()} 字</div>
@@ -2040,17 +2325,17 @@ function updateModalContent(id){
     
     let dupBtn=document.getElementById('modalDuplicateBtn');
     if(dupBtn){
-        dupBtn.textContent=isFolder?'📋 このフォルダを複製':'📋 この話を複製';
+        dupBtn.textContent=isFolder?'📋 このフォルダを複製':'📋 この紙を複製';
     }
     
     let saveTxtBtn=document.getElementById('modalSaveTxtBtn');
     if(saveTxtBtn){
-        saveTxtBtn.textContent=isFolder?'💾 フォルダ内の全話をまとめて.txt保存':'💾 .txtファイルとして保存';
+        saveTxtBtn.textContent=isFolder?'💾 フォルダ内の全紙をまとめて.txt保存':'💾 .txtファイルとして保存';
     }
     
     let delBtn=document.getElementById('modalDeleteBtn');
     if(delBtn){
-        delBtn.textContent=isFolder?'🗑️ このフォルダと中身を削除':'🗑️ この話を削除';
+        delBtn.textContent=isFolder?'🗑️ このフォルダと中身を削除':'🗑️ この紙を削除';
     }
     
     let targetSelect=document.getElementById('modalMoveTarget');
@@ -2179,7 +2464,7 @@ function execFolderBatchReplace(){
         v();
         updateModalContent(currentModalItemId);
         if(msgEl){
-            msgEl.textContent=`${changedFilesCount}話中、計${totalReplacedCount}箇所を置換しました！`;
+            msgEl.textContent=`${changedFilesCount}枚中、計${totalReplacedCount}箇所を置換しました！`;
             msgEl.style.color='#16a34a';
         }
     }else{
@@ -2324,8 +2609,8 @@ function deleteModalItem(){
     
     let isF=(ctx.item.type==='folder');
     let msg=isF
-        ? `フォルダ「${ctx.item.name}」を削除しますか？\n（フォルダ内のすべての話も削除されます）`
-        : `話「${ctx.item.name}」を削除しますか？`;
+        ? `フォルダ「${ctx.item.name}」を削除しますか？\n（フォルダ内のすべての紙も削除されます）`
+        : `紙「${ctx.item.name}」を削除しますか？`;
     if(!confirm(msg))return;
     
     let wasActive=(ctx.item.id===f||(isF&&isDescendantOrSelf(ctx.item, f)));
@@ -2349,7 +2634,7 @@ function deleteModalItem(){
             o(f);
         }else{
             let newId='d_'+Date.now();
-            d.r.push({id:newId,type:'file',name:'第1話',content:'<div><br></div>'});
+            d.r.push({id:newId,type:'file',name:'1枚目',content:'<div><br></div>'});
             f=newId;
             o(f);
         }
@@ -2494,7 +2779,7 @@ function saveAsTxt(){
     if(typeof flushPendingHeavyTask === 'function') flushPendingHeavyTask();
     s();
     let item=g(f);
-    let name=item?(item.name||'第1話'):'小説原稿';
+    let name=item?(item.name||'1枚目'):'原稿';
     let safeName=name.replace(/[\\/:*?"<>|]/g,'_');
     let text=getStoryPlainText(e.innerHTML);
     downloadTextFile(safeName+'.txt', text);
@@ -2513,7 +2798,7 @@ function saveModalItemAsTxt(){
         }else{
             text=getStoryPlainText(it.content);
         }
-        let safeName=(it.name||'第1話').replace(/[\\/:*?"<>|]/g,'_');
+        let safeName=(it.name||'1枚目').replace(/[\\/:*?"<>|]/g,'_');
         downloadTextFile(safeName+'.txt', text);
     }else if(it.type==='folder'){
         let allTexts=[];
@@ -2794,13 +3079,13 @@ e.addEventListener('paste', (ev)=>{
 
 /* ツールバーの並び替え機能 */
 const toolDefs={
-    'tool_sb':{name:'フォルダ / 話',desc:'サイドバー（フォルダ・話一覧）の表示・非表示'},
-    'tool_shelf':{name:'ノート一覧',desc:'フォルダ・ノート一覧（本棚）と原稿エディタの切替'},
+    'tool_sb':{name:'フォルダ / 紙',desc:'サイドバー（フォルダ・紙一覧）の表示・非表示'},
+    'tool_shelf':{name:'紙一覧',desc:'フォルダ・紙一覧と原稿エディタの切替'},
     'tool_root':{name:'戻 (ルート)',desc:'最上層階層に移動'},
     'tool_undo':{name:'撤 (アンドゥ)',desc:'1つ前の操作を取り消す'},
     'tool_redo':{name:'進 (リドゥ)',desc:'取り消した操作をやり直す'},
     'tool_copy':{name:'複 (コピー)',desc:'きれいな小説原稿をクリップボードにコピー'},
-    'tool_save_txt':{name:'💾 .txtファイルとして保存',desc:'現在の話を.txtファイルとしてダウンロード保存'},
+    'tool_save_txt':{name:'.txtファイルとして保存',desc:'現在の紙を.txtファイルとしてダウンロード保存'},
     'tool_fx':{name:'修 (一括修正)',desc:'英数記号1マス化・全角空白化・誤字修正'},
     'tool_spcol':{name:'空白色',desc:'空白の強調色ON/OFF'},
     'tool_selcount':{name:'選択文字数 (ON/OFF)',desc:'文字選択時にマス数と文字数を5秒間表示'},
@@ -3192,7 +3477,7 @@ if(window.ResizeObserver){
 }
 </script>
 
-<!-- 話・フォルダの管理モーダル -->
+<!-- 紙・フォルダの管理モーダル -->
 <div id="itemModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeItemModal()">
   <div class="modal-card">
     <div class="modal-header">
@@ -3223,7 +3508,7 @@ if(window.ResizeObserver){
             💾 .txtファイルとして保存
           </button>
           <button id="modalDuplicateBtn" onclick="duplicateModalItem()" style="width:100%;background:#f8fafc;border:1px solid #cbd5e1;color:#1e293b;padding:7px 8px;border-radius:5px;font-size:12px;display:flex;align-items:center;justify-content:center;gap:4px;font-weight:bold;cursor:pointer">
-            📋 この話を複製
+            📋 この紙を複製
           </button>
         </div>
         <div style="display:flex;gap:6px">
@@ -3248,7 +3533,7 @@ if(window.ResizeObserver){
         <div class="modal-sec-title" style="color:#0369a1">このフォルダの中に新規追加</div>
         <div style="display:flex;gap:6px">
           <button onclick="modalAddFileInCurrentFolder()" style="flex:1;background:#2563eb;color:#fff;border:none;padding:7px;border-radius:5px;font-size:12px;font-weight:bold;cursor:pointer">
-            + 話を追加
+            + 紙を追加
           </button>
           <button onclick="modalAddFolderInCurrentFolder()" style="flex:1;background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc;padding:7px;border-radius:5px;font-size:12px;font-weight:bold;cursor:pointer">
             + サブフォルダを追加
@@ -3261,7 +3546,7 @@ if(window.ResizeObserver){
           <span>🔄 フォルダ内の一括文字列置換</span>
         </div>
         <div style="font-size:11px;color:#713f12;margin-bottom:8px;line-height:1.4">
-          このフォルダ（およびサブフォルダ）に含まれるすべての話の文字列を一括で検索・置換します。
+          このフォルダ（およびサブフォルダ）に含まれるすべての紙の文字列を一括で検索・置換します。
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <input id="modalFolderRepFrom" placeholder="置換前の文字列（検索）" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #fde047;border-radius:4px;font-size:12px;outline:none;background:#fff" onkeydown="if(event.key==='Enter')document.getElementById('modalFolderRepTo').focus()">
@@ -3288,7 +3573,7 @@ if(window.ResizeObserver){
   </div>
 </div>
 
-<!-- 新規作成モーダル（フォルダ／話） -->
+<!-- 新規作成モーダル（フォルダ／紙） -->
 <div id="createModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeCreateModal()">
   <div class="modal-card" style="max-width:380px">
     <div class="modal-header">
