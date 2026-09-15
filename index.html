@@ -171,6 +171,11 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 </div>
 </div>
 <div id="t"></div>
+<div id="sidebarActionBar" style="border-top:1px solid #e2e8f0;background:#f8fafc;padding:3px 6px;display:flex;align-items:center;justify-content:flex-end;flex-shrink:0">
+  <button type="button" id="sidebarColorBtn" onclick="openColorModal('sidebar', event)" style="background:#ffffff;border:1px solid #cbd5e1;color:#334155;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.1s ease" onmouseover="this.style.background='#eff6ff';this.style.borderColor='#93c5fd';this.style.color='#1d4ed8'" onmouseout="this.style.background='#ffffff';this.style.borderColor='#cbd5e1';this.style.color='#334155'" title="サイドバー限定のカラー設定を開く">
+    <span>カラー設定</span>
+  </button>
+</div>
 <div id="sidebarNoticeBar" style="border-top:1px solid #e2e8f0;background:#f8fafc;display:flex;align-items:stretch;user-select:none;flex-shrink:0;height:28px">
   <div onclick="openNoticeModal(1)" style="flex:1;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;color:#475569;cursor:pointer;border-right:1px solid #e2e8f0;transition:background 0.1s ease" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'" title="注意事項1を表示">
     注意事項1
@@ -4823,20 +4828,52 @@ function saveGlobalTheme(theme){
     localStorage.setItem('n_theme_global_v1', JSON.stringify(theme));
 }
 
+function getSidebarCustomTheme(){
+    let saved = localStorage.getItem('n_theme_sidebar_v1');
+    if(saved){
+        try{
+            let parsed = JSON.parse(saved);
+            if(parsed && parsed.enabled && parsed.theme){
+                return parsed.theme;
+            }
+        }catch(e){}
+    }
+    return null;
+}
+
+function saveSidebarCustomTheme(theme, enabled){
+    if(enabled && theme){
+        localStorage.setItem('n_theme_sidebar_v1', JSON.stringify({ enabled: true, theme: theme }));
+    } else {
+        localStorage.removeItem('n_theme_sidebar_v1');
+    }
+}
+
 function getActiveTheme(){
     let globalTheme = getGlobalTheme();
+    let theme = Object.assign({}, globalTheme);
+    
+    // 現在の紙またはフォルダのカスタム設定
     if(currentViewMode === 'editor' && f){
         let item = g(f);
         if(item && item.customColor && item.customColor.enabled && item.customColor.theme){
-            return Object.assign({}, globalTheme, item.customColor.theme);
+            theme = Object.assign({}, theme, item.customColor.theme);
         }
     } else if(currentViewMode === 'shelf' && currentShelfFolderId){
         let folder = g(currentShelfFolderId);
         if(folder && folder.customColor && folder.customColor.enabled && folder.customColor.theme){
-            return Object.assign({}, globalTheme, folder.customColor.theme);
+            theme = Object.assign({}, theme, folder.customColor.theme);
         }
     }
-    return globalTheme;
+    
+    // サイドバー限定の個別カラー設定がある場合はサイドバー部分を上書き
+    let sidebarCustom = getSidebarCustomTheme();
+    if(sidebarCustom){
+        if(sidebarCustom.sidebarBg) theme.sidebarBg = sidebarCustom.sidebarBg;
+        if(sidebarCustom.sidebarText) theme.sidebarText = sidebarCustom.sidebarText;
+    }
+    
+    return theme;
 }
 
 function applyThemeVariables(theme){
@@ -4908,6 +4945,11 @@ function populateColorTargetSelect(selectedId){
     optGlobal.textContent = '🌐 全体デフォルト設定（基本テーマ）';
     sel.appendChild(optGlobal);
     
+    let optSidebar = document.createElement('option');
+    optSidebar.value = 'sidebar';
+    optSidebar.textContent = '🗂️ サイドバー限定（左画面の色設定）';
+    sel.appendChild(optSidebar);
+    
     let curFile = f ? g(f) : null;
     if(curFile){
         let optCur = document.createElement('option');
@@ -4944,9 +4986,15 @@ function onColorTargetSelectChange(newTargetId){
 function loadTargetThemeToModal(targetId){
     let toggleSec = document.getElementById('colorModalCustomToggleSec');
     let targetBadge = document.getElementById('colorModalTargetBadge');
+    let paperSec = document.getElementById('colorModalPaperGroupSec');
+    let otherUiSec = document.getElementById('colorModalOtherUiGroupSec');
+    let uiGroupTitle = document.getElementById('colorModalUiGroupTitle');
     
     if(targetId === 'global'){
         if(toggleSec) toggleSec.style.display = 'none';
+        if(paperSec) paperSec.style.display = 'block';
+        if(otherUiSec) otherUiSec.style.display = 'flex';
+        if(uiGroupTitle) uiGroupTitle.textContent = 'サイドバー（左画面）・ヘッダー・枠外背景色';
         if(targetBadge){
             targetBadge.textContent = '全体基本設定';
             targetBadge.style.background = '#e0e7ff';
@@ -4954,10 +5002,49 @@ function loadTargetThemeToModal(targetId){
         }
         colorModalState.isCustomEnabled = true;
         colorModalState.theme = getGlobalTheme();
+        
+        let inputsSec = document.getElementById('colorModalCustomInputsSec');
+        if(inputsSec){
+            inputsSec.style.opacity = '1';
+            inputsSec.style.pointerEvents = 'auto';
+        }
+    } else if(targetId === 'sidebar'){
+        if(toggleSec) toggleSec.style.display = 'block';
+        if(paperSec) paperSec.style.display = 'none';
+        if(otherUiSec) otherUiSec.style.display = 'none';
+        if(uiGroupTitle) uiGroupTitle.textContent = 'サイドバー（左画面）の色設定';
+        if(targetBadge){
+            targetBadge.textContent = 'サイドバー限定設定';
+            targetBadge.style.background = '#e0f2fe';
+            targetBadge.style.color = '#0369a1';
+        }
+        
+        let sidebarCustom = getSidebarCustomTheme();
+        let hasCustom = !!sidebarCustom;
+        colorModalState.isCustomEnabled = hasCustom;
+        
+        let cb = document.getElementById('colorModalCustomEnableCb');
+        if(cb) cb.checked = hasCustom;
+        
+        let baseTheme = getGlobalTheme();
+        if(hasCustom && sidebarCustom){
+            colorModalState.theme = Object.assign({}, baseTheme, sidebarCustom);
+        } else {
+            colorModalState.theme = baseTheme;
+        }
+        
+        let inputsSec = document.getElementById('colorModalCustomInputsSec');
+        if(inputsSec){
+            inputsSec.style.opacity = hasCustom ? '1' : '0.45';
+            inputsSec.style.pointerEvents = hasCustom ? 'auto' : 'none';
+        }
     } else {
+        if(toggleSec) toggleSec.style.display = 'block';
+        if(paperSec) paperSec.style.display = 'block';
+        if(otherUiSec) otherUiSec.style.display = 'flex';
+        if(uiGroupTitle) uiGroupTitle.textContent = 'サイドバー（左画面）・ヘッダー・枠外背景色';
         let it = g(targetId);
         let name = it ? it.name : '選択項目';
-        if(toggleSec) toggleSec.style.display = 'block';
         if(targetBadge){
             targetBadge.textContent = `${it?.type==='folder'?'フォルダ':'紙'}: ${name}`;
             targetBadge.style.background = '#fce7f3';
@@ -4974,6 +5061,12 @@ function loadTargetThemeToModal(targetId){
             colorModalState.theme = Object.assign({}, getGlobalTheme(), it.customColor.theme);
         } else {
             colorModalState.theme = getGlobalTheme();
+        }
+        
+        let inputsSec = document.getElementById('colorModalCustomInputsSec');
+        if(inputsSec){
+            inputsSec.style.opacity = hasCustom ? '1' : '0.45';
+            inputsSec.style.pointerEvents = hasCustom ? 'auto' : 'none';
         }
     }
     
@@ -5000,7 +5093,6 @@ function onColorCustomEnableToggle(checked){
 
 function renderPresetButtons(){
     let cont = document.getElementById('colorPresetContainer');
-    if(!cont) returnCont = null;
     if(!cont) return;
     cont.innerHTML = '';
     
@@ -5115,6 +5207,17 @@ function saveColorSettingsFromModal(){
     if(targetId === 'global'){
         saveGlobalTheme(colorModalState.theme);
         alert('✨ 全体デフォルトのカラー設定を保存・適用しました！');
+    } else if(targetId === 'sidebar'){
+        if(colorModalState.isCustomEnabled){
+            saveSidebarCustomTheme({
+                sidebarBg: colorModalState.theme.sidebarBg,
+                sidebarText: colorModalState.theme.sidebarText
+            }, true);
+            alert('✨ サイドバー限定のカラー設定を保存・適用しました！');
+        } else {
+            saveSidebarCustomTheme(null, false);
+            alert('✨ サイドバー限定のカラー設定を解除し、全体デフォルトに戻しました！');
+        }
     } else {
         let it = g(targetId);
         if(it){
@@ -5145,6 +5248,12 @@ function resetColorSettings(){
     if(colorModalState.targetId === 'global'){
         colorModalState.theme = Object.assign({}, DEFAULT_THEME);
         saveGlobalTheme(DEFAULT_THEME);
+    } else if(colorModalState.targetId === 'sidebar'){
+        colorModalState.isCustomEnabled = false;
+        let cb = document.getElementById('colorModalCustomEnableCb');
+        if(cb) cb.checked = false;
+        saveSidebarCustomTheme(null, false);
+        colorModalState.theme = getGlobalTheme();
     } else {
         colorModalState.isCustomEnabled = false;
         let cb = document.getElementById('colorModalCustomEnableCb');
@@ -5462,9 +5571,9 @@ window.addEventListener('keydown', (ev)=>{
       <div id="colorModalCustomInputsSec" style="display:flex;flex-direction:column;gap:10px">
         
         <!-- マス目用紙の色設定 -->
-        <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:12px">
+        <div id="colorModalPaperGroupSec" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:12px">
           <div style="font-size:12px;font-weight:bold;color:#1e293b;margin-bottom:8px;display:flex;align-items:center;gap:4px">
-            <span>📝</span><span>マス目の用紙・文字色設定</span>
+            <span>マス目の用紙・文字色設定</span>
           </div>
           <div style="display:grid;grid-template-columns:1fr;gap:8px">
             
@@ -5519,7 +5628,7 @@ window.addEventListener('keydown', (ev)=>{
         <!-- サイドバー・画面全体の色設定 -->
         <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:12px">
           <div style="font-size:12px;font-weight:bold;color:#1e293b;margin-bottom:8px;display:flex;align-items:center;gap:4px">
-            <span>🗂️</span><span>サイドバー（左画面）・ヘッダー・枠外背景色</span>
+            <span id="colorModalUiGroupTitle">サイドバー（左画面）・ヘッダー・枠外背景色</span>
           </div>
           <div style="display:grid;grid-template-columns:1fr;gap:8px">
             
@@ -5541,30 +5650,33 @@ window.addEventListener('keydown', (ev)=>{
               </div>
             </div>
 
-            <!-- editorHeaderBg -->
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-              <span style="font-size:12px;color:#334155;flex:1">ヘッダー（タイトル帯）背景色</span>
-              <div style="display:flex;align-items:center;gap:6px">
-                <input type="color" id="col_picker_editorHeaderBg" onchange="onColorFieldChange('editorHeaderBg', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
-                <input type="text" id="col_text_editorHeaderBg" oninput="onColorFieldChange('editorHeaderBg', this.value, 'text')" placeholder="#ffffff" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
+            <!-- editorHeader & appBg controls wrapper -->
+            <div id="colorModalOtherUiGroupSec" style="display:flex;flex-direction:column;gap:8px">
+              <!-- editorHeaderBg -->
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <span style="font-size:12px;color:#334155;flex:1">ヘッダー（タイトル帯）背景色</span>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <input type="color" id="col_picker_editorHeaderBg" onchange="onColorFieldChange('editorHeaderBg', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
+                  <input type="text" id="col_text_editorHeaderBg" oninput="onColorFieldChange('editorHeaderBg', this.value, 'text')" placeholder="#ffffff" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
+                </div>
               </div>
-            </div>
 
-            <!-- editorHeaderText -->
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-              <span style="font-size:12px;color:#334155;flex:1">ヘッダー文字色</span>
-              <div style="display:flex;align-items:center;gap:6px">
-                <input type="color" id="col_picker_editorHeaderText" onchange="onColorFieldChange('editorHeaderText', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
-                <input type="text" id="col_text_editorHeaderText" oninput="onColorFieldChange('editorHeaderText', this.value, 'text')" placeholder="#0f172a" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
+              <!-- editorHeaderText -->
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <span style="font-size:12px;color:#334155;flex:1">ヘッダー文字色</span>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <input type="color" id="col_picker_editorHeaderText" onchange="onColorFieldChange('editorHeaderText', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
+                  <input type="text" id="col_text_editorHeaderText" oninput="onColorFieldChange('editorHeaderText', this.value, 'text')" placeholder="#0f172a" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
+                </div>
               </div>
-            </div>
 
-            <!-- appBg -->
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-              <span style="font-size:12px;color:#334155;flex:1">全体外枠（エディタ外側）背景色</span>
-              <div style="display:flex;align-items:center;gap:6px">
-                <input type="color" id="col_picker_appBg" onchange="onColorFieldChange('appBg', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
-                <input type="text" id="col_text_appBg" oninput="onColorFieldChange('appBg', this.value, 'text')" placeholder="#f1f5f9" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
+              <!-- appBg -->
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <span style="font-size:12px;color:#334155;flex:1">全体外枠（エディタ外側）背景色</span>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <input type="color" id="col_picker_appBg" onchange="onColorFieldChange('appBg', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
+                  <input type="text" id="col_text_appBg" oninput="onColorFieldChange('appBg', this.value, 'text')" placeholder="#f1f5f9" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
+                </div>
               </div>
             </div>
 
