@@ -129,6 +129,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_copy" class="tool-item" onclick="c()" title="きれいな原稿文章をコピー（特殊コピー）" style="font-weight:bold;font-size:11px;padding:4px 8px;white-space:nowrap">特殊コピー</button>
 <button id="tool_fx" class="tool-item" onclick="fx()" style="background:#e0f2fe;color:#0369a1;font-weight:bold;font-size:11px;padding:4px 8px;white-space:nowrap" title="半角空白・英数記号を全角1マス文字に変換">半角→全角</button>
 <button id="orderBtn" onclick="openOrderModal()" style="background:#f8fafc;color:#475569;border:1px dashed #94a3b8;padding:5px 8px;font-size:11px" title="ツールボタンの並び順を変更">⇄ 並替</button>
+<button id="renameBtn" onclick="openToolRenameModal()" style="background:#f8fafc;color:#475569;border:1px dashed #94a3b8;padding:5px 8px;font-size:11px" title="ツールボタンの名前変更・改行設定">✎ 名前/改行</button>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
 <input id="rFrom" placeholder="検索文字" style="padding:5px 8px;border:1px solid #d97706;border-radius:4px;font-size:12px;width:120px;outline:none;background:#fff">
@@ -173,6 +174,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#ffffff;border-bottom:1px solid #e2e8f0;flex-shrink:0;gap:8px;position:sticky;top:0;z-index:10">
     <div id="shelfBreadcrumbs" style="display:flex;align-items:center;gap:6px;min-width:0;flex:1"></div>
     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+      <button type="button" onclick="openFolderSaveTxtModal(currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#f0fdf4;color:#166534;border:1px solid #86efac;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="このフォルダ内の紙をまとめて保存（個別.txt / zip選択）">💾 一括保存</button>
       <button onclick="a(1, currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#dbeafe;color:#000000;border:1px solid #93c5fd;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しいフォルダを作成">+フォルダ</button>
       <button onclick="a(0, currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#fee2e2;color:#000000;border:1px solid #fca5a5;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しい紙を作成">+紙</button>
     </div>
@@ -2624,7 +2626,7 @@ function updateModalContent(id){
     
     let saveTxtBtn=document.getElementById('modalSaveTxtBtn');
     if(saveTxtBtn){
-        saveTxtBtn.textContent=isFolder?'フォルダ内の全紙をまとめて.txt保存':'.txtファイルとして保存';
+        saveTxtBtn.textContent=isFolder?'📁 フォルダ内の一括保存 (.txt / zip)':'.txtファイルとして保存';
     }
     
     let delBtn=document.getElementById('modalDeleteBtn');
@@ -3069,7 +3071,14 @@ function getStoryPlainText(contentHtml){
 }
 
 function downloadTextFile(filename, text){
-    let blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+    // BOM（\uFEFF）を先頭に付与したUTF-8形式で保存
+    // Windowsのメモ帳やWord、各種エディタでの文字コード自動判別ミス（Shift_JIS誤認による文字化け）を確実に防止
+    let contentWithBom = (typeof text === 'string' && !text.startsWith('\uFEFF')) ? ('\uFEFF' + text) : text;
+    let blob = new Blob([contentWithBom], { type: 'text/plain;charset=utf-8' });
+    downloadBlobFile(filename, blob);
+}
+
+function downloadBlobFile(filename, blob){
     let url=URL.createObjectURL(blob);
     let a=document.createElement('a');
     a.href=url;
@@ -3077,12 +3086,339 @@ function downloadTextFile(filename, text){
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    setTimeout(()=>URL.revokeObjectURL(url),2000);
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+}
+
+/* 純粋なJavaScriptによるZIP圧縮ファイルの生成（外部ライブラリ不要・UTF-8対応） */
+function createZipBlob(files){
+    function makeCrcTable(){
+        let c, table = new Uint32Array(256);
+        for(let n = 0; n < 256; n++){
+            c = n;
+            for(let k = 0; k < 8; k++){
+                c = ((c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
+            }
+            table[n] = c;
+        }
+        return table;
+    }
+    const crcTable = makeCrcTable();
+    function calcCrc32(bytes){
+        let crc = 0 ^ (-1);
+        for(let i = 0; i < bytes.length; i++){
+            crc = (crc >>> 8) ^ crcTable[(crc ^ bytes[i]) & 0xFF];
+        }
+        return (crc ^ (-1)) >>> 0;
+    }
+
+    const encoder = new TextEncoder();
+    let now = new Date();
+    let dosTime = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 0xFFFF;
+    let dosDate = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 0xFFFF;
+
+    let localHeadersAndData = [];
+    let centralDirHeaders = [];
+    let currentOffset = 0;
+
+    files.forEach(file => {
+        let contentWithBom = (typeof file.content === 'string' && !file.content.startsWith('\uFEFF'))
+            ? ('\uFEFF' + file.content)
+            : file.content;
+        let nameBytes = encoder.encode(file.name);
+        let dataBytes = encoder.encode(contentWithBom);
+        let crc = calcCrc32(dataBytes);
+        let size = dataBytes.length;
+
+        // Local file header (30 bytes)
+        let localHeader = new Uint8Array(30);
+        let lView = new DataView(localHeader.buffer);
+        lView.setUint32(0, 0x04034b50, true); // signature
+        lView.setUint16(4, 20, true);         // version needed
+        lView.setUint16(6, 0x0800, true);     // flags (bit 11: UTF-8)
+        lView.setUint16(8, 0, true);          // compression (0 = stored)
+        lView.setUint16(10, dosTime, true);
+        lView.setUint16(12, dosDate, true);
+        lView.setUint32(14, crc, true);
+        lView.setUint32(18, size, true);       // compressed size
+        lView.setUint32(22, size, true);       // uncompressed size
+        lView.setUint16(26, nameBytes.length, true);
+        lView.setUint16(28, 0, true);          // extra field length
+
+        localHeadersAndData.push(localHeader, nameBytes, dataBytes);
+
+        // Central directory file header (46 bytes)
+        let centralHeader = new Uint8Array(46);
+        let cView = new DataView(centralHeader.buffer);
+        cView.setUint32(0, 0x02014b50, true); // signature
+        cView.setUint16(4, 20, true);         // version made by
+        cView.setUint16(6, 20, true);         // version needed
+        cView.setUint16(8, 0x0800, true);     // flags (UTF-8)
+        cView.setUint16(10, 0, true);         // compression
+        cView.setUint16(12, dosTime, true);
+        cView.setUint16(14, dosDate, true);
+        cView.setUint32(16, crc, true);
+        cView.setUint32(20, size, true);
+        cView.setUint32(24, size, true);
+        cView.setUint16(28, nameBytes.length, true);
+        cView.setUint16(30, 0, true);         // extra field length
+        cView.setUint16(32, 0, true);         // comment length
+        cView.setUint16(34, 0, true);         // disk number start
+        cView.setUint16(36, 0, true);         // internal attributes
+        cView.setUint32(38, 0, true);         // external attributes
+        cView.setUint32(42, currentOffset, true); // relative offset of local header
+
+        centralDirHeaders.push(centralHeader, nameBytes);
+
+        currentOffset += 30 + nameBytes.length + size;
+    });
+
+    let centralDirOffset = currentOffset;
+    let centralDirSize = 0;
+    centralDirHeaders.forEach(chunk => { centralDirSize += chunk.length; });
+
+    // End of central directory record (22 bytes)
+    let eocd = new Uint8Array(22);
+    let eView = new DataView(eocd.buffer);
+    eView.setUint32(0, 0x06054b50, true); // signature
+    eView.setUint16(4, 0, true);          // disk number
+    eView.setUint16(6, 0, true);          // disk with start of central directory
+    eView.setUint16(8, files.length, true);  // entries on disk
+    eView.setUint16(10, files.length, true); // total entries
+    eView.setUint32(12, centralDirSize, true);
+    eView.setUint32(16, centralDirOffset, true);
+    eView.setUint16(20, 0, true);         // comment length
+
+    let allChunks = [...localHeadersAndData, ...centralDirHeaders, eocd];
+    return new Blob(allChunks, { type: 'application/zip' });
+}
+
+/* フォルダ内の一括保存制御 */
+let currentFolderSaveTargetId = null;
+let currentFolderSaveTargetName = '原稿';
+
+function openFolderSaveTxtModal(folderId){
+    if(typeof flushPendingHeavyTask === 'function') flushPendingHeavyTask();
+    s();
+    currentFolderSaveTargetId = folderId;
+
+    let targetTitle = '最上層（すべての紙）';
+    let itemsToSearch = d.r || [];
+
+    if(folderId){
+        let folder = g(folderId);
+        if(folder){
+            targetTitle = folder.name || 'フォルダ';
+            itemsToSearch = folder.children || [];
+        }
+    }
+    currentFolderSaveTargetName = targetTitle;
+
+    let files = [];
+    function walk(list){
+        if(!list) return;
+        list.forEach(it => {
+            if(it.type === 'file'){
+                files.push(it);
+            }else if(it.type === 'folder' && it.children){
+                walk(it.children);
+            }
+        });
+    }
+    walk(itemsToSearch);
+
+    if(files.length === 0){
+        alert('保存可能な紙がありません。');
+        return;
+    }
+
+    let modal = document.getElementById('folderSaveTxtModal');
+    if(!modal) return;
+
+    let titleEl = document.getElementById('folderSaveModalTitle');
+    if(titleEl){
+        titleEl.textContent = `📁 「${targetTitle}」の一括保存 (.txt / zip)`;
+    }
+
+    let listEl = document.getElementById('folderSaveFileList');
+    if(listEl){
+        listEl.innerHTML = '';
+        files.forEach(fileItem => {
+            let stats = getChapterStats(fileItem);
+            let row = document.createElement('div');
+            row.className = 'folder-save-row';
+            row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:7px 10px;background:#ffffff;border:1px solid #e2e8f0;border-radius:6px;box-sizing:border-box';
+
+            let cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.className = 'folder-save-cb';
+            cb.dataset.id = fileItem.id;
+            cb.checked = true;
+            cb.style.cssText = 'width:16px;height:16px;cursor:pointer;accent-color:#2563eb;flex-shrink:0';
+            cb.onchange = updateFolderSaveSelectedCount;
+
+            let iconSpan = document.createElement('span');
+            iconSpan.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;color:#64748b;flex-shrink:0';
+            iconSpan.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`;
+
+            let inputWrap = document.createElement('div');
+            inputWrap.style.cssText = 'flex:1;min-width:0;display:flex;align-items:center;gap:4px';
+
+            let nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.className = 'folder-save-name-input';
+            nameInput.value = fileItem.name || '無題';
+            nameInput.placeholder = 'ファイル名';
+            nameInput.style.cssText = 'flex:1;min-width:100px;padding:5px 8px;font-size:12px;border:1px solid #cbd5e1;border-radius:4px;outline:none;font-family:inherit;color:#1e293b';
+            nameInput.onfocus = () => { nameInput.style.borderColor = '#2563eb'; };
+            nameInput.onblur = () => { nameInput.style.borderColor = '#cbd5e1'; };
+
+            let extSpan = document.createElement('span');
+            extSpan.textContent = '.txt';
+            extSpan.style.cssText = 'font-size:11px;font-weight:bold;color:#64748b;flex-shrink:0';
+
+            inputWrap.appendChild(nameInput);
+            inputWrap.appendChild(extSpan);
+
+            let charBadge = document.createElement('span');
+            charBadge.textContent = `${(stats.withoutSpaces || 0).toLocaleString()}字`;
+            charBadge.style.cssText = 'font-size:10px;color:#64748b;background:#f1f5f9;padding:2px 6px;border-radius:10px;white-space:nowrap;flex-shrink:0';
+
+            row.appendChild(cb);
+            row.appendChild(iconSpan);
+            row.appendChild(inputWrap);
+            row.appendChild(charBadge);
+
+            listEl.appendChild(row);
+        });
+    }
+
+    updateFolderSaveSelectedCount();
+    modal.style.display = 'flex';
+}
+
+function closeFolderSaveTxtModal(){
+    let modal = document.getElementById('folderSaveTxtModal');
+    if(modal) modal.style.display = 'none';
+}
+
+function selectAllFolderSaveFiles(select){
+    let listEl = document.getElementById('folderSaveFileList');
+    if(!listEl) return;
+    listEl.querySelectorAll('.folder-save-cb').forEach(cb => {
+        cb.checked = !!select;
+    });
+    updateFolderSaveSelectedCount();
+}
+
+function updateFolderSaveSelectedCount(){
+    let listEl = document.getElementById('folderSaveFileList');
+    if(!listEl) return;
+    let allCbs = listEl.querySelectorAll('.folder-save-cb');
+    let total = allCbs.length;
+    let checkedCount = 0;
+    allCbs.forEach(cb => { if(cb.checked) checkedCount++; });
+
+    let sumEl = document.getElementById('folderSaveSelectedSummary');
+    if(sumEl) sumEl.textContent = `${checkedCount} / ${total} 枚選択中`;
+
+    let indBtnCount = document.getElementById('btnIndividualCount');
+    if(indBtnCount) indBtnCount.textContent = checkedCount;
+
+    let indBtn = document.getElementById('btnFolderSaveIndividual');
+    let zipBtn = document.getElementById('btnFolderSaveZip');
+    if(indBtn) indBtn.style.opacity = (checkedCount > 0) ? '1' : '0.5';
+    if(zipBtn) zipBtn.style.opacity = (checkedCount > 0) ? '1' : '0.5';
+}
+
+function getFolderSaveSelectedItems(){
+    let listEl = document.getElementById('folderSaveFileList');
+    if(!listEl) return [];
+    let rows = listEl.querySelectorAll('.folder-save-row');
+    let selected = [];
+    rows.forEach(row => {
+        let cb = row.querySelector('.folder-save-cb');
+        let input = row.querySelector('.folder-save-name-input');
+        if(cb && cb.checked && input){
+            let id = cb.dataset.id;
+            let customName = input.value.trim();
+            if(!customName) customName = input.getAttribute('placeholder') || '無題';
+            let safeName = customName.replace(/[\\/:*?"<>|]/g, '_');
+            let it = g(id);
+            if(it){
+                let text = (it.id === f) ? getStoryPlainText(e.innerHTML) : getStoryPlainText(it.content);
+                selected.push({
+                    id: it.id,
+                    customName: safeName,
+                    text: text
+                });
+            }
+        }
+    });
+    return selected;
+}
+
+/* 個別に保存：選択した各紙を、それぞれ変更した名前で順次ダウンロード */
+function execFolderSaveIndividual(){
+    let selected = getFolderSaveSelectedItems();
+    if(selected.length === 0){
+        alert('保存する紙を1枚以上選択してください。');
+        return;
+    }
+    closeFolderSaveTxtModal();
+    selected.forEach((item, index) => {
+        setTimeout(() => {
+            downloadTextFile(item.customName + '.txt', item.text);
+        }, index * 250);
+    });
+}
+
+/* ZIP(圧縮)ファイルとして保存：選択した紙をまとめて1つの.zipでダウンロード */
+function execFolderSaveZip(){
+    let selected = getFolderSaveSelectedItems();
+    if(selected.length === 0){
+        alert('保存する紙を1枚以上選択してください。');
+        return;
+    }
+    let folderName = (currentFolderSaveTargetName || '原稿フォルダ').replace(/[\\/:*?"<>|]/g, '_');
+    // 重複ファイル名の自動回避
+    let nameMap = {};
+    let zipFiles = selected.map(item => {
+        let baseName = item.customName;
+        let finalName = baseName + '.txt';
+        if(nameMap[finalName]){
+            nameMap[finalName]++;
+            finalName = `${baseName}_(${nameMap[finalName]}).txt`;
+        } else {
+            nameMap[finalName] = 1;
+        }
+        return { name: finalName, content: item.text };
+    });
+
+    let zipBlob = createZipBlob(zipFiles);
+    downloadBlobFile(folderName + '.zip', zipBlob);
+    closeFolderSaveTxtModal();
+}
+
+/* 1つの.txtファイルに結合して保存 */
+function execFolderSaveCombined(){
+    let selected = getFolderSaveSelectedItems();
+    if(selected.length === 0){
+        alert('保存する紙を1枚以上選択してください。');
+        return;
+    }
+    let folderName = (currentFolderSaveTargetName || '原稿フォルダ').replace(/[\\/:*?"<>|]/g, '_');
+    let combinedText = selected.map(item => `【${item.customName}】\n\n` + item.text).join('\n\n\n--------------------\n\n\n');
+    downloadTextFile(folderName + '_結合.txt', combinedText);
+    closeFolderSaveTxtModal();
 }
 
 function saveAsTxt(){
     if(typeof flushPendingHeavyTask === 'function') flushPendingHeavyTask();
     s();
+    if(currentViewMode === 'shelf'){
+        openFolderSaveTxtModal(currentShelfFolderId);
+        return;
+    }
     let item=g(f);
     let name=item?(item.name||'1枚目'):'原稿';
     let safeName=name.replace(/[\\/:*?"<>|]/g,'_');
@@ -3106,21 +3442,8 @@ function saveModalItemAsTxt(){
         let safeName=(it.name||'1枚目').replace(/[\\/:*?"<>|]/g,'_');
         downloadTextFile(safeName+'.txt', text);
     }else if(it.type==='folder'){
-        let allTexts=[];
-        function walkFolder(folder){
-            if(!folder.children)return;
-            folder.children.forEach(ch=>{
-                if(ch.type==='file'){
-                    let cText=(ch.id===f)?getStoryPlainText(e.innerHTML):getStoryPlainText(ch.content);
-                    allTexts.push(`【${ch.name}】\n\n`+cText);
-                }else if(ch.type==='folder'){
-                    walkFolder(ch);
-                }
-            });
-        }
-        walkFolder(it);
-        let safeName=(it.name||'フォルダ').replace(/[\\/:*?"<>|]/g,'_');
-        downloadTextFile(safeName+'.txt', allTexts.join('\n\n\n--------------------\n\n\n'));
+        closeItemModal();
+        openFolderSaveTxtModal(it.id);
     }
 }
 
@@ -3432,6 +3755,7 @@ function applyToolOrder(orderList){
     const header=document.querySelector('.h');
     if(!header)return;
     const orderBtn=document.getElementById('orderBtn');
+    const renameBtn=document.getElementById('renameBtn');
     orderList.forEach(toolId=>{
         let el=document.getElementById(toolId);
         if(el){
@@ -3439,7 +3763,9 @@ function applyToolOrder(orderList){
         }
     });
     if(orderBtn)header.appendChild(orderBtn);
+    if(renameBtn)header.appendChild(renameBtn);
     localStorage.setItem('n_tool_order_v7',JSON.stringify(orderList));
+    applyCustomToolLabels();
 }
 
 function initToolDragAndDrop(){
@@ -3482,11 +3808,11 @@ function saveCurrentToolOrderFromDOM(){
     if(!header)return;
     let newOrder=[];
     header.querySelectorAll('.tool-item').forEach(el=>{
-        if(el.id&&el.id!=='orderBtn'){
+        if(el.id&&el.id!=='orderBtn'&&el.id!=='renameBtn'){
             newOrder.push(el.id);
         }
     });
-    localStorage.setItem('n_tool_order_v6',JSON.stringify(newOrder));
+    localStorage.setItem('n_tool_order_v7',JSON.stringify(newOrder));
 }
 
 function openOrderModal(){
@@ -3573,6 +3899,261 @@ function resetToolOrder(){
     applyToolOrder([...defaultToolOrder]);
     renderOrderList();
     updateSelCountBtn();
+}
+
+/* ツールボタンの名前変更・改行カスタマイズ機能 */
+const defaultToolHTML = {
+    'tool_sb': '<span style="font-size:9.5px;font-weight:bold;line-height:1.05">フォルダ<br>紙</span><span style="font-size:8.5px;font-weight:bold;line-height:1;letter-spacing:-0.2px">注意事項</span>',
+    'tool_shelf': '最上層',
+    'tool_undo': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>',
+    'tool_redo': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 14 20 9 15 4"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v0A5.5 5.5 0 0 0 9.5 20H13"/></svg>',
+    'tool_save_txt': '.txt保存',
+    'tool_rep': '置換',
+    'tool_hd': '隠し文字',
+    'tool_hm': 'ホモグラフ',
+    'tool_spcol': '空白色:OFF',
+    'tool_selcount': '選択文字数<br>ON',
+    'tool_select': '横の文字数',
+    'tool_num': '算用数字',
+    'tool_copy': '特殊コピー',
+    'tool_fx': '半角→全角'
+};
+
+const defaultToolPreviewHTML = {
+    'tool_sb': 'フォルダ<br>紙',
+    'tool_shelf': '最上層',
+    'tool_undo': '↩ 戻す',
+    'tool_redo': '↪ 直す',
+    'tool_save_txt': '.txt保存',
+    'tool_rep': '置換',
+    'tool_hd': '隠し文字',
+    'tool_hm': 'ホモグラフ',
+    'tool_spcol': '空白色',
+    'tool_selcount': '選択文字数',
+    'tool_select': '横の文字数',
+    'tool_num': '算用数字',
+    'tool_copy': '特殊コピー',
+    'tool_fx': '半角→全角'
+};
+
+function getCustomToolLabels(){
+    let saved = localStorage.getItem('n_tool_custom_labels_v2');
+    if(saved){
+        try{ return JSON.parse(saved) || {}; }catch(e){}
+    }
+    return {};
+}
+
+function saveCustomToolLabels(labels){
+    localStorage.setItem('n_tool_custom_labels_v2', JSON.stringify(labels));
+}
+
+function applyCustomToolLabels(){
+    let labels = getCustomToolLabels();
+    Object.keys(toolDefs).forEach(toolId => {
+        let el = document.getElementById(toolId);
+        if(!el) return;
+        let customVal = labels[toolId];
+
+        if(toolId === 'tool_select'){
+            let btn = document.getElementById('tool_select_btn');
+            if(btn){
+                let labelSpan = btn.querySelector('span:first-child');
+                if(labelSpan){
+                    if(customVal && customVal.trim()){
+                        labelSpan.innerHTML = escapeHtml(customVal).replace(/\r?\n/g, '<br>');
+                        labelSpan.style.lineHeight = customVal.includes('\n') ? '1.05' : '1.1';
+                    }else{
+                        labelSpan.textContent = '横の文字数';
+                        labelSpan.style.lineHeight = '1.1';
+                    }
+                }
+            }
+            return;
+        }
+
+        if(toolId === 'tool_spcol'){
+            const isOff = document.body.classList.contains('sp-color-off');
+            let stateBadge = isOff ? ':OFF' : ':ON';
+            if(customVal && customVal.trim()){
+                el.innerHTML = escapeHtml(customVal).replace(/\r?\n/g, '<br>') + `<span style="font-size:9.5px;margin-left:2px;opacity:0.85">${stateBadge}</span>`;
+            }else{
+                el.textContent = '空白色' + stateBadge;
+            }
+            if(customVal && customVal.includes('\n')){
+                el.style.whiteSpace = 'normal';
+                el.style.lineHeight = '1.12';
+                el.style.padding = '2px 6px';
+            }
+            return;
+        }
+
+        if(toolId === 'tool_selcount'){
+            let stateBadge = (typeof selCountEnabled !== 'undefined' && selCountEnabled) ? 'ON' : 'OFF';
+            if(customVal && customVal.trim()){
+                el.innerHTML = escapeHtml(customVal).replace(/\r?\n/g, '<br>') + `<br><span style="font-size:9.5px;opacity:0.85">${stateBadge}</span>`;
+            }else{
+                el.innerHTML = `選択文字数<br>${stateBadge}`;
+            }
+            el.style.whiteSpace = 'normal';
+            el.style.lineHeight = '1.12';
+            el.style.padding = '2px 6px';
+            return;
+        }
+
+        if(customVal && customVal.trim()){
+            el.innerHTML = escapeHtml(customVal).replace(/\r?\n/g, '<br>');
+            if(customVal.includes('\n')){
+                el.style.whiteSpace = 'normal';
+                el.style.lineHeight = '1.15';
+                el.style.textAlign = 'center';
+                el.style.padding = '2px 6px';
+            }else{
+                el.style.whiteSpace = 'nowrap';
+            }
+        }else{
+            if(defaultToolHTML[toolId]){
+                el.innerHTML = defaultToolHTML[toolId];
+            }
+            if(toolId === 'tool_undo' || toolId === 'tool_redo'){
+                el.style.whiteSpace = 'nowrap';
+                el.style.padding = '5px 7px';
+            }else if(toolId === 'tool_sb'){
+                el.style.padding = '0 3px';
+            }else{
+                el.style.whiteSpace = 'nowrap';
+            }
+        }
+    });
+}
+
+function openToolRenameModal(){
+    let modal = document.getElementById('toolRenameModal');
+    if(!modal) return;
+    renderToolRenameList();
+    modal.style.display = 'flex';
+}
+
+function closeToolRenameModal(){
+    let modal = document.getElementById('toolRenameModal');
+    if(modal) modal.style.display = 'none';
+}
+
+function insertLineBreakInRenameInput(textareaId){
+    let textarea = document.getElementById(textareaId);
+    if(!textarea) return;
+    let start = textarea.selectionStart;
+    let end = textarea.selectionEnd;
+    let text = textarea.value;
+    textarea.value = text.substring(0, start) + '\n' + text.substring(end);
+    textarea.selectionStart = textarea.selectionEnd = start + 1;
+    textarea.focus();
+    textarea.dispatchEvent(new Event('input'));
+}
+
+function renderToolRenameList(){
+    let container = document.getElementById('toolRenameListContainer');
+    if(!container) return;
+    container.innerHTML = '';
+    let currentOrder = getToolOrder();
+    let customLabels = getCustomToolLabels();
+
+    currentOrder.forEach(toolId => {
+        let def = toolDefs[toolId] || { name: toolId, desc: '' };
+        let currentVal = customLabels[toolId] || '';
+        let originalEl = document.getElementById(toolId);
+        let currentBg = originalEl ? window.getComputedStyle(originalEl).backgroundColor : '#f0f0f2';
+        let currentColor = originalEl ? window.getComputedStyle(originalEl).color : '#1e293b';
+
+        let row = document.createElement('div');
+        row.style.cssText = 'display:flex;flex-direction:column;gap:6px;padding:8px 10px;background:#ffffff;border:1px solid #e2e8f0;border-radius:6px;box-sizing:border-box';
+
+        let headerLine = document.createElement('div');
+        headerLine.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px';
+        headerLine.innerHTML = `
+            <span style="font-weight:bold;color:#1e293b">${escapeHtml(def.name)}</span>
+            <span style="font-size:10px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(def.desc)}</span>
+        `;
+        row.appendChild(headerLine);
+
+        let inputRow = document.createElement('div');
+        inputRow.style.cssText = 'display:flex;align-items:center;gap:6px';
+
+        let textarea = document.createElement('textarea');
+        textarea.id = 'rename_input_' + toolId;
+        textarea.rows = 2;
+        textarea.value = currentVal;
+        textarea.placeholder = '初期: ' + def.name.replace(/\n/g, ' / ');
+        textarea.style.cssText = 'flex:1;min-width:0;padding:5px 8px;font-size:12px;border:1px solid #cbd5e1;border-radius:4px;resize:none;line-height:1.25;font-family:inherit;outline:none';
+        textarea.onfocus = () => { textarea.style.borderColor = '#2563eb'; };
+        textarea.onblur = () => { textarea.style.borderColor = '#cbd5e1'; };
+
+        let btnCol = document.createElement('div');
+        btnCol.style.cssText = 'display:flex;flex-direction:column;gap:3px;flex-shrink:0';
+
+        let brBtn = document.createElement('button');
+        brBtn.type = 'button';
+        brBtn.innerHTML = '↵ 改行';
+        brBtn.title = 'カーソル位置に改行を挿入（ボタン内で2行表示になります）';
+        brBtn.style.cssText = 'padding:3px 6px;font-size:10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:3px;cursor:pointer;color:#334155;white-space:nowrap';
+        brBtn.onclick = () => insertLineBreakInRenameInput('rename_input_' + toolId);
+
+        let resetBtn = document.createElement('button');
+        resetBtn.type = 'button';
+        resetBtn.innerHTML = '初期化';
+        resetBtn.title = 'このボタンを初期名に戻す';
+        resetBtn.style.cssText = 'padding:3px 6px;font-size:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:3px;cursor:pointer;color:#64748b;white-space:nowrap';
+        resetBtn.onclick = () => {
+            textarea.value = '';
+            textarea.dispatchEvent(new Event('input'));
+        };
+
+        btnCol.appendChild(brBtn);
+        btnCol.appendChild(resetBtn);
+
+        let previewBox = document.createElement('div');
+        previewBox.id = 'rename_prev_' + toolId;
+        previewBox.style.cssText = `min-width:70px;height:36px;display:inline-flex;align-items:center;justify-content:center;padding:2px 6px;font-size:11px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;text-align:center;line-height:1.15;box-sizing:border-box;background:${currentBg};color:${currentColor};flex-shrink:0;user-select:none`;
+
+        function updatePreview(){
+            let v = textarea.value;
+            if(v && v.trim()){
+                previewBox.innerHTML = escapeHtml(v).replace(/\r?\n/g, '<br>');
+            }else{
+                previewBox.innerHTML = defaultToolPreviewHTML[toolId] || escapeHtml(def.name).replace(/\n/g, '<br>');
+            }
+        }
+        textarea.oninput = updatePreview;
+        updatePreview();
+
+        inputRow.appendChild(textarea);
+        inputRow.appendChild(btnCol);
+        inputRow.appendChild(previewBox);
+        row.appendChild(inputRow);
+
+        container.appendChild(row);
+    });
+}
+
+function saveCustomToolLabelsFromModal(){
+    let currentOrder = getToolOrder();
+    let labels = {};
+    currentOrder.forEach(toolId => {
+        let textarea = document.getElementById('rename_input_' + toolId);
+        if(textarea && textarea.value.trim()){
+            labels[toolId] = textarea.value.trim();
+        }
+    });
+    saveCustomToolLabels(labels);
+    applyCustomToolLabels();
+    closeToolRenameModal();
+}
+
+function resetAllToolNames(){
+    if(!confirm('すべてのツールボタンの名前・改行設定を初期状態に戻しますか？')) return;
+    saveCustomToolLabels({});
+    applyCustomToolLabels();
+    renderToolRenameList();
 }
 window.addEventListener('scroll',()=>{if(window.scrollY!==0||window.scrollX!==0)window.scrollTo(0,0)});
 e.addEventListener('focus',()=>{setTimeout(()=>{window.scrollTo(0,0);},50)});
@@ -4189,6 +4770,86 @@ window.addEventListener('keydown', (ev)=>{
         <button onclick="resetToolOrder()" style="flex:1;background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;padding:7px;border-radius:5px;font-size:12px;cursor:pointer">初期順に戻す</button>
         <button onclick="closeOrderModal()" style="flex:1;background:#2563eb;color:#fff;border:none;padding:7px;border-radius:5px;font-size:12px;font-weight:bold;cursor:pointer">完了</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ツールボタンの名前・改行変更モーダル -->
+<div id="toolRenameModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeToolRenameModal()">
+  <div class="modal-card" style="max-width:440px;max-height:85vh;display:flex;flex-direction:column" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div style="font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px;color:#1e293b">
+        <span>✎</span><span>ツールボタンの名前・改行設定</span>
+      </div>
+      <button type="button" onclick="closeToolRenameModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;padding:0 4px;line-height:1" title="閉じる">✕</button>
+    </div>
+    <div class="modal-body" style="padding:14px;gap:12px;overflow-y:auto;max-height:65vh">
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:9px 12px;font-size:11.5px;color:#475569;line-height:1.5">
+        ボタンの表示名や改行を自由に変更できます。<br>
+        文字入力欄で<strong>Enterキー</strong>または<strong>「↵ 改行」</strong>を押すとボタン内で2行に改行できます。<br>
+        （空欄にすると初期設定の名前に戻ります）
+      </div>
+      <div id="toolRenameListContainer" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+    <div style="padding:10px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;gap:8px;align-items:center;justify-content:space-between">
+      <button type="button" onclick="resetAllToolNames()" style="background:#fff;border:1px solid #cbd5e1;color:#dc2626;padding:7px 10px;border-radius:5px;font-size:11px;font-weight:bold;cursor:pointer">すべて初期値に戻す</button>
+      <div style="display:flex;gap:8px">
+        <button type="button" onclick="closeToolRenameModal()" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#475569;padding:7px 12px;border-radius:5px;font-size:12px;cursor:pointer">キャンセル</button>
+        <button type="button" onclick="saveCustomToolLabelsFromModal()" style="background:#2563eb;border:none;color:#fff;padding:7px 14px;border-radius:5px;font-size:12px;font-weight:bold;cursor:pointer">保存して反映</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- フォルダ内の一括保存モーダル -->
+<div id="folderSaveTxtModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeFolderSaveTxtModal()">
+  <div class="modal-card" style="max-width:540px;max-height:88vh;display:flex;flex-direction:column" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div style="font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px;color:#1e293b">
+        <span>📁</span><span id="folderSaveModalTitle">フォルダ内の一括保存 (.txt / zip)</span>
+      </div>
+      <button type="button" onclick="closeFolderSaveTxtModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;padding:0 4px;line-height:1" title="閉じる">✕</button>
+    </div>
+    <div class="modal-body" style="padding:14px;gap:10px;overflow-y:auto;max-height:68vh">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:10px 12px;font-size:12px;color:#166534;line-height:1.55">
+        <div style="font-weight:bold;margin-bottom:3px">💡 保存方法をお選びください</div>
+        <div>
+          ・<strong>各紙を選択または一括選択して個別に保存</strong>：下のファイル名でそれぞれ個別の.txtとして保存します。<br>
+          ・<strong>zip(圧縮)ファイルとして保存</strong>：選択した紙をまとめて1つの.zipで保存します。<br>
+          ※個別に保存する場合は、それぞれのファイル名入力欄を自由に書き換えて保存できます。
+        </div>
+      </div>
+
+      <!-- 選択コントロールバー -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;margin-top:2px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <button type="button" onclick="selectAllFolderSaveFiles(true)" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#334155;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer">☑ 一括選択（全選択）</button>
+          <button type="button" onclick="selectAllFolderSaveFiles(false)" style="background:#f8fafc;border:1px solid #cbd5e1;color:#64748b;padding:4px 8px;border-radius:4px;font-size:11px;cursor:pointer">☐ 全解除</button>
+        </div>
+        <div id="folderSaveSelectedSummary" style="font-size:12px;font-weight:bold;color:#1e293b">0 / 0 枚選択中</div>
+      </div>
+
+      <!-- 紙リスト -->
+      <div id="folderSaveFileList" style="display:flex;flex-direction:column;gap:6px;max-height:42vh;overflow-y:auto;padding-right:2px"></div>
+
+      <!-- 保存ボタンセクション -->
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px;border-top:1px solid #e2e8f0;padding-top:12px">
+        <div style="font-size:12px;font-weight:bold;color:#334155">保存の実行：</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <button type="button" id="btnFolderSaveIndividual" onclick="execFolderSaveIndividual()" style="flex:1;min-width:180px;background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:9px 12px;border-radius:6px;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" title="選択した紙を、上の名前で1枚ずつ個別の.txtファイルとしてダウンロード">
+            📥 個別に.txt保存 (<span id="btnIndividualCount">0</span>件)
+          </button>
+          <button type="button" id="btnFolderSaveZip" onclick="execFolderSaveZip()" style="flex:1;min-width:180px;background:#eff6ff;border:1px solid #93c5fd;color:#1e40af;padding:9px 12px;border-radius:6px;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" title="選択した紙を1つのzip圧縮ファイルにまとめてダウンロード">
+            📦 zip(圧縮)ファイルとして保存
+          </button>
+        </div>
+        <button type="button" onclick="execFolderSaveCombined()" style="width:100%;background:#f8fafc;border:1px solid #cbd5e1;color:#475569;padding:7px 12px;border-radius:6px;font-size:11.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" title="選択した紙をすべて連結して1つの.txtファイルとしてダウンロード">
+          📄 1つの.txtファイルに結合して保存
+        </button>
+      </div>
+    </div>
+    <div style="padding:10px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end">
+      <button type="button" onclick="closeFolderSaveTxtModal()" style="background:#e2e8f0;border:1px solid #cbd5e1;color:#334155;padding:6px 14px;border-radius:5px;font-size:12px;cursor:pointer">閉じる</button>
     </div>
   </div>
 </div>
