@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Novel Editor</title><meta name="description" content="Grid-based Japanese novel writing editor with manuscript grid view, character counting, file management, and text correction tools"><link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-icon.png"><style>
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Novel Editor</title><meta name="description" content="Grid-based Japanese novel writing editor with manuscript grid view, character counting, file management, and text correction tools"><meta property="og:title" content="Novel Editor"><meta property="og:description" content="Grid-based Japanese novel writing editor with manuscript grid view, character counting, file management, and text correction tools"><link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-icon.png"><style>
 :root{--cs:32px}
 html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0;font-family:monospace}
 .h{position:fixed;top:0;left:0;right:0;width:100%;display:flex;gap:6px;padding:8px;background:#fff;border-bottom:1px solid #ddd;height:50px;box-sizing:border-box;align-items:center;z-index:999;flex-shrink:0;overflow-x:auto;overflow-y:hidden;white-space:nowrap;-webkit-overflow-scrolling:touch}
@@ -28,8 +28,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 .tool-item.drag-over{transform:scale(1.06)}
 #t{overflow-y:auto;flex:1;font-size:12px;padding:0;border-top:1px solid #e2e8f0;background:#f8fafc}
 .tree-node{margin-bottom:0;user-select:none;width:100%}
-.tree-row{display:flex;align-items:flex-start;padding:6px 8px;border-radius:0;background:transparent;border:none;transition:background 0.1s ease;gap:4px;position:relative;cursor:pointer;touch-action:manipulation;user-select:none;width:100%;box-sizing:border-box}
-.tree-row.tree-folder{padding-left:8px}
+.tree-row{display:flex;align-items:flex-start;padding-top:6px;padding-bottom:6px;padding-right:8px;padding-left:calc(8px + var(--tree-level, 0) * 14px);border-radius:0;background:transparent;border:none;transition:background 0.1s ease;gap:4px;position:relative;cursor:pointer;touch-action:manipulation;user-select:none;width:100%;box-sizing:border-box}
 .tree-row:hover{background:#f1f5f9}
 .tree-row.active{background:#374151;color:#ffffff;font-weight:600}
 .tree-row.active:hover{background:#4b5563}
@@ -61,7 +60,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 .tree-row.active .tree-drag-handle:hover{color:#ffffff;background:rgba(255,255,255,0.15)}
 .tree-row.active .tree-toggle-btn{background:transparent;border:none;color:#93c5fd}
 .tree-row.active .tree-toggle-btn svg{stroke:#93c5fd!important}
-.tree-children{padding-left:14px;border-left:none;margin-left:0;margin-top:0;background:transparent;transition:background 0.15s ease}
+.tree-children{padding-left:0;border-left:none;margin-left:0;margin-top:0;background:transparent;transition:background 0.15s ease;width:100%;box-sizing:border-box}
 .tree-children.tree-drop-inside{background:#dbeafe!important;border-left:2px solid #2563eb!important;border-radius:4px}
 .tree-empty-folder-label{color:#94a3b8;font-size:11px;padding:6px 8px;margin:0;user-select:none;display:flex;align-items:center;gap:4px;background:#f8fafc}
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;backdrop-filter:blur(2px)}
@@ -1590,7 +1589,7 @@ function r(){
         emptyDiv.textContent='「+話」を押して作成してください';
         t.appendChild(emptyDiv);
     }else{
-        d.r.forEach(i=>t.appendChild(m(i,null)));
+        d.r.forEach(i=>t.appendChild(m(i,null,0)));
     }
     let tEnd=document.createElement('div');
     tEnd.id='treeDropEndIndicator';
@@ -1605,7 +1604,7 @@ function r(){
     renderShelfView();
 }
 
-function m(i,pid){
+function m(i,pid,level=0){
     let nodeDiv=document.createElement('div');
     nodeDiv.className='tree-node';
     
@@ -1625,6 +1624,8 @@ function m(i,pid){
     }
     row.className='tree-row'+(i.type==='folder'?' tree-folder':'')+(isCurrentActive?' active':'');
     row.dataset.id=i.id;
+    row.style.setProperty('--tree-level', level);
+    row.style.paddingLeft=(8 + level * 14)+'px';
     
     // ドラッグ用ハンドル（行のクリックやタップ操作を阻害しないようドラッグ操作を完全分離）
     let dragHandle=document.createElement('span');
@@ -1864,7 +1865,7 @@ function m(i,pid){
             currentTreeDropAction = null;
         };
         
-        i.children.forEach(ch=>childCont.appendChild(m(ch,i.id)));
+        i.children.forEach(ch=>childCont.appendChild(m(ch,i.id,level+1)));
         nodeDiv.appendChild(childCont);
     }
     
