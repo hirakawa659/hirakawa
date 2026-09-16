@@ -14,6 +14,7 @@
   --header-info-text:#000000;
   --linenum-bg:#ffffff;
   --linenum-text:#aaaaaa;
+  --toolbar-bg:#ffffff;
   --shelf-bg:#fafbfc;
   --shelf-header-bg:var(--shelf-bg, #fafbfc);
   --shelf-title-color:#1e293b;
@@ -22,7 +23,7 @@
   --shelf-folder-color:#3b82f6;
 }
 html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0;font-family:monospace}
-.h{position:fixed;top:0;left:0;right:0;width:100%;display:flex;gap:6px;padding:8px;background:var(--header-bg,#fff);color:var(--header-text,#334155);border-bottom:1px solid #ddd;height:50px;box-sizing:border-box;align-items:center;z-index:999;flex-shrink:0;overflow-x:auto;overflow-y:hidden;white-space:nowrap;-webkit-overflow-scrolling:touch}
+.h{position:fixed;top:0;left:0;right:0;width:100%;display:flex;gap:6px;padding:8px;background:var(--toolbar-bg,#ffffff);color:var(--header-text,#334155);border-bottom:1px solid #ddd;height:50px;box-sizing:border-box;align-items:center;z-index:999;flex-shrink:0;overflow-x:auto;overflow-y:hidden;white-space:nowrap;-webkit-overflow-scrolling:touch}
 button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;background:#f0f0f2;border:1px solid #ccc;border-radius:4px;flex-shrink:0}
 #b{display:flex;position:fixed;top:50px;bottom:0;left:0;right:0;width:100%;height:calc(100% - 50px);height:calc(100dvh - 50px);overflow:hidden}
 #s{width:155px;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);color:var(--sidebar-text);padding:8px 0 0 0;display:flex;flex-direction:column;gap:4px;flex-shrink:0;box-sizing:border-box}
@@ -5685,6 +5686,7 @@ const SIDEBAR_COLOR_DEFS = [
 ];
 
 const DEFAULT_TOOL_COLORS = {
+    'toolbarBg': '#ffffff',
     'tool_sb': '#6b21a8',
     'tool_shelf': '#1e293b',
     'tool_undo': '#334155',
@@ -5693,17 +5695,11 @@ const DEFAULT_TOOL_COLORS = {
     'tool_rep': '#92400e',
     'tool_search_folder': '#0369a1',
     'tool_selcount': '#1e40af',
-    'tool_area': '#334155',
-    'tool_hd': '#1e3a8a',
-    'tool_hm': '#9a3412',
-    'tool_spcol': '#666666',
-    'tool_select': '#1e293b',
-    'tool_num': '#854d0e',
-    'tool_copy': '#000000',
-    'tool_fx': '#0369a1'
+    'tool_area': '#334155'
 };
 
 const TOOLBAR_TOOL_COLOR_DEFS = [
+    { key: 'toolbarBg', label: 'ツールバー背景色' },
     { key: 'tool_sb', label: 'フォルダ/紙/注意事項' },
     { key: 'tool_shelf', label: '最上層' },
     { key: 'tool_undo', label: '戻す (Undo)' },
@@ -5712,14 +5708,7 @@ const TOOLBAR_TOOL_COLOR_DEFS = [
     { key: 'tool_rep', label: '開フォルダ内置換' },
     { key: 'tool_search_folder', label: '開フォルダ内検索' },
     { key: 'tool_selcount', label: '選択文字数' },
-    { key: 'tool_area', label: '領域' },
-    { key: 'tool_hd', label: '隠し文字' },
-    { key: 'tool_hm', label: 'ホモグラフ' },
-    { key: 'tool_spcol', label: '空白色' },
-    { key: 'tool_select', label: '横の文字数' },
-    { key: 'tool_num', label: '算用数字' },
-    { key: 'tool_copy', label: '特殊コピー' },
-    { key: 'tool_fx', label: '半角→全角' }
+    { key: 'tool_area', label: '領域' }
 ];
 
 const TOOLBAR_PRESETS = [
@@ -5732,30 +5721,30 @@ const TOOLBAR_PRESETS = [
         id: 'dark',
         name: 'モノクロ・黒',
         theme: {
+            toolbarBg: '#ffffff',
             tool_sb: '#111827', tool_shelf: '#111827', tool_undo: '#111827', tool_redo: '#111827',
             tool_save_txt: '#111827', tool_rep: '#111827', tool_search_folder: '#111827', tool_selcount: '#111827',
-            tool_area: '#111827', tool_hd: '#111827', tool_hm: '#111827', tool_spcol: '#111827',
-            tool_select: '#111827', tool_num: '#111827', tool_copy: '#111827', tool_fx: '#111827'
+            tool_area: '#111827'
         }
     },
     {
         id: 'sepia',
         name: 'セピア・茶',
         theme: {
+            toolbarBg: '#fffbe8',
             tool_sb: '#78350f', tool_shelf: '#451a03', tool_undo: '#78350f', tool_redo: '#78350f',
             tool_save_txt: '#14532d', tool_rep: '#b45309', tool_search_folder: '#854d0e', tool_selcount: '#854d0e',
-            tool_area: '#78350f', tool_hd: '#7c2d12', tool_hm: '#9a3412', tool_spcol: '#78350f',
-            tool_select: '#451a03', tool_num: '#92400e', tool_copy: '#451a03', tool_fx: '#b45309'
+            tool_area: '#78350f'
         }
     },
     {
         id: 'blue',
         name: '藍・ブルー',
         theme: {
+            toolbarBg: '#f0f9ff',
             tool_sb: '#4338ca', tool_shelf: '#1e3a8a', tool_undo: '#1e40af', tool_redo: '#1e40af',
             tool_save_txt: '#047857', tool_rep: '#0369a1', tool_search_folder: '#0284c7', tool_selcount: '#1d4ed8',
-            tool_area: '#3b82f6', tool_hd: '#1d4ed8', tool_hm: '#0284c7', tool_spcol: '#2563eb',
-            tool_select: '#1e3a8a', tool_num: '#0369a1', tool_copy: '#1e3a8a', tool_fx: '#0284c7'
+            tool_area: '#3b82f6'
         }
     }
 ];
@@ -5774,7 +5763,15 @@ function saveToolCustomColors(colors){
 
 function applyToolColors(customColors = null){
     const colors = customColors || getToolCustomColors();
+    const root = document.documentElement;
+    if(colors.toolbarBg){
+        root.style.setProperty('--toolbar-bg', colors.toolbarBg);
+    } else {
+        root.style.setProperty('--toolbar-bg', '#ffffff');
+    }
+
     Object.keys(DEFAULT_TOOL_COLORS).forEach(toolId => {
+        if(toolId === 'toolbarBg') return;
         const color = colors[toolId] || DEFAULT_TOOL_COLORS[toolId] || '#1e293b';
         const el = document.getElementById(toolId);
         if(!el) return;
@@ -5786,13 +5783,6 @@ function applyToolColors(customColors = null){
         
         const spans = el.querySelectorAll('span');
         spans.forEach(s => s.style.color = color);
-
-        if(toolId === 'tool_select'){
-            const btn = document.getElementById('tool_select_btn');
-            if(btn) btn.style.color = color;
-            const val = document.getElementById('tool_select_val');
-            if(val) val.style.color = color;
-        }
     });
 }
 
