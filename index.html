@@ -15,7 +15,7 @@
   --linenum-bg:#ffffff;
   --linenum-text:#aaaaaa;
   --shelf-bg:#fafbfc;
-  --shelf-header-bg:#ffffff;
+  --shelf-header-bg:var(--shelf-bg, #fafbfc);
   --shelf-title-color:#1e293b;
   --shelf-item-bg:#ffffff;
   --shelf-item-text:#1e293b;
@@ -169,8 +169,8 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <div style="padding:0 8px;display:flex;flex-direction:column;gap:4px;flex-shrink:0">
 <button onclick="tgS()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:4px;padding:6px;font-size:11px;background:var(--sidebar-bg);border:none;color:var(--sidebar-text);border-radius:4px;cursor:pointer;font-weight:bold;margin-bottom:2px" onmouseover="this.style.background='var(--sidebar-active-bg)'" onmouseout="this.style.background='var(--sidebar-bg)'" title="サイドバーを閉じて原稿用紙を全幅拡大">◀ 畳んで拡大</button>
 <div style="display:flex;gap:4px;margin-bottom:2px">
-<button onclick="a(1)" style="flex:1;font-size:11px;white-space:nowrap;padding:6px 4px;background:var(--sidebar-bg);color:var(--sidebar-text);font-weight:bold;border:none;border-radius:4px;cursor:pointer" onmouseover="this.style.background='var(--sidebar-active-bg)'" onmouseout="this.style.background='var(--sidebar-bg)'" title="新規フォルダ作成">+フォルダ</button>
-<button onclick="a(0)" style="flex:1;font-size:11px;white-space:nowrap;padding:6px 4px;background:var(--sidebar-bg);color:var(--sidebar-text);font-weight:bold;border:none;border-radius:4px;cursor:pointer" onmouseover="this.style.background='var(--sidebar-active-bg)'" onmouseout="this.style.background='var(--sidebar-bg)'" title="新しい紙を作成">+紙</button>
+<button onclick="a(1)" style="flex:1;font-size:11px;white-space:nowrap;padding:4px 2px;background:transparent;color:#000000;font-weight:bold;border:none;box-shadow:none;outline:none;cursor:pointer" title="新規フォルダ作成">+フォルダ</button>
+<button onclick="a(0)" style="flex:1;font-size:11px;white-space:nowrap;padding:4px 2px;background:transparent;color:#000000;font-weight:bold;border:none;box-shadow:none;outline:none;cursor:pointer" title="新しい紙を作成">+紙</button>
 </div>
 <div id="folderBreadcrumb" style="padding:4px 2px 2px 2px;display:flex;align-items:center;width:100%">
   <button type="button" onclick="u()" style="background:var(--sidebar-bg);border:none;color:var(--sidebar-text);font-weight:bold;font-size:12px;padding:3px 4px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;width:100%;text-align:left;touch-action:manipulation;line-height:1.2;border-radius:4px" onmouseover="this.style.background='var(--sidebar-active-bg)'" onmouseout="this.style.background='var(--sidebar-bg)'" title="最上層の一覧を表示">
@@ -200,27 +200,18 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <div id="mainArea" style="flex:1;display:flex;flex-direction:column;height:100%;min-width:0;overflow:hidden;position:relative">
 <!-- Shelf (GoodNotes-like Notebook & Folder Grid) View -->
 <div id="shelfView" class="shelf-view-container">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--shelf-header-bg, #ffffff);border-bottom:1px solid var(--sidebar-border, #e2e8f0);flex-shrink:0;gap:8px;position:sticky;top:0;z-index:10">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--shelf-bg, #fafbfc);border-bottom:1px solid var(--sidebar-border, #e2e8f0);flex-shrink:0;gap:8px;position:sticky;top:0;z-index:10">
     <div id="shelfBreadcrumbs" style="display:flex;align-items:center;gap:6px;min-width:0;flex:1"></div>
     <div id="shelfHeaderControls" style="display:flex;align-items:center;justify-content:flex-end;gap:4px;flex-shrink:0">
-      <button id="shelfFolderSettingsBtn" type="button" class="shelf-card-info-btn" onclick="onShelfFolderSettingsClick(event)" style="font-size:11px;padding:3px 8px;line-height:1.2;cursor:pointer;font-weight:600" title="フォルダの設定・名前変更・削除">フォルダの設定</button>
+      <button id="shelfFolderSettingsBtn" type="button" onclick="onShelfFolderSettingsClick(event)" style="font-size:11px;padding:2px 4px;line-height:1.2;cursor:pointer;font-weight:600;background:transparent;color:#000000;border:none;box-shadow:none;outline:none" title="フォルダの設定・名前変更・削除">フォルダの設定</button>
     </div>
   </div>
   <div style="padding:14px 20px 80px 20px;display:flex;flex-direction:column;gap:18px">
     <div id="shelfActionHeader" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:2px;width:100%;box-sizing:border-box">
-      <button id="shelfFolderColorBtn" type="button" class="shelf-card-info-btn" onclick="onShelfFolderColorClick(event)" style="font-size:11.5px;padding:4px 10px;line-height:1.2;cursor:pointer;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:5px;font-weight:600;display:inline-flex;align-items:center;gap:5px;box-shadow:0 1px 2px rgba(0,0,0,0.03)" title="フォルダの色を設定（デフォルト／個別）">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/></svg>
-        <span>フォルダの色</span>
-      </button>
-      <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
-        <button onclick="a(1, currentShelfFolderId)" style="font-size:12px;padding:5px 12px;background:#dbeafe;color:#1e3a8a;border:1px solid #93c5fd;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;box-shadow:0 1px 2px rgba(0,0,0,0.04)" title="この場所に新しいフォルダを作成">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-          +フォルダ
-        </button>
-        <button onclick="a(0, currentShelfFolderId)" style="font-size:12px;padding:5px 12px;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;box-shadow:0 1px 2px rgba(0,0,0,0.04)" title="この場所に新しい紙を作成">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-          +紙
-        </button>
+      <button id="shelfFolderColorBtn" type="button" onclick="onShelfFolderColorClick(event)" style="font-size:11.5px;padding:2px 4px;line-height:1.2;cursor:pointer;background:transparent;color:#000000;border:none;box-shadow:none;outline:none;font-weight:600;white-space:nowrap;flex-shrink:0" title="フォルダ領域の色を設定（デフォルト／個別）">フォルダ領域</button>
+      <div style="display:flex;align-items:center;gap:10px;margin-left:auto">
+        <button onclick="a(1, currentShelfFolderId)" style="font-size:12px;padding:2px 4px;background:transparent;color:#000000;border:none;box-shadow:none;outline:none;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しいフォルダを作成">+フォルダ</button>
+        <button onclick="a(0, currentShelfFolderId)" style="font-size:12px;padding:2px 4px;background:transparent;color:#000000;border:none;box-shadow:none;outline:none;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しい紙を作成">+紙</button>
       </div>
     </div>
     <div id="shelfFoldersSec" style="display:none">
@@ -574,9 +565,9 @@ function renderShelfView(){
         shelfFolderColorBtn.style.display = 'inline-flex';
         let txtSpan = shelfFolderColorBtn.querySelector('span');
         if(txtSpan){
-            txtSpan.textContent = 'フォルダの色';
+            txtSpan.textContent = 'フォルダ領域';
         } else {
-            shelfFolderColorBtn.textContent = 'フォルダの色';
+            shelfFolderColorBtn.textContent = 'フォルダ領域';
         }
         shelfFolderColorBtn.onclick = (e) => openFolderColorModal(folderItem ? folderItem.id : 'root', e);
     }
@@ -1866,21 +1857,11 @@ function updateFolderBreadcrumb(){
     let lbl=document.getElementById('currentFolderLabel');
     if(!lbl)return;
     let iconEl=document.getElementById('folderBreadcrumbIcon');
+    lbl.textContent = '最上層';
+    lbl.title = '最上層の一覧を表示';
     let folderColor = '#2563eb';
-    let targetFolderId = (typeof pId !== 'undefined' && pId && pId !== 'root') ? pId : (typeof currentShelfFolderId !== 'undefined' ? currentShelfFolderId : null);
-    if(targetFolderId && targetFolderId !== 'root'){
-        let fItem = typeof g === 'function' ? g(targetFolderId) : null;
-        lbl.textContent = fItem ? fItem.name : 'フォルダ';
-        lbl.title = fItem ? `${fItem.name} の一覧を表示` : 'フォルダ一覧を表示';
-        if(typeof getActiveFolderTheme === 'function'){
-            folderColor = getActiveFolderTheme(targetFolderId).folderIconColor || '#2563eb';
-        }
-    } else {
-        lbl.textContent = '最上層';
-        lbl.title = '最上層の一覧を表示';
-        if(typeof getGlobalFolderTheme === 'function'){
-            folderColor = getGlobalFolderTheme().folderIconColor || '#2563eb';
-        }
+    if(typeof getGlobalFolderTheme === 'function'){
+        folderColor = getGlobalFolderTheme().folderIconColor || '#2563eb';
     }
     if(iconEl){
         iconEl.innerHTML = getFolderIconSvg(false, folderColor);
@@ -2371,10 +2352,11 @@ function m(i,pid,level=0){
             showEditorView();
             r();
         }else{
-            collapsedFolders.delete(i.id);
-            pId=i.id;
-            currentShelfFolderId=i.id;
-            showShelfView(i.id);
+            if(collapsedFolders.has(i.id)){
+                collapsedFolders.delete(i.id);
+            }else{
+                collapsedFolders.add(i.id);
+            }
             r();
         }
     }
@@ -5162,6 +5144,7 @@ function applyCurrentTheme(){
     // 2. フォルダ・シェルフの色設定
     const ft = getActiveFolderTheme();
     root.style.setProperty('--shelf-bg', ft.folderBg);
+    root.style.setProperty('--shelf-header-bg', ft.folderBg);
     root.style.setProperty('--shelf-item-bg', ft.folderItemBg);
     root.style.setProperty('--shelf-item-text', ft.folderItemText);
     root.style.setProperty('--shelf-folder-color', ft.folderIconColor);
@@ -5500,7 +5483,10 @@ function previewDrawerLive(){
         if(t.lineNumText) root.style.setProperty('--linenum-text', t.lineNumText);
     } else if(colorDrawerState.type === 'folder'){
         // フォルダ・収納物の色設定のみ更新。原稿用紙やサイドバーには触れない
-        if(t.folderBg) root.style.setProperty('--shelf-bg', t.folderBg);
+        if(t.folderBg) {
+            root.style.setProperty('--shelf-bg', t.folderBg);
+            root.style.setProperty('--shelf-header-bg', t.folderBg);
+        }
         if(t.folderItemBg) root.style.setProperty('--shelf-item-bg', t.folderItemBg);
         if(t.folderItemText) root.style.setProperty('--shelf-item-text', t.folderItemText);
         if(t.folderIconColor) root.style.setProperty('--shelf-folder-color', t.folderIconColor);
