@@ -280,10 +280,10 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   <div id="w">
     <div class="l" id="n">1</div>
     <div id="detectContainer" style="position:absolute;top:0;left:0;z-index:95;display:flex;align-items:center;height:var(--cs)">
-      <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="background:var(--paper-bg,#ffffff);border:1px solid #cbd5e1;color:var(--text-color,#334155);border-radius:4px;font-size:10px;font-weight:bold;padding:1px 4px;line-height:1.2;cursor:pointer;display:inline-flex;align-items:center;gap:2px;box-shadow:0 1px 2px rgba(0,0,0,0.05);white-space:nowrap;margin-left:2px" title="検出機能メニュー（隠し文字・ホモグラフ・算用数字・半角）">
+      <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="background:var(--paper-bg,#ffffff);border:1px solid #cbd5e1;border-left:none;border-radius:0 4px 4px 0;color:var(--text-color,#334155);font-size:10px;font-weight:bold;padding:1px 3px 1px 1px;line-height:1.2;cursor:pointer;display:inline-flex;align-items:center;gap:1px;box-shadow:0 1px 2px rgba(0,0,0,0.05);white-space:nowrap;margin:0" title="検出機能メニュー（隠し文字・ホモグラフ・算用数字・半角）">
         <span>検出</span><span style="font-size:8px;line-height:1">▾</span>
       </button>
-      <div id="detectMenuDropdown" style="display:none;position:absolute;top:calc(100% + 2px);left:2px;background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,0.15);padding:4px;flex-direction:column;gap:3px;min-width:118px;z-index:9999" onclick="event.stopPropagation()">
+      <div id="detectMenuDropdown" style="display:none;position:absolute;top:calc(100% + 2px);left:0;background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,0.15);padding:4px;flex-direction:column;gap:3px;min-width:118px;z-index:9999" onclick="event.stopPropagation()">
         <button type="button" onclick="execDetectHiddenChars()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#1e3a8a;font-size:11.5px;font-weight:bold;padding:5px 8px;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:5px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
           <span>隠し文字</span>
         </button>
