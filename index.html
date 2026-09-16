@@ -25,10 +25,10 @@ html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;overflow:hidde
 button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;background:#f0f0f2;border:1px solid #ccc;border-radius:4px;flex-shrink:0}
 #b{display:flex;position:fixed;top:50px;bottom:0;left:0;right:0;width:100%;height:calc(100% - 50px);height:calc(100dvh - 50px);overflow:hidden}
 #s{width:240px;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);color:var(--sidebar-text);padding:8px 0 0 0;display:flex;flex-direction:column;gap:4px;flex-shrink:0;box-sizing:border-box}
-.m{flex:1;padding:8px 12px 35vh 12px;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;-webkit-overflow-scrolling:touch;background:var(--editor-bg)}
-#w{display:flex;flex-direction:row;align-items:stretch;background:var(--paper-bg);color:var(--text-color);box-sizing:border-box;flex-shrink:0;margin:0 auto;min-height:calc(100vh - 100px);min-height:calc(100dvh - 100px);height:auto;box-shadow:0 1px 4px rgba(0,0,0,0.06);position:relative;transform:translateZ(0);contain:layout style}
-.editor-header-info{display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;padding:0 12px 0 4px;background:var(--header-info-bg);color:var(--header-info-text);border-bottom:1px solid var(--sidebar-border);height:34px;flex-shrink:0;user-select:none;width:100%;z-index:90}
-.story-count-display{display:inline-flex;align-items:center;height:100%;white-space:nowrap;font-size:12px;cursor:default}
+.m{flex:1;padding:0 0 35vh 0;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;display:flex;flex-direction:column;align-items:flex-start;-webkit-overflow-scrolling:touch;background:var(--paper-bg)}
+#w{display:flex;flex-direction:row;align-items:stretch;background:var(--paper-bg);color:var(--text-color);box-sizing:border-box;flex-shrink:0;margin:0;min-height:calc(100vh - 100px);min-height:calc(100dvh - 100px);height:auto;box-shadow:none;position:relative;transform:translateZ(0);contain:layout style}
+.editor-header-info{display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;padding:4px 12px 4px 6px;background:var(--paper-bg);color:var(--text-color);border-bottom:1px solid var(--sidebar-border);min-height:42px;flex-shrink:0;user-select:none;width:100%;z-index:90}
+.story-count-display{display:inline-flex;align-items:center;white-space:nowrap;font-size:11px;cursor:default;gap:4px}
 .l{width:36px;border-right:1px solid var(--grid-color);padding:0;text-align:right;font-size:12px;color:var(--linenum-text);padding-right:6px;user-select:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:var(--linenum-bg)}
 #e{flex-grow:1;height:auto;min-height:100%;padding:0;outline:0;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;display:block!important;box-sizing:border-box;font-size:calc(var(--cs)*0.78)!important;line-height:var(--cs)!important;letter-spacing:calc(var(--cs)*0.22)!important;text-align:left!important;caret-color:#2563eb;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","MS Gothic",monospace;font-feature-settings:"halt" 0,"palt" 0,"pkna" 0,"fwid" 1!important;font-variant-east-asian:full-width!important;font-kerning:none!important;background-color:var(--paper-bg)!important;color:var(--text-color)!important;background-image:linear-gradient(90deg,var(--grid-color) 1px,transparent 1px),linear-gradient(var(--grid-color) 1px,transparent 1px)!important;background-size:var(--cs) var(--cs)!important;background-repeat:repeat!important;background-position:0 0!important;cursor:text;contain:style}
 #e *{background-color:transparent}
@@ -257,32 +257,34 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <!-- Editor View -->
 <div id="editorView" style="flex:1;display:flex;flex-direction:column;height:100%;min-width:0;overflow:hidden">
 <div id="editorHeaderInfo" class="editor-header-info">
-  <div style="display:flex;align-items:center;gap:6px;max-width:65%;overflow:hidden">
-    <button id="backToShelfBtn" onclick="showShelfView()" style="display:inline-flex;align-items:center;justify-content:center;padding:4px 3px;margin:0;background:transparent;border:none;box-shadow:none;cursor:pointer;color:#334155;flex-shrink:0;line-height:1;border-radius:4px" title="最上層へ戻る">
+  <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1">
+    <button id="backToShelfBtn" onclick="showShelfView()" style="display:inline-flex;align-items:center;justify-content:center;padding:4px 3px;margin:0;background:transparent;border:none;box-shadow:none;cursor:pointer;color:var(--text-color,#334155);flex-shrink:0;line-height:1;border-radius:4px" title="最上層へ戻る">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" style="display:block">
         <polyline points="15 18 9 12 15 6"/>
       </svg>
     </button>
-    <div id="currentStoryTitleDisplay" style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-      <span id="storyTitleText" onclick="if(f)openItemModal(f)" style="font-weight:bold;color:#0f172a;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" title="紙の設定・タイトル変更">紙タイトル</span>
-      <button type="button" class="shelf-card-info-btn" onclick="if(f)openItemModal(f, event)" style="font-size:11px;padding:2px 6px;line-height:1.2;cursor:pointer" title="紙の設定・タイトル変更・削除">紙の設定</button>
-      <button id="titleColorBtn" type="button" class="shelf-card-info-btn" onclick="if(f)openPaperColorModal(f, event)" style="font-size:11px;padding:2px 8px;line-height:1.2;cursor:pointer;background:#fdf2f8;color:#be185d;border:1px solid #fbcfe8;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:3px" title="この紙の色を設定（デフォルト／個別）">紙の色</button>
-      <button id="titleAreaColorBtn" type="button" class="shelf-card-info-btn" onclick="openSidebarColorModal(event)" style="font-size:11px;padding:2px 8px;line-height:1.2;cursor:pointer;background:#f8fafc;color:#475569;border:1px solid #cbd5e1;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:3px" title="領域（タイトルバー・サイドバー・ツールバー）の色を設定">領域の色</button>
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0;flex:1">
+      <div id="currentStoryTitleDisplay" style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        <span id="storyTitleText" onclick="if(f)openItemModal(f)" style="font-weight:bold;color:var(--text-color,#0f172a);font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;line-height:1.2" title="紙の設定・タイトル変更">紙タイトル</span>
+      </div>
+      <div id="k" class="story-count-display">
+        <div style="display:flex;align-items:center;gap:4px;line-height:1.2;font-size:11px">
+          <span style="font-weight:bold;font-size:11.5px;color:var(--text-color,#0f172a)">0文字</span>
+          <span style="font-size:9.5px;color:#94a3b8;font-weight:normal">(空白と改行抜き)</span>
+        </div>
+        <div style="width:1px;height:12px;background:#cbd5e1;margin:0 5px;flex-shrink:0"></div>
+        <div style="display:flex;align-items:center;gap:4px;line-height:1.2;font-size:11px" title="【セリフの文字数カウントルール】&#10;1. 抽出対象: 「」または『』で囲まれた部分&#10;2. 括弧の扱い: セリフ両端の括弧自体もカウント（各1文字）&#10;3. 空白の除外: 内部の空白・改行は除外&#10;4. 重複の禁止: 入れ子の括弧は重複カウントなし">
+          <span style="font-size:10px;color:#64748b;font-weight:500">セリフ</span>
+          <span style="font-weight:bold;font-size:11.5px;color:var(--text-color,#0f172a)">0文字</span>
+          <span style="font-size:9px;color:#94a3b8;font-weight:normal;cursor:help">(定義注意)</span>
+        </div>
+      </div>
     </div>
   </div>
-  <div id="k" class="story-count-display">
-    <div style="display:flex;flex-direction:column;align-items:flex-end;line-height:1.15">
-      <span style="font-weight:bold;font-size:12.5px;color:#0f172a">0文字</span>
-      <span style="font-size:9.5px;color:#94a3b8;font-weight:normal">(空白と改行抜き)</span>
-    </div>
-    <div style="width:1px;height:22px;background:#cbd5e1;margin:0 8px;flex-shrink:0"></div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;line-height:1.15" title="【セリフの文字数カウントルール】&#10;1. 抽出対象: 「」または『』で囲まれた部分&#10;2. 括弧の扱い: セリフ両端の括弧自体もカウント（各1文字）&#10;3. 空白の除外: 内部の空白・改行は除外&#10;4. 重複の禁止: 入れ子の括弧は重複カウントなし">
-      <div style="display:flex;align-items:center;gap:3px">
-        <span style="font-size:11px;color:#475569;font-weight:500">セリフ</span>
-        <span style="font-weight:bold;font-size:12.5px;color:#0f172a">0文字</span>
-      </div>
-      <span style="font-size:9.5px;color:#94a3b8;font-weight:normal;cursor:help">(定義注意)</span>
-    </div>
+  <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:12px">
+    <button type="button" class="shelf-card-info-btn" onclick="if(f)openItemModal(f, event)" style="font-size:11px;padding:3px 8px;line-height:1.2;cursor:pointer;font-weight:600;background:#ffffff;color:#334155;border:1px solid #cbd5e1;border-radius:4px" title="紙の設定・タイトル変更・削除">紙の設定</button>
+    <button id="titleColorBtn" type="button" class="shelf-card-info-btn" onclick="if(f)openPaperColorModal(f, event)" style="font-size:11px;padding:3px 8px;line-height:1.2;cursor:pointer;background:#fdf2f8;color:#be185d;border:1px solid #fbcfe8;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:3px" title="この紙の色を設定（デフォルト／個別）">紙の色</button>
+    <button id="titleAreaColorBtn" type="button" class="shelf-card-info-btn" onclick="openSidebarColorModal(event)" style="font-size:11px;padding:3px 8px;line-height:1.2;cursor:pointer;background:#f8fafc;color:#475569;border:1px solid #cbd5e1;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:3px" title="領域（タイトルバー・サイドバー・ツールバー）の色を設定">領域の色</button>
   </div>
 </div>
 <div class="m">
@@ -1509,7 +1511,7 @@ function z(){
     let v=l.value;let num=parseInt(v);if(!num||isNaN(num))num=30;
     const m=document.querySelector('.m');
     const mWidth=m?m.clientWidth:(window.innerWidth-200);
-    const pad=24,lw=36;
+    const pad=0,lw=36;
     let avail=mWidth-pad-lw;
     if(avail<100)avail=100;
     let cs=Math.floor(avail/num);
@@ -1760,17 +1762,15 @@ function updateCharCount(){
     let st=countCharsFromLines(pureLines);
     if(k){
         k.innerHTML=`
-            <div style="display:flex;flex-direction:column;align-items:flex-end;line-height:1.15">
-                <span style="font-weight:bold;font-size:12.5px;color:#0f172a">${st.withoutSpaces.toLocaleString()}文字</span>
+            <div style="display:flex;align-items:center;gap:4px;line-height:1.2;font-size:11px">
+                <span style="font-weight:bold;font-size:11.5px;color:var(--text-color,#0f172a)">${st.withoutSpaces.toLocaleString()}文字</span>
                 <span style="font-size:9.5px;color:#94a3b8;font-weight:normal">(空白と改行抜き)</span>
             </div>
-            <div style="width:1px;height:22px;background:#cbd5e1;margin:0 8px;flex-shrink:0"></div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;line-height:1.15" title="【セリフの文字数カウントルール】&#10;1. 抽出対象: 「」または『』で囲まれた部分&#10;2. 括弧の扱い: セリフ両端の括弧自体もカウント（各1文字）&#10;3. 空白の除外: 内部の空白・改行は除外&#10;4. 重複の禁止: 入れ子の括弧は重複カウントなし">
-                <div style="display:flex;align-items:center;gap:3px">
-                    <span style="font-size:11px;color:#475569;font-weight:500">セリフ</span>
-                    <span style="font-weight:bold;font-size:12.5px;color:#0f172a">${st.dialogueChars.toLocaleString()}文字</span>
-                </div>
-                <span style="font-size:9.5px;color:#94a3b8;font-weight:normal;cursor:help">(定義注意)</span>
+            <div style="width:1px;height:12px;background:#cbd5e1;margin:0 5px;flex-shrink:0"></div>
+            <div style="display:flex;align-items:center;gap:4px;line-height:1.2;font-size:11px" title="【セリフの文字数カウントルール】&#10;1. 抽出対象: 「」または『』で囲まれた部分&#10;2. 括弧の扱い: セリフ両端の括弧自体もカウント（各1文字）&#10;3. 空白の除外: 内部の空白・改行は除外&#10;4. 重複の禁止: 入れ子の括弧は重複カウントなし">
+                <span style="font-size:10px;color:#64748b;font-weight:500">セリフ</span>
+                <span style="font-weight:bold;font-size:11.5px;color:var(--text-color,#0f172a)">${st.dialogueChars.toLocaleString()}文字</span>
+                <span style="font-size:9px;color:#94a3b8;font-weight:normal;cursor:help">(定義注意)</span>
             </div>
         `;
         k.title=`【文字数カウンター】\n本文: ${st.withoutSpaces.toLocaleString()}文字(空白と改行抜き)\nセリフ: ${st.dialogueChars.toLocaleString()}文字(定義注意)`;
@@ -5159,8 +5159,8 @@ function applyCurrentTheme(){
     root.style.setProperty('--header-text', st.headerText || '#334155');
     root.style.setProperty('--shelf-header-bg', st.titleBarBg || '#ffffff');
     root.style.setProperty('--shelf-title-color', st.titleBarText || '#0f172a');
-    root.style.setProperty('--header-info-bg', st.titleBarBg || '#ffffff');
-    root.style.setProperty('--header-info-text', st.titleBarText || '#0f172a');
+    root.style.setProperty('--header-info-bg', pt.paperBg || '#ffffff');
+    root.style.setProperty('--header-info-text', pt.paperText || '#0f172a');
 }
 
 // ドロワー管理ステート
@@ -5539,9 +5539,15 @@ function previewDrawerLive(){
     
     if(colorDrawerState.type === 'paper'){
         // 原稿用紙の色設定のみ更新。フォルダやサイドバーには触れない
-        if(t.paperBg) root.style.setProperty('--paper-bg', t.paperBg);
+        if(t.paperBg){
+            root.style.setProperty('--paper-bg', t.paperBg);
+            root.style.setProperty('--header-info-bg', t.paperBg);
+        }
         if(t.gridLine) root.style.setProperty('--grid-color', t.gridLine);
-        if(t.paperText) root.style.setProperty('--text-color', t.paperText);
+        if(t.paperText){
+            root.style.setProperty('--text-color', t.paperText);
+            root.style.setProperty('--header-info-text', t.paperText);
+        }
         if(t.lineNumBg) root.style.setProperty('--linenum-bg', t.lineNumBg);
         if(t.lineNumText) root.style.setProperty('--linenum-text', t.lineNumText);
     } else if(colorDrawerState.type === 'folder'){
