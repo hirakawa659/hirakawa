@@ -25,12 +25,12 @@ html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;overflow:hidde
 .h{position:fixed;top:0;left:0;right:0;width:100%;display:flex;gap:6px;padding:8px;background:var(--header-bg,#fff);color:var(--header-text,#334155);border-bottom:1px solid #ddd;height:50px;box-sizing:border-box;align-items:center;z-index:999;flex-shrink:0;overflow-x:auto;overflow-y:hidden;white-space:nowrap;-webkit-overflow-scrolling:touch}
 button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;background:#f0f0f2;border:1px solid #ccc;border-radius:4px;flex-shrink:0}
 #b{display:flex;position:fixed;top:50px;bottom:0;left:0;right:0;width:100%;height:calc(100% - 50px);height:calc(100dvh - 50px);overflow:hidden}
-#s{width:215px;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);color:var(--sidebar-text);padding:8px 0 0 0;display:flex;flex-direction:column;gap:4px;flex-shrink:0;box-sizing:border-box}
+#s{width:180px;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);color:var(--sidebar-text);padding:8px 0 0 0;display:flex;flex-direction:column;gap:4px;flex-shrink:0;box-sizing:border-box}
 .m{flex:1;padding:0 0 35vh 0;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;display:flex;flex-direction:column;align-items:flex-end;-webkit-overflow-scrolling:touch;background:var(--paper-bg)}
 #w{display:flex;flex-direction:row;align-items:stretch;background:var(--paper-bg);color:var(--text-color);box-sizing:border-box;flex-shrink:0;margin:0 0 0 auto;min-height:calc(100vh - 100px);min-height:calc(100dvh - 100px);height:auto;box-shadow:none;position:relative;transform:translateZ(0);contain:layout style}
 .editor-header-info{display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;padding:4px 12px 5px 8px;background:var(--paper-bg);color:var(--text-color);border-bottom:1px solid var(--sidebar-border);min-height:44px;flex-shrink:0;user-select:none;width:100%;z-index:90;gap:2px}
 .story-count-display{display:inline-flex;align-items:center;white-space:nowrap;font-size:11px;cursor:default;gap:4px}
-.l{width:56px;border-right:1px solid var(--grid-color);padding:0;text-align:right;font-size:12px;color:var(--linenum-text);padding-right:6px;user-select:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:var(--paper-bg);position:relative}
+.l{width:60px;border-right:1px solid var(--grid-color);padding:0;text-align:right;font-size:12px;color:var(--linenum-text);padding-right:5px;user-select:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:var(--paper-bg);position:relative}
 #e{flex-grow:1;height:auto;min-height:100%;padding:0;outline:0;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;display:block!important;box-sizing:border-box;font-size:calc(var(--cs)*0.78)!important;line-height:var(--cs)!important;letter-spacing:calc(var(--cs)*0.22)!important;text-align:left!important;caret-color:#2563eb;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","MS Gothic",monospace;font-feature-settings:"halt" 0,"palt" 0,"pkna" 0,"fwid" 1!important;font-variant-east-asian:full-width!important;font-kerning:none!important;background-color:var(--paper-bg)!important;color:var(--text-color)!important;background-image:linear-gradient(90deg,var(--grid-color) 1px,transparent 1px),linear-gradient(var(--grid-color) 1px,transparent 1px)!important;background-size:var(--cs) var(--cs)!important;background-repeat:repeat!important;background-position:0 0!important;cursor:text;contain:style}
 #e *{background-color:transparent}
 #e div,#e p{min-height:var(--cs)!important;display:block!important;box-sizing:border-box;text-align:left!important;line-height:var(--cs)!important;padding:0!important;padding-left:calc(var(--cs)*0.11)!important;margin:0!important;background:transparent!important;width:100%!important;overflow:visible!important}
@@ -259,7 +259,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
         <span id="storyTitleText" onclick="if(f)openItemModal(f)" style="font-weight:bold;color:var(--text-color,#0f172a);font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;line-height:1.2" title="紙の設定・タイトル変更">紙タイトル</span>
       </div>
     </div>
-    <button id="titleColorBtn" type="button" onclick="if(f)openPaperColorModal(f, event)" style="font-size:11px;padding:2px 4px;line-height:1.2;cursor:pointer;font-weight:600;background:transparent;color:var(--text-color,#334155);border:none;box-shadow:none;outline:none;white-space:nowrap;flex-shrink:0;opacity:0.85" title="この紙の色を設定（デフォルト／個別）">紙の色</button>
+    <button id="paperSettingBtn" type="button" onclick="if(f)openItemModal(f, event)" style="font-size:11px;padding:2px 4px;line-height:1.2;cursor:pointer;font-weight:600;background:transparent;color:var(--text-color,#334155);border:none;box-shadow:none;outline:none;white-space:nowrap;flex-shrink:0;opacity:0.85" title="紙の設定・タイトル変更・削除">紙の設定</button>
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;width:100%;min-width:0">
     <div id="k" class="story-count-display">
@@ -274,20 +274,34 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
         <span style="font-size:9px;color:#94a3b8;font-weight:normal;cursor:help">(定義注意)</span>
       </div>
     </div>
-    <button id="paperSettingBtn" type="button" onclick="if(f)openItemModal(f, event)" style="font-size:11px;padding:2px 4px;line-height:1.2;cursor:pointer;font-weight:600;background:transparent;color:var(--text-color,#334155);border:none;box-shadow:none;outline:none;white-space:nowrap;flex-shrink:0;opacity:0.85" title="紙の設定・タイトル変更・削除">紙の設定</button>
   </div>
 </div>
 <div class="m">
   <div id="w">
     <div class="l" id="n">1</div>
-    <div id="colsContainer" style="position:absolute;top:0;left:2px;z-index:95;display:flex;align-items:center;height:var(--cs)">
-      <button type="button" id="colsBtn" onclick="openColsModal(f, event)" style="background:transparent;border:none;box-shadow:none;outline:none;color:var(--linenum-text,#64748b);font-size:8.5px;font-weight:bold;padding:0 1px;line-height:1.1;cursor:pointer;display:inline-flex;align-items:center;gap:1px;white-space:nowrap;margin:0;opacity:0.85;letter-spacing:-0.4px" title="横の文字数を設定（この紙のみ／デフォルト）" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+    <!-- 行番号1の横: 紙の色 -->
+    <div id="paperColorContainer" style="position:absolute;top:0;left:0;z-index:95;display:flex;align-items:center;height:var(--cs)">
+      <button type="button" id="linenumPaperColorBtn" onclick="if(f)openPaperColorModal(f, event)" style="background:transparent;border:none;box-shadow:none;outline:none;color:var(--linenum-text,#64748b);font-size:8.5px;font-weight:bold;padding:0 2px;line-height:1.1;cursor:pointer;display:inline-flex;align-items:center;white-space:nowrap;margin:0;opacity:0.85;letter-spacing:-0.4px" title="この紙の色を設定（デフォルト／個別）" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+        <span>紙の色</span>
+      </button>
+    </div>
+    <!-- 行番号3の隣: 横の数 -->
+    <div id="colsContainer" style="position:absolute;top:calc(var(--cs) * 2);left:0;z-index:95;display:flex;align-items:center;height:var(--cs)">
+      <button type="button" id="colsBtn" onclick="openColsModal(f, event)" style="background:transparent;border:none;box-shadow:none;outline:none;color:var(--linenum-text,#64748b);font-size:8.5px;font-weight:bold;padding:0 2px;line-height:1.1;cursor:pointer;display:inline-flex;align-items:center;gap:1px;white-space:nowrap;margin:0;opacity:0.85;letter-spacing:-0.4px" title="横の文字数を設定（この紙のみ／デフォルト）" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
         <span>横の数</span><span style="font-size:7px;line-height:1">▾</span>
       </button>
     </div>
-    <div id="detectContainer" style="position:absolute;top:calc(var(--cs) * 3);left:2px;z-index:95;display:flex;align-items:center;height:var(--cs)">
-      <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="background:transparent;border:none;box-shadow:none;outline:none;color:var(--linenum-text,#64748b);font-size:9px;font-weight:bold;padding:0 1px;line-height:1.1;cursor:pointer;display:inline-flex;align-items:center;gap:1px;white-space:nowrap;margin:0;opacity:0.85;letter-spacing:-0.2px" title="検出機能メニュー（隠し文字・ホモグラフ・算用数字・半角）" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
-        <span>検出</span><span style="font-size:7.5px;line-height:1">▾</span>
+    <!-- 行番号5の隣: 特殊コピー 改行 プレーンコード化 -->
+    <div id="copyContainer" style="position:absolute;top:calc(var(--cs) * 4);left:0;z-index:95;display:flex;align-items:center;height:var(--cs)">
+      <button type="button" id="linenumCopyBtn" onclick="c()" style="background:transparent;border:none;box-shadow:none;outline:none;color:var(--linenum-text,#64748b);font-size:7px;font-weight:bold;padding:0 2px;line-height:1.05;cursor:pointer;display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;white-space:nowrap;margin:0;opacity:0.85;letter-spacing:-0.4px" title="エディタの内部装飾タグを除去し、きれいなプレーンテキスト文章にしてコピー" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+        <span>特殊コピー</span>
+        <span style="font-size:6px;opacity:0.85;letter-spacing:-0.5px">プレーン化</span>
+      </button>
+    </div>
+    <!-- 行番号7の隣: 検出 -->
+    <div id="detectContainer" style="position:absolute;top:calc(var(--cs) * 6);left:0;z-index:95;display:flex;align-items:center;height:var(--cs)">
+      <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="background:transparent;border:none;box-shadow:none;outline:none;color:var(--linenum-text,#64748b);font-size:8.5px;font-weight:bold;padding:0 2px;line-height:1.1;cursor:pointer;display:inline-flex;align-items:center;gap:1px;white-space:nowrap;margin:0;opacity:0.85;letter-spacing:-0.2px" title="検出機能メニュー（隠し文字・ホモグラフ・算用数字・半角）" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+        <span>検出</span><span style="font-size:7px;line-height:1">▾</span>
       </button>
       <div id="detectMenuDropdown" style="display:none;position:absolute;top:calc(100% + 2px);left:0;background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,0.15);padding:6px;flex-direction:column;gap:6px;min-width:124px;z-index:9999" onclick="event.stopPropagation()">
         <button type="button" onclick="execDetectHiddenChars()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#1e3a8a;font-size:12px;font-weight:bold;padding:8px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
@@ -303,6 +317,12 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
           <span>半角</span>
         </button>
       </div>
+    </div>
+    <!-- 行番号9の隣: 空白色:off -->
+    <div id="spColContainer" style="position:absolute;top:calc(var(--cs) * 8);left:0;z-index:95;display:flex;align-items:center;height:var(--cs)">
+      <button type="button" id="spColBtn" onclick="tgSpColor()" style="background:transparent;border:none;box-shadow:none;outline:none;color:var(--linenum-text,#64748b);font-size:7.5px;font-weight:bold;padding:0 2px;line-height:1.1;cursor:pointer;display:inline-flex;align-items:center;white-space:nowrap;margin:0;opacity:0.85;letter-spacing:-0.4px" title="全角以外の空白の色をON/OFF" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+        <span>空白色:OFF</span>
+      </button>
     </div>
     <div id="e" contenteditable="true"><div><br></div></div>
   </div>
@@ -842,14 +862,17 @@ window.onload=()=>{
     o(f);
     updateCurrentStoryDisplay();
     let spSetting=localStorage.getItem('n_sp_color');
+    const spColBtn=document.getElementById('spColBtn');
     if(spSetting==='on'){
         document.body.classList.remove('sp-color-off');
         const btn=document.getElementById('tool_spcol');
         if(btn){btn.textContent='空白色:ON';btn.style.background='#fef08a';btn.style.color='#854d0e';btn.style.fontWeight='bold'}
+        if(spColBtn){spColBtn.textContent='空白色:ON';spColBtn.style.color='#ca8a04';spColBtn.style.fontWeight='bold'}
     }else{
         document.body.classList.add('sp-color-off');
         const btn=document.getElementById('tool_spcol');
         if(btn){btn.textContent='空白色:OFF';btn.style.background='#f0f0f2';btn.style.color='#666';btn.style.fontWeight='normal'}
+        if(spColBtn){spColBtn.textContent='空白色:OFF';spColBtn.style.color='var(--linenum-text,#64748b)';spColBtn.style.fontWeight='bold'}
     }
     applyToolOrder(getToolOrder());
     initToolDragAndDrop();
@@ -1367,12 +1390,20 @@ function tgNumericDigits(){
 }
 function tgSpColor(){
     const isOff=document.body.classList.toggle('sp-color-off');
-    const btn=document.getElementById('tool_spcol')||document.getElementById('spColBtn');
+    const btn=document.getElementById('tool_spcol');
+    const spColBtn=document.getElementById('spColBtn');
     if(btn){
         if(isOff){
-            btn.textContent='空白色:OFF';btn.style.background='#f0f0f2';btn.style.color='#666';
+            btn.textContent='空白色:OFF';btn.style.background='#f0f0f2';btn.style.color='#666';btn.style.fontWeight='normal';
         }else{
-            btn.textContent='空白色:ON';btn.style.background='#fef08a';btn.style.color='#854d0e';
+            btn.textContent='空白色:ON';btn.style.background='#fef08a';btn.style.color='#854d0e';btn.style.fontWeight='bold';
+        }
+    }
+    if(spColBtn){
+        if(isOff){
+            spColBtn.textContent='空白色:OFF';spColBtn.style.color='var(--linenum-text,#64748b)';spColBtn.style.fontWeight='bold';
+        }else{
+            spColBtn.textContent='空白色:ON';spColBtn.style.color='#ca8a04';spColBtn.style.fontWeight='bold';
         }
     }
     localStorage.setItem('n_sp_color',isOff?'off':'on');
@@ -1562,7 +1593,7 @@ function z(){
     if(l) l.value = String(num);
     const m=document.querySelector('.m');
     const mWidth=m?m.clientWidth:(window.innerWidth-200);
-    const pad=0,lw=56;
+    const pad=0,lw=60;
     let avail=mWidth-pad-lw;
     if(avail<100)avail=100;
     let cs=Math.floor(avail/num);
