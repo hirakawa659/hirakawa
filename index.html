@@ -284,17 +284,17 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
       <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="background:transparent;border:none;box-shadow:none;outline:none;color:var(--linenum-text,#64748b);font-size:10px;font-weight:bold;padding:0;line-height:1.2;cursor:pointer;display:inline-flex;align-items:center;gap:1px;white-space:nowrap;margin:0;opacity:0.85" title="検出機能メニュー（隠し文字・ホモグラフ・算用数字・半角）" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
         <span>検出</span><span style="font-size:8px;line-height:1">▾</span>
       </button>
-      <div id="detectMenuDropdown" style="display:none;position:absolute;top:calc(100% + 2px);left:0;background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,0.15);padding:4px;flex-direction:column;gap:3px;min-width:118px;z-index:9999" onclick="event.stopPropagation()">
-        <button type="button" onclick="execDetectHiddenChars()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#1e3a8a;font-size:11.5px;font-weight:bold;padding:5px 8px;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:5px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
+      <div id="detectMenuDropdown" style="display:none;position:absolute;top:calc(100% + 4px);left:0;background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,0.15);padding:6px;flex-direction:column;gap:6px;min-width:124px;z-index:9999" onclick="event.stopPropagation()">
+        <button type="button" onclick="execDetectHiddenChars()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#1e3a8a;font-size:12px;font-weight:bold;padding:8px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
           <span>隠し文字</span>
         </button>
-        <button type="button" onclick="execDetectHomoglyphs()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#9a3412;font-size:11.5px;font-weight:bold;padding:5px 8px;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:5px" onmouseover="this.style.background='#fff7ed'" onmouseout="this.style.background='#f8fafc'">
+        <button type="button" onclick="execDetectHomoglyphs()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#9a3412;font-size:12px;font-weight:bold;padding:8px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:6px" onmouseover="this.style.background='#fff7ed'" onmouseout="this.style.background='#f8fafc'">
           <span>ホモグラフ</span>
         </button>
-        <button type="button" onclick="execDetectNumericDigits()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#854d0e;font-size:11.5px;font-weight:bold;padding:5px 8px;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:5px" onmouseover="this.style.background='#fefce8'" onmouseout="this.style.background='#f8fafc'">
+        <button type="button" onclick="execDetectNumericDigits()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#854d0e;font-size:12px;font-weight:bold;padding:8px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:6px" onmouseover="this.style.background='#fefce8'" onmouseout="this.style.background='#f8fafc'">
           <span>算用数字</span>
         </button>
-        <button type="button" onclick="execDetectHalfWidth()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#0369a1;font-size:11.5px;font-weight:bold;padding:5px 8px;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:5px" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='#f8fafc'">
+        <button type="button" onclick="execDetectHalfWidth()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#0369a1;font-size:12px;font-weight:bold;padding:8px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:6px" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='#f8fafc'">
           <span>半角</span>
         </button>
       </div>
