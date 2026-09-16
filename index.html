@@ -142,22 +142,9 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 </button>
 <button id="tool_save_txt" class="tool-item" onclick="saveAsTxt()" style="background:transparent;border:none;color:#166534;font-weight:bold;white-space:nowrap;padding:2px 4px;font-size:11px" title="現在の紙を.txtファイルとして保存">.txt保存</button>
 <button id="tool_rep" class="tool-item" onclick="tgRep()" style="background:transparent;border:none;color:#92400e;font-weight:bold;padding:2px 4px;font-size:11px" title="検索・置換バー">置換</button>
-<button id="tool_hd" class="tool-item" onclick="tgHiddenChars()" style="background:transparent;border:none;color:#1e3a8a;font-weight:bold;padding:2px 4px;font-size:11px" title="ゼロ幅スペース等の隠し文字/Unicodeを検出">隠し文字</button>
-<button id="tool_hm" class="tool-item" onclick="tgHomoglyphs()" style="background:transparent;border:none;color:#9a3412;font-weight:bold;padding:2px 4px;font-size:11px" title="紛らわしい類似文字・異言語文字を検出">ホモグラフ</button>
-<button id="tool_spcol" class="tool-item" onclick="tgSpColor()" style="background:transparent;border:none;color:#666666;font-weight:bold;padding:2px 4px;font-size:11px" title="全角以外の空白の色をON/OFF">空白色:OFF</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:transparent;border:none;color:#1e40af;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
-<div id="tool_select" class="tool-item" onclick="openColsModal(f, event)" style="position:relative;display:inline-flex;align-items:center;cursor:pointer" title="横の文字数を設定（この紙のみ／デフォルト）">
-  <button id="tool_select_btn" type="button" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 4px;height:36px;border:none;background:transparent;box-shadow:none;outline:none;cursor:pointer;box-sizing:border-box;pointer-events:none">
-    <span style="font-size:9px;font-weight:bold;line-height:1.1;margin-bottom:2px;letter-spacing:0.2px">横の文字数</span>
-    <span id="tool_select_val" style="font-size:12px;font-weight:bold;color:#1e293b;line-height:1.1">30文字 ▾</span>
-  </button>
-  <select id="l" onchange="updateColsDisplay();z()" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;display:none">
-  </select>
-</div>
-<button id="tool_num" class="tool-item" onclick="tgNumericDigits()" style="background:transparent;border:none;color:#854d0e;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="半角・全角・下付き・上付き等の算用数字を検出">算用数字</button>
-<button id="tool_copy" class="tool-item" onclick="c()" title="エディタの内部装飾タグを除去し、きれいなプレーンテキスト文章にしてコピー" style="background:transparent;border:none;color:#000000;font-weight:bold;font-size:10.5px;padding:2px 4px;white-space:normal;line-height:1.15;text-align:center">特殊コピー<br>プレーンコード化</button>
-<button id="tool_fx" class="tool-item" onclick="fx()" style="background:transparent;border:none;color:#0369a1;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="半角空白・英数記号を全角1マス文字に変換">半角→全角</button>
 <button id="tool_area" class="tool-item" onclick="openToolbarColorModal(event)" style="background:transparent;border:none;color:#334155;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="領域の設定（各ツールの文字色設定）">領域</button>
+<select id="l" onchange="updateColsDisplay();z()" style="display:none"></select>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
 <input id="rFrom" placeholder="検索文字" style="padding:5px 8px;border:1px solid #d97706;border-radius:4px;font-size:12px;width:120px;outline:none;background:#fff">
@@ -4151,26 +4138,21 @@ const toolDefs={
     'tool_fx':{name:'半角→全角',desc:'半角空白・英数記号を全角1マス文字に変換'},
     'tool_area':{name:'領域',desc:'サイドバー・ツールバー・タイトルバーの配色や、ツールボタンの名前・改行・情報設定'}
 };
-const defaultToolOrder=['tool_sb','tool_shelf','tool_undo','tool_redo','tool_save_txt','tool_rep','tool_hd','tool_hm','tool_spcol','tool_selcount','tool_select','tool_num','tool_copy','tool_fx','tool_area'];
+const defaultToolOrder=['tool_sb','tool_shelf','tool_undo','tool_redo','tool_save_txt','tool_rep','tool_selcount','tool_area'];
 
 function getToolOrder(){
-    let saved=localStorage.getItem('n_tool_order_v8')||localStorage.getItem('n_tool_order_v7')||localStorage.getItem('n_tool_order_v6');
+    let saved=localStorage.getItem('n_tool_order_v9')||localStorage.getItem('n_tool_order_v8')||localStorage.getItem('n_tool_order_v7')||localStorage.getItem('n_tool_order_v6');
     if(saved){
         try{
             let arr=JSON.parse(saved);
             if(Array.isArray(arr)&&arr.length>0){
-                arr=arr.filter(id=>id!=='tool_count'&&id!=='tool_root'&&id!=='tool_color'&&toolDefs[id]);
+                let removedIds = new Set(['tool_count','tool_root','tool_color','tool_hd','tool_hm','tool_spcol','tool_select','tool_num','tool_copy','tool_fx']);
+                arr=arr.filter(id=>!removedIds.has(id)&&toolDefs[id]);
                 let set=new Set(arr);
                 let full=[...arr];
                 defaultToolOrder.forEach(id=>{
                     if(!set.has(id)){
-                        if(id==='tool_num'){
-                            let copyIdx=full.indexOf('tool_copy');
-                            if(copyIdx>=0) full.splice(copyIdx,0,id);
-                            else full.push(id);
-                        }else{
-                            full.push(id);
-                        }
+                        full.push(id);
                     }
                 });
                 return full;
