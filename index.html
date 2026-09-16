@@ -4,13 +4,14 @@
   --paper-bg:#ffffff;
   --grid-color:#ececec;
   --text-color:#000000;
-  --editor-bg:#f1f5f9;
+  --editor-bg:#ffffff;
   --sidebar-bg:#f8fafc;
-  --sidebar-tree-bg:#f5f5f5;
+  --sidebar-tree-bg:#f8fafc;
   --sidebar-text:#000000;
   --sidebar-border:#e2e8f0;
+  --sidebar-active-bg:#dbeafe;
   --header-info-bg:#ffffff;
-  --header-info-text:#0f172a;
+  --header-info-text:#000000;
   --linenum-bg:#ffffff;
   --linenum-text:#aaaaaa;
   --shelf-bg:#fafbfc;
@@ -25,11 +26,11 @@ html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;overflow:hidde
 button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;background:#f0f0f2;border:1px solid #ccc;border-radius:4px;flex-shrink:0}
 #b{display:flex;position:fixed;top:50px;bottom:0;left:0;right:0;width:100%;height:calc(100% - 50px);height:calc(100dvh - 50px);overflow:hidden}
 #s{width:240px;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);color:var(--sidebar-text);padding:8px 0 0 0;display:flex;flex-direction:column;gap:4px;flex-shrink:0;box-sizing:border-box}
-.m{flex:1;padding:0 0 35vh 0;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;display:flex;flex-direction:column;align-items:flex-start;-webkit-overflow-scrolling:touch;background:var(--paper-bg)}
-#w{display:flex;flex-direction:row;align-items:stretch;background:var(--paper-bg);color:var(--text-color);box-sizing:border-box;flex-shrink:0;margin:0;min-height:calc(100vh - 100px);min-height:calc(100dvh - 100px);height:auto;box-shadow:none;position:relative;transform:translateZ(0);contain:layout style}
+.m{flex:1;padding:0 0 35vh 0;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;display:flex;flex-direction:column;align-items:flex-end;-webkit-overflow-scrolling:touch;background:var(--paper-bg)}
+#w{display:flex;flex-direction:row;align-items:stretch;background:var(--paper-bg);color:var(--text-color);box-sizing:border-box;flex-shrink:0;margin:0 0 0 auto;min-height:calc(100vh - 100px);min-height:calc(100dvh - 100px);height:auto;box-shadow:none;position:relative;transform:translateZ(0);contain:layout style}
 .editor-header-info{display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;padding:4px 12px 4px 6px;background:var(--paper-bg);color:var(--text-color);border-bottom:1px solid var(--sidebar-border);min-height:42px;flex-shrink:0;user-select:none;width:100%;z-index:90}
 .story-count-display{display:inline-flex;align-items:center;white-space:nowrap;font-size:11px;cursor:default;gap:4px}
-.l{width:36px;border-right:1px solid var(--grid-color);padding:0;text-align:right;font-size:12px;color:var(--linenum-text);padding-right:6px;user-select:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:var(--linenum-bg)}
+.l{width:36px;border-right:1px solid var(--grid-color);padding:0;text-align:right;font-size:12px;color:var(--linenum-text);padding-right:6px;user-select:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:var(--paper-bg)}
 #e{flex-grow:1;height:auto;min-height:100%;padding:0;outline:0;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;display:block!important;box-sizing:border-box;font-size:calc(var(--cs)*0.78)!important;line-height:var(--cs)!important;letter-spacing:calc(var(--cs)*0.22)!important;text-align:left!important;caret-color:#2563eb;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","MS Gothic",monospace;font-feature-settings:"halt" 0,"palt" 0,"pkna" 0,"fwid" 1!important;font-variant-east-asian:full-width!important;font-kerning:none!important;background-color:var(--paper-bg)!important;color:var(--text-color)!important;background-image:linear-gradient(90deg,var(--grid-color) 1px,transparent 1px),linear-gradient(var(--grid-color) 1px,transparent 1px)!important;background-size:var(--cs) var(--cs)!important;background-repeat:repeat!important;background-position:0 0!important;cursor:text;contain:style}
 #e *{background-color:transparent}
 #e div,#e p{min-height:var(--cs)!important;display:block!important;box-sizing:border-box;text-align:left!important;line-height:var(--cs)!important;padding:0!important;padding-left:calc(var(--cs)*0.11)!important;margin:0!important;background:transparent!important;width:100%!important;overflow:visible!important}
@@ -50,9 +51,10 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 #t{overflow-y:auto;flex:1;font-size:12px;padding:0;border-top:1px solid var(--sidebar-border);background:var(--sidebar-tree-bg)}
 .tree-node{margin-bottom:0;user-select:none;width:100%}
 .tree-row{display:flex;align-items:center;padding-top:7px;padding-bottom:7px;padding-right:8px;padding-left:calc(8px + var(--tree-level, 0) * 14px);border-radius:0;background:var(--sidebar-tree-bg);border:none;transition:background 0.1s ease;gap:4px;position:relative;cursor:pointer;touch-action:manipulation;user-select:none;width:100%;box-sizing:border-box;min-height:32px;color:var(--sidebar-text)}
-.tree-row:hover{background:rgba(0,0,0,0.06);color:var(--sidebar-text)}
-.tree-row.active{background:rgba(0,0,0,0.22);color:var(--sidebar-text);font-weight:normal}
-.tree-row.active:hover{background:rgba(0,0,0,0.28)}
+.tree-row:hover{background:var(--sidebar-active-bg);opacity:0.85;color:var(--sidebar-text)}
+.tree-row.active{background:var(--sidebar-active-bg);color:var(--sidebar-text);font-weight:bold}
+.tree-row.active:hover{background:var(--sidebar-active-bg);opacity:0.95}
+.tree-row:active{background:var(--sidebar-active-bg)}
 .tree-row.tree-row-dragging{opacity:0.4!important;background:#eff6ff!important;outline:2px dashed #2563eb!important;outline-offset:-2px}
 .tree-row.tree-drop-top{box-shadow:inset 0 3px 0 0 #2563eb!important;background:#f0f7ff!important}
 .tree-row.tree-drop-bottom{box-shadow:inset 0 -3px 0 0 #2563eb!important;background:#f0f7ff!important}
@@ -165,32 +167,32 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <div id="b">
 <div id="s">
 <div style="padding:0 8px;display:flex;flex-direction:column;gap:4px;flex-shrink:0">
-<button onclick="tgS()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:4px;padding:6px;font-size:11px;background:#f1f5f9;border:1px solid #cbd5e1;color:#475569;border-radius:4px;cursor:pointer;font-weight:bold;margin-bottom:2px" title="サイドバーを閉じて原稿用紙を全幅拡大">◀ 畳んで拡大</button>
+<button onclick="tgS()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:4px;padding:6px;font-size:11px;background:var(--sidebar-bg);border:none;color:var(--sidebar-text);border-radius:4px;cursor:pointer;font-weight:bold;margin-bottom:2px" onmouseover="this.style.background='var(--sidebar-active-bg)'" onmouseout="this.style.background='var(--sidebar-bg)'" title="サイドバーを閉じて原稿用紙を全幅拡大">◀ 畳んで拡大</button>
 <div style="display:flex;gap:4px;margin-bottom:2px">
-<button onclick="a(1)" style="flex:1;font-size:11px;white-space:nowrap;padding:6px 4px;background:#dbeafe;color:#000000;font-weight:bold;border:1px solid #93c5fd;border-radius:4px;cursor:pointer" title="新規フォルダ作成">+フォルダ</button>
-<button onclick="a(0)" style="flex:1;font-size:11px;white-space:nowrap;padding:6px 4px;background:#fee2e2;color:#000000;font-weight:bold;border:1px solid #fca5a5;border-radius:4px;cursor:pointer" title="新しい紙を作成">+紙</button>
+<button onclick="a(1)" style="flex:1;font-size:11px;white-space:nowrap;padding:6px 4px;background:var(--sidebar-bg);color:var(--sidebar-text);font-weight:bold;border:none;border-radius:4px;cursor:pointer" onmouseover="this.style.background='var(--sidebar-active-bg)'" onmouseout="this.style.background='var(--sidebar-bg)'" title="新規フォルダ作成">+フォルダ</button>
+<button onclick="a(0)" style="flex:1;font-size:11px;white-space:nowrap;padding:6px 4px;background:var(--sidebar-bg);color:var(--sidebar-text);font-weight:bold;border:none;border-radius:4px;cursor:pointer" onmouseover="this.style.background='var(--sidebar-active-bg)'" onmouseout="this.style.background='var(--sidebar-bg)'" title="新しい紙を作成">+紙</button>
 </div>
 <div id="folderBreadcrumb" style="padding:4px 2px 2px 2px;display:flex;align-items:center;width:100%">
-  <button type="button" onclick="u()" style="background:transparent;border:none;color:#0f172a;font-weight:bold;font-size:12px;padding:2px 0;cursor:pointer;display:inline-flex;align-items:center;gap:5px;width:100%;text-align:left;touch-action:manipulation;line-height:1.2" title="最上層の一覧を表示">
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0"><path d="M3 8V6.5A2 2 0 0 1 5 4.5H9.5A2 2 0 0 1 11.2 5.4L13 8H20A2 2 0 0 1 22 10V17A2 2 0 0 1 20 19H5A2 2 0 0 1 3 17Z"></path><line x1="3" y1="8" x2="22" y2="8"></line></svg>
+  <button type="button" onclick="u()" style="background:var(--sidebar-bg);border:none;color:var(--sidebar-text);font-weight:bold;font-size:12px;padding:3px 4px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;width:100%;text-align:left;touch-action:manipulation;line-height:1.2;border-radius:4px" onmouseover="this.style.background='var(--sidebar-active-bg)'" onmouseout="this.style.background='var(--sidebar-bg)'" title="最上層の一覧を表示">
+    <span id="folderBreadcrumbIcon" style="display:inline-flex;align-items:center"></span>
     <span id="currentFolderLabel">最上層</span>
   </button>
 </div>
 </div>
 <div id="t"></div>
-<div id="sidebarActionBar" style="border-top:1px solid #e2e8f0;background:#f8fafc;padding:3px 6px;display:flex;align-items:center;justify-content:flex-end;flex-shrink:0">
-  <button type="button" id="sidebarColorBtn" onclick="openSidebarColorModal(event)" style="background:#ffffff;border:1px solid #cbd5e1;color:#334155;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.1s ease" onmouseover="this.style.background='#eff6ff';this.style.borderColor='#93c5fd';this.style.color='#1d4ed8'" onmouseout="this.style.background='#ffffff';this.style.borderColor='#cbd5e1';this.style.color='#334155'" title="領域（サイドバー画面）の色設定を開く">
+<div id="sidebarActionBar" style="border-top:1px solid var(--sidebar-border);background:var(--sidebar-bg);padding:3px 6px;display:flex;align-items:center;justify-content:flex-end;flex-shrink:0">
+  <button type="button" id="sidebarColorBtn" onclick="openSidebarColorModal(event)" style="background:var(--sidebar-bg);border:none;color:var(--sidebar-text);padding:4px 8px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.1s ease" onmouseover="this.style.background='var(--sidebar-active-bg)'" onmouseout="this.style.background='var(--sidebar-bg)'" title="サイドバーの色設定を開く">
     <span>色設定</span>
   </button>
 </div>
-<div id="sidebarNoticeBar" style="border-top:1px solid #e2e8f0;background:#f8fafc;display:flex;align-items:stretch;user-select:none;flex-shrink:0;height:28px">
-  <div onclick="openNoticeModal(1)" style="flex:1;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;color:#475569;cursor:pointer;border-right:1px solid #e2e8f0;transition:background 0.1s ease" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'" title="注意事項1を表示">
+<div id="sidebarNoticeBar" style="border-top:1px solid var(--sidebar-border);background:var(--sidebar-bg);display:flex;align-items:stretch;user-select:none;flex-shrink:0;height:28px">
+  <div onclick="openNoticeModal(1)" style="flex:1;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;color:var(--sidebar-text);cursor:pointer;border-right:1px solid var(--sidebar-border);background:var(--sidebar-bg);transition:background 0.1s ease" onmouseover="this.style.background='var(--sidebar-active-bg)'" onmouseout="this.style.background='var(--sidebar-bg)'" title="注意事項1を表示">
     注意事項1
   </div>
-  <div onclick="openNoticeModal(2)" style="flex:1;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;color:#475569;cursor:pointer;border-right:1px solid #e2e8f0;transition:background 0.1s ease" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'" title="注意事項2を表示">
+  <div onclick="openNoticeModal(2)" style="flex:1;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;color:var(--sidebar-text);cursor:pointer;border-right:1px solid var(--sidebar-border);background:var(--sidebar-bg);transition:background 0.1s ease" onmouseover="this.style.background='var(--sidebar-active-bg)'" onmouseout="this.style.background='var(--sidebar-bg)'" title="注意事項2を表示">
     注意事項2
   </div>
-  <div onclick="openTrashModal()" id="sidebarTrashBtn" style="flex:1;display:flex;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:bold;color:#64748b;cursor:pointer;transition:all 0.1s ease" onmouseover="this.style.background='#fee2e2';this.style.color='#b91c1c'" onmouseout="this.style.background='transparent';this.style.color='#64748b'" title="ゴミ箱を開く">
+  <div onclick="openTrashModal()" id="sidebarTrashBtn" style="flex:1;display:flex;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:bold;color:var(--sidebar-text);cursor:pointer;background:var(--sidebar-bg);transition:all 0.1s ease" onmouseover="this.style.background='var(--sidebar-active-bg)'" onmouseout="this.style.background='var(--sidebar-bg)'" title="ゴミ箱を開く">
     ゴミ箱<span id="sidebarTrashCount"></span>
   </div>
 </div>
@@ -200,13 +202,8 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <div id="shelfView" class="shelf-view-container">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--shelf-header-bg, #ffffff);border-bottom:1px solid var(--sidebar-border, #e2e8f0);flex-shrink:0;gap:8px;position:sticky;top:0;z-index:10">
     <div id="shelfBreadcrumbs" style="display:flex;align-items:center;gap:6px;min-width:0;flex:1"></div>
-    <div id="shelfHeaderControls" style="display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:4px;flex-shrink:0">
-      <div id="shelfHeaderTopRow" style="display:flex;align-items:center;gap:5px">
-        <button id="shelfFolderSettingsBtn" type="button" class="shelf-card-info-btn" onclick="onShelfFolderSettingsClick(event)" style="font-size:11px;padding:3px 8px;line-height:1.2;cursor:pointer;font-weight:600" title="フォルダの設定・名前変更・削除">フォルダの設定</button>
-      </div>
-      <div id="shelfHeaderBottomRow" style="display:flex;align-items:center;gap:5px">
-        <button id="shelfAreaColorBtn" type="button" class="shelf-card-info-btn" onclick="openSidebarColorModal(event)" style="font-size:11px;padding:3px 8px;line-height:1.2;cursor:pointer;background:#f8fafc;color:#475569;border:1px solid #cbd5e1;border-radius:4px;font-weight:600" title="領域（タイトルバー・サイドバー・ツールバー）の色を設定">領域の色</button>
-      </div>
+    <div id="shelfHeaderControls" style="display:flex;align-items:center;justify-content:flex-end;gap:4px;flex-shrink:0">
+      <button id="shelfFolderSettingsBtn" type="button" class="shelf-card-info-btn" onclick="onShelfFolderSettingsClick(event)" style="font-size:11px;padding:3px 8px;line-height:1.2;cursor:pointer;font-weight:600" title="フォルダの設定・名前変更・削除">フォルダの設定</button>
     </div>
   </div>
   <div style="padding:14px 20px 80px 20px;display:flex;flex-direction:column;gap:18px">
@@ -255,7 +252,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 </div>
 
 <!-- Editor View -->
-<div id="editorView" style="flex:1;display:flex;flex-direction:column;height:100%;min-width:0;overflow:hidden">
+<div id="editorView" style="flex:1;display:flex;flex-direction:column;height:100%;min-width:0;overflow:hidden;position:relative">
 <div id="editorHeaderInfo" class="editor-header-info">
   <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1">
     <button id="backToShelfBtn" onclick="showShelfView()" style="display:inline-flex;align-items:center;justify-content:center;padding:4px 3px;margin:0;background:transparent;border:none;box-shadow:none;cursor:pointer;color:var(--text-color,#334155);flex-shrink:0;line-height:1;border-radius:4px" title="最上層へ戻る">
@@ -263,6 +260,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
         <polyline points="15 18 9 12 15 6"/>
       </svg>
     </button>
+    <button id="paperSettingBtn" type="button" class="shelf-card-info-btn" onclick="if(f)openItemModal(f, event)" style="font-size:11px;padding:3px 8px;line-height:1.2;cursor:pointer;font-weight:600;background:transparent;color:var(--text-color,#334155);border:none;border-radius:4px;white-space:nowrap;flex-shrink:0" title="紙の設定・タイトル変更・削除">紙の設定</button>
     <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0;flex:1">
       <div id="currentStoryTitleDisplay" style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
         <span id="storyTitleText" onclick="if(f)openItemModal(f)" style="font-weight:bold;color:var(--text-color,#0f172a);font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;line-height:1.2" title="紙の設定・タイトル変更">紙タイトル</span>
@@ -272,24 +270,23 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
           <span style="font-weight:bold;font-size:11.5px;color:var(--text-color,#0f172a)">0文字</span>
           <span style="font-size:9.5px;color:#94a3b8;font-weight:normal">(空白と改行抜き)</span>
         </div>
-        <div style="width:1px;height:12px;background:#cbd5e1;margin:0 5px;flex-shrink:0"></div>
+        <div style="width:1px;height:12px;background:var(--sidebar-border,#cbd5e1);margin:0 5px;flex-shrink:0"></div>
         <div style="display:flex;align-items:center;gap:4px;line-height:1.2;font-size:11px" title="【セリフの文字数カウントルール】&#10;1. 抽出対象: 「」または『』で囲まれた部分&#10;2. 括弧の扱い: セリフ両端の括弧自体もカウント（各1文字）&#10;3. 空白の除外: 内部の空白・改行は除外&#10;4. 重複の禁止: 入れ子の括弧は重複カウントなし">
-          <span style="font-size:10px;color:#64748b;font-weight:500">セリフ</span>
+          <span style="font-size:10px;color:var(--text-color,#64748b);opacity:0.75;font-weight:500">セリフ</span>
           <span style="font-weight:bold;font-size:11.5px;color:var(--text-color,#0f172a)">0文字</span>
           <span style="font-size:9px;color:#94a3b8;font-weight:normal;cursor:help">(定義注意)</span>
         </div>
       </div>
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:12px">
-    <button type="button" class="shelf-card-info-btn" onclick="if(f)openItemModal(f, event)" style="font-size:11px;padding:3px 8px;line-height:1.2;cursor:pointer;font-weight:600;background:#ffffff;color:#334155;border:1px solid #cbd5e1;border-radius:4px" title="紙の設定・タイトル変更・削除">紙の設定</button>
-    <button id="titleColorBtn" type="button" class="shelf-card-info-btn" onclick="if(f)openPaperColorModal(f, event)" style="font-size:11px;padding:3px 8px;line-height:1.2;cursor:pointer;background:#fdf2f8;color:#be185d;border:1px solid #fbcfe8;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:3px" title="この紙の色を設定（デフォルト／個別）">紙の色</button>
-    <button id="titleAreaColorBtn" type="button" class="shelf-card-info-btn" onclick="openSidebarColorModal(event)" style="font-size:11px;padding:3px 8px;line-height:1.2;cursor:pointer;background:#f8fafc;color:#475569;border:1px solid #cbd5e1;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:3px" title="領域（タイトルバー・サイドバー・ツールバー）の色を設定">領域の色</button>
-  </div>
 </div>
 <div class="m">
   <div id="w"><div class="l" id="n">1</div><div id="e" contenteditable="true"><div><br></div></div></div>
 </div>
+<button id="titleColorBtn" type="button" onclick="if(f)openPaperColorModal(f, event)" style="position:absolute;bottom:16px;right:16px;z-index:95;font-size:11.5px;padding:5px 12px;line-height:1.2;cursor:pointer;background:var(--paper-bg,#ffffff);color:var(--text-color,#334155);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:6px;font-weight:600;display:inline-flex;align-items:center;gap:5px;box-shadow:0 2px 8px rgba(0,0,0,0.12);touch-action:manipulation;transition:transform 0.1s ease,box-shadow 0.1s ease" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.18)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.12)'" title="この紙の色を設定（デフォルト／個別）">
+  <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--paper-bg);border:1.5px solid var(--text-color);flex-shrink:0"></span>
+  <span>紙の色</span>
+</button>
 </div>
 </div>
 </div>
@@ -586,6 +583,7 @@ function renderShelfView(){
     }
 
     if(folderItem){
+        let currentFolderIconColor = getActiveFolderTheme(folderItem.id).folderIconColor || '#2563eb';
         breadcrumbsEl.innerHTML = `
             <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
                 <div style="display:flex;align-items:center;gap:6px;overflow:hidden">
@@ -594,7 +592,7 @@ function renderShelfView(){
                             <polyline points="15 18 9 12 15 6"/>
                         </svg>
                     </button>
-                    <span style="display:inline-flex;align-items:center;margin-right:2px">${getFolderIconSvg(false, 'var(--shelf-folder-color, #2563eb)')}</span>
+                    <span style="display:inline-flex;align-items:center;margin-right:2px">${getFolderIconSvg(false, currentFolderIconColor)}</span>
                     <span style="font-size:15px;font-weight:bold;color:var(--shelf-title-color,#0f172a);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" onclick="openItemModal('${folderItem.id}', event)" title="フォルダ設定・名前変更">${escapeHtml(folderItem.name)}</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--shelf-title-color,#0f172a);font-weight:500">
@@ -605,10 +603,11 @@ function renderShelfView(){
             </div>
         `;
     }else{
+        let rootFolderIconColor = getGlobalFolderTheme().folderIconColor || '#2563eb';
         breadcrumbsEl.innerHTML = `
             <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
                 <div style="display:flex;align-items:center;gap:6px;overflow:hidden">
-                    <span style="display:inline-flex;align-items:center;margin-right:2px">${getFolderIconSvg(false, 'var(--shelf-folder-color, #2563eb)')}</span>
+                    <span style="display:inline-flex;align-items:center;margin-right:2px">${getFolderIconSvg(false, rootFolderIconColor)}</span>
                     <span style="font-size:15px;font-weight:bold;color:var(--shelf-title-color,#0f172a)">最上層</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--shelf-title-color,#0f172a);font-weight:500">
@@ -628,6 +627,8 @@ function renderShelfView(){
     if(subfolders.length > 0){
         foldersSec.style.display = 'block';
         subfolders.forEach(sf=>{
+            let sfTheme = getActiveFolderTheme(sf.id);
+            let sfColor = sfTheme.folderIconColor || sfTheme.folderBg || '#3b82f6';
             let st = getFolderStats(sf);
             let totalItems = st.files + st.subfolders;
             let card = document.createElement('div');
@@ -641,7 +642,7 @@ function renderShelfView(){
             card.innerHTML = `
                 <div style="position:relative;display:inline-block">
                     <svg width="68" height="52" viewBox="0 0 68 52" fill="none" style="display:block">
-                      <path d="M4 11C4 8.23858 6.23858 6 9 6H23.5858C24.9119 6 26.1837 6.52679 27.1213 7.46447L31.5355 11.8787C32.4732 12.8163 33.745 13.3431 35.0711 13.3431H59C61.7614 13.3431 64 15.5817 64 18.3431V43C64 45.7614 61.7614 48 59 48H9C6.23858 48 4 45.7614 4 43V11Z" fill="var(--shelf-folder-color, #3b82f6)"/>
+                      <path d="M4 11C4 8.23858 6.23858 6 9 6H23.5858C24.9119 6 26.1837 6.52679 27.1213 7.46447L31.5355 11.8787C32.4732 12.8163 33.745 13.3431 35.0711 13.3431H59C61.7614 13.3431 64 15.5817 64 18.3431V43C64 45.7614 61.7614 48 59 48H9C6.23858 48 4 45.7614 4 43V11Z" fill="${sfColor}"/>
                     </svg>
                     <button type="button" class="shelf-card-info-btn" style="position:absolute;top:2px;right:2px;font-size:10px;padding:1px 4px" onclick="event.stopPropagation();openItemModal('${sf.id}', event)" title="フォルダ設定・名前変更・削除">設定</button>
                 </div>
@@ -1865,8 +1866,26 @@ function getFolderIconSvg(isFolded, color='#2563eb'){
 function updateFolderBreadcrumb(){
     let lbl=document.getElementById('currentFolderLabel');
     if(!lbl)return;
-    lbl.textContent = '最上層';
-    lbl.title = '最上層の一覧を表示';
+    let iconEl=document.getElementById('folderBreadcrumbIcon');
+    let folderColor = '#2563eb';
+    let targetFolderId = (typeof pId !== 'undefined' && pId && pId !== 'root') ? pId : (typeof currentShelfFolderId !== 'undefined' ? currentShelfFolderId : null);
+    if(targetFolderId && targetFolderId !== 'root'){
+        let fItem = typeof g === 'function' ? g(targetFolderId) : null;
+        lbl.textContent = fItem ? fItem.name : 'フォルダ';
+        lbl.title = fItem ? `${fItem.name} の一覧を表示` : 'フォルダ一覧を表示';
+        if(typeof getActiveFolderTheme === 'function'){
+            folderColor = getActiveFolderTheme(targetFolderId).folderIconColor || '#2563eb';
+        }
+    } else {
+        lbl.textContent = '最上層';
+        lbl.title = '最上層の一覧を表示';
+        if(typeof getGlobalFolderTheme === 'function'){
+            folderColor = getGlobalFolderTheme().folderIconColor || '#2563eb';
+        }
+    }
+    if(iconEl){
+        iconEl.innerHTML = getFolderIconSvg(false, folderColor);
+    }
 }
 
 function findItemContext(id, list=d.r, parentFolder=null){
@@ -2295,7 +2314,9 @@ function m(i,pid,level=0){
     if(i.type==='folder'){
         let iconSpan=document.createElement('span');
         iconSpan.className='tree-folder-icon';
-        iconSpan.innerHTML=getFolderIconSvg(isFold, isCurrentActive ? '#1e3a8a' : '#2563eb');
+        let fTheme = typeof getActiveFolderTheme === 'function' ? getActiveFolderTheme(i.id) : null;
+        let folderColor = (fTheme && fTheme.folderIconColor) || '#2563eb';
+        iconSpan.innerHTML=getFolderIconSvg(isFold, folderColor);
         iconSpan.style.display='inline-flex';
         iconSpan.style.alignItems='center';
         iconSpan.style.marginRight='4px';
@@ -4878,7 +4899,6 @@ const DEFAULT_PAPER_THEME = {
     paperBg: '#ffffff',
     gridLine: '#ececec',
     paperText: '#000000',
-    lineNumBg: '#ffffff',
     lineNumText: '#aaaaaa'
 };
 
@@ -4886,40 +4906,39 @@ const PAPER_PRESETS = [
     {
         id: 'white',
         name: '標準白',
-        theme: { paperBg: '#ffffff', gridLine: '#ececec', paperText: '#000000', lineNumBg: '#ffffff', lineNumText: '#aaaaaa' }
+        theme: { paperBg: '#ffffff', gridLine: '#ececec', paperText: '#000000', lineNumText: '#aaaaaa' }
     },
     {
         id: 'sepia',
         name: '生成り（和紙）',
-        theme: { paperBg: '#fbf7ee', gridLine: '#e6d7c3', paperText: '#3b2d20', lineNumBg: '#f5eee0', lineNumText: '#998675' }
+        theme: { paperBg: '#fbf7ee', gridLine: '#e6d7c3', paperText: '#3b2d20', lineNumText: '#998675' }
     },
     {
         id: 'dark',
         name: 'ダークモード',
-        theme: { paperBg: '#1e293b', gridLine: '#334155', paperText: '#f8fafc', lineNumBg: '#0f172a', lineNumText: '#64748b' }
+        theme: { paperBg: '#1e293b', gridLine: '#334155', paperText: '#f8fafc', lineNumText: '#64748b' }
     },
     {
         id: 'forest',
         name: '深緑（抹茶）',
-        theme: { paperBg: '#f0fdf4', gridLine: '#bbf7d0', paperText: '#14532d', lineNumBg: '#dcfce7', lineNumText: '#15803d' }
+        theme: { paperBg: '#f0fdf4', gridLine: '#bbf7d0', paperText: '#14532d', lineNumText: '#15803d' }
     },
     {
         id: 'sakura',
         name: '桜・撫子',
-        theme: { paperBg: '#fff1f2', gridLine: '#fecdd3', paperText: '#4c0519', lineNumBg: '#ffe4e6', lineNumText: '#9f1239' }
+        theme: { paperBg: '#fff1f2', gridLine: '#fecdd3', paperText: '#4c0519', lineNumText: '#9f1239' }
     },
     {
         id: 'ocean',
         name: '藍・インク',
-        theme: { paperBg: '#f0f9ff', gridLine: '#bae6fd', paperText: '#082f49', lineNumBg: '#e0f2fe', lineNumText: '#0284c7' }
+        theme: { paperBg: '#f0f9ff', gridLine: '#bae6fd', paperText: '#082f49', lineNumText: '#0284c7' }
     }
 ];
 
 const PAPER_COLOR_DEFS = [
-    { key: 'paperBg', label: 'マス目用紙の背景色' },
+    { key: 'paperBg', label: '用紙・タイトル・行番号の背景色' },
     { key: 'gridLine', label: 'マス目の罫線色' },
-    { key: 'paperText', label: '本文文字色' },
-    { key: 'lineNumBg', label: '行番号の背景色' },
+    { key: 'paperText', label: '本文・タイトルの文字色' },
     { key: 'lineNumText', label: '行番号の文字色' }
 ];
 
@@ -4973,11 +4992,9 @@ const FOLDER_COLOR_DEFS = [
 ];
 
 const DEFAULT_SIDEBAR_THEME = {
-    titleBarBg: '#ffffff',
-    titleBarText: '#0f172a',
-    headerBg: '#ffffff',
-    headerText: '#334155',
     sidebarBg: '#f8fafc',
+    sidebarBorder: '#e2e8f0',
+    sidebarActiveBg: '#dbeafe',
     sidebarText: '#000000'
 };
 
@@ -4985,32 +5002,30 @@ const SIDEBAR_PRESETS = [
     {
         id: 'light',
         name: '標準ライト',
-        theme: { titleBarBg: '#ffffff', titleBarText: '#0f172a', headerBg: '#ffffff', headerText: '#334155', sidebarBg: '#f8fafc', sidebarText: '#000000' }
+        theme: { sidebarBg: '#f8fafc', sidebarBorder: '#e2e8f0', sidebarActiveBg: '#dbeafe', sidebarText: '#000000' }
     },
     {
         id: 'dark',
         name: 'ダーク',
-        theme: { titleBarBg: '#1e293b', titleBarText: '#f8fafc', headerBg: '#1e293b', headerText: '#f8fafc', sidebarBg: '#0f172a', sidebarText: '#f1f5f9' }
+        theme: { sidebarBg: '#0f172a', sidebarBorder: '#334155', sidebarActiveBg: '#1e293b', sidebarText: '#f1f5f9' }
     },
     {
         id: 'sepia',
         name: '生成り',
-        theme: { titleBarBg: '#fbf7ee', titleBarText: '#3b2d20', headerBg: '#fbf7ee', headerText: '#3b2d20', sidebarBg: '#f6efe2', sidebarText: '#3b2d20' }
+        theme: { sidebarBg: '#f6efe2', sidebarBorder: '#e7decb', sidebarActiveBg: '#ede3cf', sidebarText: '#3b2d20' }
     },
     {
         id: 'forest',
         name: '深緑',
-        theme: { titleBarBg: '#f0fdf4', titleBarText: '#064e3b', headerBg: '#f0fdf4', headerText: '#064e3b', sidebarBg: '#ecfdf5', sidebarText: '#064e3b' }
+        theme: { sidebarBg: '#ecfdf5', sidebarBorder: '#a7f3d0', sidebarActiveBg: '#d1fae5', sidebarText: '#064e3b' }
     }
 ];
 
 const SIDEBAR_COLOR_DEFS = [
-    { key: 'titleBarBg', label: 'タイトルバー背景色' },
-    { key: 'titleBarText', label: 'タイトルバー文字色' },
-    { key: 'headerBg', label: 'ツールバー背景色' },
-    { key: 'headerText', label: 'ツールバー文字色' },
     { key: 'sidebarBg', label: 'サイドバー背景色' },
-    { key: 'sidebarText', label: 'サイドバー文字色' }
+    { key: 'sidebarBorder', label: '原稿との境界線' },
+    { key: 'sidebarActiveBg', label: '指で押した時の色' },
+    { key: 'sidebarText', label: '文字の色' }
 ];
 
 const DEFAULT_THEME = Object.assign({}, DEFAULT_PAPER_THEME, DEFAULT_FOLDER_THEME, DEFAULT_SIDEBAR_THEME);
@@ -5135,13 +5150,15 @@ function getActiveSidebarTheme(){
 
 function applyCurrentTheme(){
     const root = document.documentElement;
-    // 1. 原稿用紙の色設定
+    // 1. 原稿用紙の色設定（紙・タイトルバー・マス目・行番号エリアを同一色に統一）
     const pt = getActivePaperTheme();
     root.style.setProperty('--paper-bg', pt.paperBg);
     root.style.setProperty('--grid-color', pt.gridLine);
     root.style.setProperty('--text-color', pt.paperText);
-    root.style.setProperty('--linenum-bg', pt.lineNumBg);
+    root.style.setProperty('--linenum-bg', pt.paperBg);
     root.style.setProperty('--linenum-text', pt.lineNumText);
+    root.style.setProperty('--header-info-bg', pt.paperBg);
+    root.style.setProperty('--header-info-text', pt.paperText);
 
     // 2. フォルダ・シェルフの色設定
     const ft = getActiveFolderTheme();
@@ -5150,17 +5167,15 @@ function applyCurrentTheme(){
     root.style.setProperty('--shelf-item-text', ft.folderItemText);
     root.style.setProperty('--shelf-folder-color', ft.folderIconColor);
 
-    // 3. 領域（タイトルバー・ツールバー・サイドバー）の色設定
+    // 3. サイドバーの色設定（サイドバー背景、境界線、押下時の色、文字色）
     const st = getActiveSidebarTheme();
     root.style.setProperty('--sidebar-bg', st.sidebarBg);
     root.style.setProperty('--sidebar-tree-bg', st.sidebarBg);
+    root.style.setProperty('--sidebar-border', st.sidebarBorder || '#e2e8f0');
+    root.style.setProperty('--sidebar-active-bg', st.sidebarActiveBg || '#dbeafe');
     root.style.setProperty('--sidebar-text', st.sidebarText);
-    root.style.setProperty('--header-bg', st.headerBg || '#ffffff');
-    root.style.setProperty('--header-text', st.headerText || '#334155');
-    root.style.setProperty('--shelf-header-bg', st.titleBarBg || '#ffffff');
-    root.style.setProperty('--shelf-title-color', st.titleBarText || '#0f172a');
-    root.style.setProperty('--header-info-bg', pt.paperBg || '#ffffff');
-    root.style.setProperty('--header-info-text', pt.paperText || '#0f172a');
+
+    if(typeof updateFolderBreadcrumb === 'function') updateFolderBreadcrumb();
 }
 
 // ドロワー管理ステート
@@ -5318,14 +5333,14 @@ function renderColorDrawerUI(){
         if(btnAll) btnAll.style.display = 'flex';
         if(btnKeep) btnKeep.style.display = 'flex';
     } else if(state.type === 'sidebar'){
-        if(titleEl) titleEl.textContent = '領域の色・設定';
-        if(subEl) subEl.textContent = 'サイドバーとツールバーの配色・ボタン設定';
+        if(titleEl) titleEl.textContent = 'サイドバーの色設定';
+        if(subEl) subEl.textContent = 'サイドバーの配色設定';
         if(btnCustom) {
             btnCustom.style.display = 'flex';
             let label = btnCustom.querySelector('span:first-child');
-            if(label) label.textContent = '領域に適用して保存';
+            if(label) label.textContent = 'サイドバーに適用して保存';
         }
-        if(subtextCustom) subtextCustom.textContent = 'サイドバーとツールバーの表示色を保存します';
+        if(subtextCustom) subtextCustom.textContent = 'サイドバーの表示色を保存します';
         if(btnAll) btnAll.style.display = 'none';
         if(btnKeep) btnKeep.style.display = 'none';
     }
@@ -5393,72 +5408,6 @@ function renderDrawerColorFields(){
         row.appendChild(ctrlWrap);
         cont.appendChild(row);
     });
-
-    if(colorDrawerState.type === 'sidebar'){
-        let toolSection = document.createElement('div');
-        toolSection.style.cssText = 'margin-top:12px;padding-top:10px;border-top:1px dashed #cbd5e1;display:flex;flex-direction:column;gap:8px';
-        
-        let customLabels = getCustomToolLabels();
-        let curOrder = getToolOrder();
-
-        let toolListHtml = curOrder.map((id, index) => {
-            let def = toolDefs[id];
-            if(!def) return '';
-            let label = customLabels[id] !== undefined ? customLabels[id] : (defaultToolPreviewHTML[id] || def.name);
-            let displayLabel = escapeHtml(label).replace(/\n/g, ' / ');
-            let desc = escapeHtml(def.desc || '');
-            return `
-                <div style="display:flex;flex-direction:column;gap:2px;padding:6px 8px;background:#ffffff;border:1px solid #e2e8f0;border-radius:6px;font-size:11px">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
-                        <span style="font-weight:bold;color:#1e293b;display:inline-flex;align-items:center;gap:5px">
-                            <span style="font-size:9.5px;color:#64748b;font-family:monospace">#${index + 1}</span>
-                            <span>${displayLabel}</span>
-                        </span>
-                        <span style="font-size:9.5px;color:#64748b;font-family:monospace">${id}</span>
-                    </div>
-                    <div style="font-size:10.5px;color:#475569;line-height:1.35">${desc}</div>
-                </div>
-            `;
-        }).join('');
-
-        toolSection.innerHTML = `
-            <div style="display:flex;align-items:center;justify-content:space-between">
-                <span style="font-size:11px;font-weight:bold;color:#475569">ツールボタンの情報・設定</span>
-                <span style="font-size:10px;color:#64748b">${curOrder.length}個のツール</span>
-            </div>
-            <div style="display:flex;gap:6px">
-                <button type="button" id="btnOpenRenameFromDrawer" style="flex:1;background:#f8fafc;border:1px solid #94a3b8;color:#1e293b;padding:6px 8px;border-radius:5px;font-size:11px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px" onmouseover="this.style.background='#eff6ff';this.style.borderColor='#2563eb'" onmouseout="this.style.background='#f8fafc';this.style.borderColor='#94a3b8'">
-                    <span>名前・改行を設定</span>
-                </button>
-                <button type="button" id="btnToggleToolInfoList" style="flex:1;background:#f8fafc;border:1px solid #94a3b8;color:#1e293b;padding:6px 8px;border-radius:5px;font-size:11px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px" onmouseover="this.style.background='#eff6ff';this.style.borderColor='#2563eb'" onmouseout="this.style.background='#f8fafc';this.style.borderColor='#94a3b8'">
-                    <span id="btnToggleToolInfoListText">機能一覧を表示</span>
-                </button>
-            </div>
-            <div id="drawerToolInfoList" style="display:none;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;padding-right:2px">
-                ${toolListHtml}
-            </div>
-        `;
-        let btnRename = toolSection.querySelector('#btnOpenRenameFromDrawer');
-        if(btnRename){
-            btnRename.onclick = () => {
-                closeColorDrawer();
-                openToolRenameModal();
-            };
-        }
-        let btnToggleList = toolSection.querySelector('#btnToggleToolInfoList');
-        let listContainer = toolSection.querySelector('#drawerToolInfoList');
-        let btnToggleText = toolSection.querySelector('#btnToggleToolInfoListText');
-        if(btnToggleList && listContainer){
-            btnToggleList.onclick = () => {
-                let isHidden = listContainer.style.display === 'none';
-                listContainer.style.display = isHidden ? 'flex' : 'none';
-                if(btnToggleText){
-                    btnToggleText.textContent = isHidden ? '機能一覧を閉じる' : '機能一覧を表示';
-                }
-            };
-        }
-        cont.appendChild(toolSection);
-    }
 }
 
 function onDrawerColorChange(key, rawVal, source){
@@ -5538,17 +5487,17 @@ function previewDrawerLive(){
     const t = colorDrawerState.workingTheme;
     
     if(colorDrawerState.type === 'paper'){
-        // 原稿用紙の色設定のみ更新。フォルダやサイドバーには触れない
+        // 原稿用紙の色設定のみ更新。紙・タイトルバー・マス目・行番号エリアを同一色に統一
         if(t.paperBg){
             root.style.setProperty('--paper-bg', t.paperBg);
             root.style.setProperty('--header-info-bg', t.paperBg);
+            root.style.setProperty('--linenum-bg', t.paperBg);
         }
         if(t.gridLine) root.style.setProperty('--grid-color', t.gridLine);
         if(t.paperText){
             root.style.setProperty('--text-color', t.paperText);
             root.style.setProperty('--header-info-text', t.paperText);
         }
-        if(t.lineNumBg) root.style.setProperty('--linenum-bg', t.lineNumBg);
         if(t.lineNumText) root.style.setProperty('--linenum-text', t.lineNumText);
     } else if(colorDrawerState.type === 'folder'){
         // フォルダ・収納物の色設定のみ更新。原稿用紙やサイドバーには触れない
@@ -5557,22 +5506,14 @@ function previewDrawerLive(){
         if(t.folderItemText) root.style.setProperty('--shelf-item-text', t.folderItemText);
         if(t.folderIconColor) root.style.setProperty('--shelf-folder-color', t.folderIconColor);
     } else if(colorDrawerState.type === 'sidebar'){
-        // 領域（タイトルバー・ツールバー・サイドバー）の色設定のみ更新。原稿用紙やフォルダには触れない
+        // サイドバーの色設定（サイドバー背景、境界線、押下時、文字色）のみ更新
         if(t.sidebarBg){
             root.style.setProperty('--sidebar-bg', t.sidebarBg);
             root.style.setProperty('--sidebar-tree-bg', t.sidebarBg);
         }
+        if(t.sidebarBorder) root.style.setProperty('--sidebar-border', t.sidebarBorder);
+        if(t.sidebarActiveBg) root.style.setProperty('--sidebar-active-bg', t.sidebarActiveBg);
         if(t.sidebarText) root.style.setProperty('--sidebar-text', t.sidebarText);
-        if(t.headerBg) root.style.setProperty('--header-bg', t.headerBg);
-        if(t.headerText) root.style.setProperty('--header-text', t.headerText);
-        if(t.titleBarBg){
-            root.style.setProperty('--shelf-header-bg', t.titleBarBg);
-            root.style.setProperty('--header-info-bg', t.titleBarBg);
-        }
-        if(t.titleBarText){
-            root.style.setProperty('--shelf-title-color', t.titleBarText);
-            root.style.setProperty('--header-info-text', t.titleBarText);
-        }
     }
 }
 
@@ -5668,6 +5609,7 @@ function saveColorSettingsWithMode(mode){
     }
     
     applyCurrentTheme();
+    r();
     if(currentViewMode === 'shelf') renderShelfView();
     
     let drawer = document.getElementById('colorDrawer');
