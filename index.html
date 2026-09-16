@@ -13,6 +13,12 @@
   --header-info-text:#0f172a;
   --linenum-bg:#ffffff;
   --linenum-text:#aaaaaa;
+  --shelf-bg:#fafbfc;
+  --shelf-header-bg:#ffffff;
+  --shelf-title-color:#1e293b;
+  --shelf-item-bg:#ffffff;
+  --shelf-item-text:#1e293b;
+  --shelf-folder-color:#3b82f6;
 }
 html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0;font-family:monospace}
 .h{position:fixed;top:0;left:0;right:0;width:100%;display:flex;gap:6px;padding:8px;background:#fff;border-bottom:1px solid #ddd;height:50px;box-sizing:border-box;align-items:center;z-index:999;flex-shrink:0;overflow-x:auto;overflow-y:hidden;white-space:nowrap;-webkit-overflow-scrolling:touch}
@@ -83,18 +89,18 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 .modal-body{padding:14px;overflow-y:auto;max-height:80vh;display:flex;flex-direction:column;gap:12px;box-sizing:border-box}
 .modal-section{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
 .modal-sec-title{font-size:11px;font-weight:bold;color:#64748b;text-transform:uppercase;letter-spacing:0.5px}
-.shelf-view-container{display:none;flex:1;flex-direction:column;height:100%;background:#fafbfc;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.shelf-view-container{display:none;flex:1;flex-direction:column;height:100%;background:var(--shelf-bg,#fafbfc);color:var(--shelf-title-color,#1e293b);overflow-y:auto;-webkit-overflow-scrolling:touch}
 .shelf-folder-card{display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;padding:10px 6px;border-radius:10px;transition:transform 0.12s ease,background 0.12s ease;user-select:none;touch-action:manipulation;position:relative}
 .shelf-folder-card:hover{background:rgba(0,0,0,0.04);transform:translateY(-2px)}
 .shelf-folder-card:active{transform:scale(0.96)}
-.shelf-folder-title{font-size:12px;font-weight:600;color:#1e293b;margin-top:4px;max-width:115px;text-align:center;word-break:break-word;line-height:1.25}
+.shelf-folder-title{font-size:12px;font-weight:600;color:var(--shelf-title-color,#1e293b);margin-top:4px;max-width:115px;text-align:center;word-break:break-word;line-height:1.25}
 .shelf-note-card-wrap{display:flex;flex-direction:column;align-items:center;cursor:pointer;user-select:none;touch-action:manipulation;width:100%;transition:transform 0.12s ease}
-.shelf-note-card{width:100%;aspect-ratio:1 / 1.38;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04);display:flex;flex-direction:column;justify-content:space-between;padding:10px 10px;box-sizing:border-box;position:relative;transition:transform 0.15s ease,box-shadow 0.15s ease,border-color 0.15s ease}
-.shelf-note-card-wrap:hover .shelf-note-card{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,0.1),0 2px 5px rgba(0,0,0,0.05);border-color:#cbd5e1}
+.shelf-note-card{width:100%;aspect-ratio:1 / 1.38;background:var(--shelf-item-bg,#ffffff);color:var(--shelf-item-text,#1e293b);border:1px solid rgba(0,0,0,0.1);border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04);display:flex;flex-direction:column;justify-content:space-between;padding:10px 10px;box-sizing:border-box;position:relative;transition:transform 0.15s ease,box-shadow 0.15s ease,border-color 0.15s ease}
+.shelf-note-card-wrap:hover .shelf-note-card{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,0.1),0 2px 5px rgba(0,0,0,0.05);border-color:rgba(0,0,0,0.2)}
 .shelf-note-card-wrap:active .shelf-note-card{transform:scale(0.96)}
 .shelf-note-body-spacer{flex:1}
-.shelf-note-meta{font-size:10px;color:#94a3b8;font-weight:600;display:flex;align-items:center;justify-content:flex-end}
-.shelf-note-title{font-size:12px;font-weight:600;color:#1e293b;margin-top:6px;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.25}
+.shelf-note-meta{font-size:10px;color:var(--shelf-item-text,#94a3b8);opacity:0.8;font-weight:600;display:flex;align-items:center;justify-content:flex-end}
+.shelf-note-title{font-size:12px;font-weight:600;color:var(--shelf-title-color,#1e293b);margin-top:6px;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.25}
 .shelf-card-info-btn{background:#ffffff;border:1px solid #cbd5e1;border-radius:4px;font-size:10px;padding:1px 4px;cursor:pointer;line-height:1.2;color:#475569;transition:background 0.1s ease,border-color 0.1s ease}
 .shelf-card-info-btn:hover{background:#f1f5f9;border-color:#94a3b8;color:#0f172a}
 .shelf-folder-card.shelf-card-dragging,
@@ -104,6 +110,9 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 .shelf-note-card-wrap.shelf-drop-before{box-shadow:-4px 0 0 0 #2563eb, -8px 0 16px -2px rgba(37,99,235,0.35)!important;border-radius:8px}
 .shelf-folder-card.shelf-drop-after,
 .shelf-note-card-wrap.shelf-drop-after{box-shadow:4px 0 0 0 #2563eb, 8px 0 16px -2px rgba(37,99,235,0.35)!important;border-radius:8px}
+.color-drawer-left-bottom{position:fixed;left:14px;bottom:14px;width:330px;max-width:calc(100vw - 28px);max-height:min(600px,calc(100vh - 75px));background:#ffffff;border:1px solid #cbd5e1;border-radius:12px;box-shadow:0 16px 36px -4px rgba(15,23,42,0.22),0 4px 12px rgba(15,23,42,0.08);z-index:10001;display:flex;flex-direction:column;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN",sans-serif;animation:colorDrawerSlideIn 0.18s cubic-bezier(0.16,1,0.3,1)}
+@keyframes colorDrawerSlideIn{from{opacity:0;transform:translateY(16px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media (max-width:480px){.color-drawer-left-bottom{left:8px;right:8px;bottom:8px;width:auto;max-width:none;max-height:calc(100vh - 65px)}}
 #tool_sb,#tool_sb:hover,#tool_sb:active,#tool_sb:focus,#tool_sb:focus-visible{color:#6b21a8!important;background:transparent!important;outline:none!important;border:none!important;box-shadow:none!important}
 </style></head>
 <body class="sp-color-off">
@@ -172,7 +181,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 </div>
 <div id="t"></div>
 <div id="sidebarActionBar" style="border-top:1px solid #e2e8f0;background:#f8fafc;padding:3px 6px;display:flex;align-items:center;justify-content:flex-end;flex-shrink:0">
-  <button type="button" id="sidebarColorBtn" onclick="openColorModal('sidebar', event)" style="background:#ffffff;border:1px solid #cbd5e1;color:#334155;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.1s ease" onmouseover="this.style.background='#eff6ff';this.style.borderColor='#93c5fd';this.style.color='#1d4ed8'" onmouseout="this.style.background='#ffffff';this.style.borderColor='#cbd5e1';this.style.color='#334155'" title="サイドバー限定のカラー設定を開く">
+  <button type="button" id="sidebarColorBtn" onclick="openSidebarColorModal(event)" style="background:#ffffff;border:1px solid #cbd5e1;color:#334155;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.1s ease" onmouseover="this.style.background='#eff6ff';this.style.borderColor='#93c5fd';this.style.color='#1d4ed8'" onmouseout="this.style.background='#ffffff';this.style.borderColor='#cbd5e1';this.style.color='#334155'" title="サイドバーのカラー設定を開く">
     <span>カラー設定</span>
   </button>
 </div>
@@ -184,14 +193,14 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
     注意事項2
   </div>
   <div onclick="openTrashModal()" id="sidebarTrashBtn" style="flex:1;display:flex;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:bold;color:#64748b;cursor:pointer;transition:all 0.1s ease" onmouseover="this.style.background='#fee2e2';this.style.color='#b91c1c'" onmouseout="this.style.background='transparent';this.style.color='#64748b'" title="ゴミ箱を開く">
-    🗑️ ゴミ箱<span id="sidebarTrashCount"></span>
+    ゴミ箱<span id="sidebarTrashCount"></span>
   </div>
 </div>
 </div>
 <div id="mainArea" style="flex:1;display:flex;flex-direction:column;height:100%;min-width:0;overflow:hidden;position:relative">
 <!-- Shelf (GoodNotes-like Notebook & Folder Grid) View -->
 <div id="shelfView" class="shelf-view-container">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#ffffff;border-bottom:1px solid #e2e8f0;flex-shrink:0;gap:8px;position:sticky;top:0;z-index:10">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--shelf-header-bg, #ffffff);border-bottom:1px solid var(--sidebar-border, #e2e8f0);flex-shrink:0;gap:8px;position:sticky;top:0;z-index:10">
     <div id="shelfBreadcrumbs" style="display:flex;align-items:center;gap:6px;min-width:0;flex:1"></div>
     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
       <button type="button" onclick="openFolderSaveTxtModal(currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#f0fdf4;color:#166534;border:1px solid #86efac;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="このフォルダ内の紙をまとめて保存（個別.txt / zip選択）">一括保存</button>
@@ -241,8 +250,8 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
     </button>
     <div id="currentStoryTitleDisplay" style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
       <span id="storyTitleText" onclick="if(f)openItemModal(f)" style="font-weight:bold;color:#0f172a;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" title="紙の設定・タイトル変更">紙タイトル</span>
-      <button type="button" class="shelf-card-info-btn" onclick="if(f)openItemModal(f, event)" style="font-size:11px;padding:1px 5px;line-height:1.2;cursor:pointer" title="紙の設定・タイトル変更・削除">ℹ️</button>
-      <button id="titleColorBtn" type="button" class="shelf-card-info-btn" onclick="if(f)openColorModal(f, event)" style="font-size:11px;padding:1px 6px;line-height:1.2;cursor:pointer;background:#fdf2f8;color:#be185d;border:1px solid #fbcfe8;font-weight:600;display:inline-flex;align-items:center;gap:3px" title="この紙の色を個別設定">カラー</button>
+      <button type="button" class="shelf-card-info-btn" onclick="if(f)openItemModal(f, event)" style="font-size:11px;padding:2px 6px;line-height:1.2;cursor:pointer" title="紙の設定・タイトル変更・削除">設定</button>
+      <button id="titleColorBtn" type="button" class="shelf-card-info-btn" onclick="if(f)openPaperColorModal(f, event)" style="font-size:11px;padding:2px 8px;line-height:1.2;cursor:pointer;background:#fdf2f8;color:#be185d;border:1px solid #fbcfe8;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:3px" title="この紙の色を設定（デフォルト／個別）">カラー</button>
     </div>
   </div>
   <div id="k" class="story-count-display">
@@ -345,6 +354,7 @@ function openShelfFolder(id){
     currentShelfFolderId = id;
     pId = id;
     if(id) collapsedFolders.delete(id);
+    applyCurrentTheme();
     r();
     renderShelfView();
 }
@@ -533,14 +543,15 @@ function renderShelfView(){
                             <polyline points="15 18 9 12 15 6"/>
                         </svg>
                     </button>
-                    <span style="display:inline-flex;align-items:center;margin-right:2px">${getFolderIconSvg(false, '#2563eb')}</span>
-                    <span style="font-size:15px;font-weight:bold;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" onclick="openItemModal('${folderItem.id}', event)" title="フォルダ設定・名前変更">${escapeHtml(folderItem.name)}</span>
-                    <button type="button" class="shelf-card-info-btn" onclick="openItemModal('${folderItem.id}', event)" title="フォルダ設定・名前変更・削除" style="padding:1px 5px;font-size:11px;line-height:1.2;flex-shrink:0">ℹ️</button>
+                    <span style="display:inline-flex;align-items:center;margin-right:2px">${getFolderIconSvg(false, 'var(--shelf-folder-color, #2563eb)')}</span>
+                    <span style="font-size:15px;font-weight:bold;color:var(--shelf-title-color,#0f172a);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" onclick="openItemModal('${folderItem.id}', event)" title="フォルダ設定・名前変更">${escapeHtml(folderItem.name)}</span>
+                    <button type="button" class="shelf-card-info-btn" onclick="openItemModal('${folderItem.id}', event)" title="フォルダ設定・名前変更・削除" style="padding:2px 6px;font-size:11px;line-height:1.2;flex-shrink:0">設定</button>
+                    <button type="button" class="shelf-card-info-btn" onclick="openFolderColorModal('${folderItem.id}', event)" title="このフォルダの色を設定（デフォルト／個別）" style="padding:2px 8px;font-size:11px;line-height:1.2;flex-shrink:0;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:4px;font-weight:600">カラー</button>
                 </div>
-                <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#0f172a;font-weight:500">
-                    <span style="font-weight:bold;color:#0f172a">${folderStat.withoutSpaces.toLocaleString()}文字</span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:1px">(空白と改行抜き)</span>
+                <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--shelf-title-color,#0f172a);font-weight:500">
+                    <span style="font-weight:bold;color:inherit">${folderStat.withoutSpaces.toLocaleString()}文字</span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:1px">(空白と改行抜き)</span>
                     <span style="display:inline-block;width:1px;height:12px;background:#cbd5e1;margin:0 2px"></span>
-                    <span style="color:#475569">セリフ <strong style="color:#0f172a;font-weight:bold">${folderStat.dialogueChars.toLocaleString()}文字</strong></span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:1px">(定義注意)</span>
+                    <span style="color:#475569">セリフ <strong style="color:inherit;font-weight:bold">${folderStat.dialogueChars.toLocaleString()}文字</strong></span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:1px">(定義注意)</span>
                 </div>
             </div>
         `;
@@ -548,13 +559,14 @@ function renderShelfView(){
         breadcrumbsEl.innerHTML = `
             <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
                 <div style="display:flex;align-items:center;gap:6px;overflow:hidden">
-                    <span style="display:inline-flex;align-items:center;margin-right:2px">${getFolderIconSvg(false, '#2563eb')}</span>
-                    <span style="font-size:15px;font-weight:bold;color:#0f172a">最上層</span>
+                    <span style="display:inline-flex;align-items:center;margin-right:2px">${getFolderIconSvg(false, 'var(--shelf-folder-color, #2563eb)')}</span>
+                    <span style="font-size:15px;font-weight:bold;color:var(--shelf-title-color,#0f172a)">最上層</span>
+                    <button type="button" class="shelf-card-info-btn" onclick="openFolderColorModal('root', event)" title="フォルダ・最上層の色を設定（デフォルト）" style="padding:2px 8px;font-size:11px;line-height:1.2;flex-shrink:0;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:4px;font-weight:600">カラー</button>
                 </div>
-                <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#0f172a;font-weight:500">
-                    <span style="font-weight:bold;color:#0f172a">${folderStat.withoutSpaces.toLocaleString()}文字</span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:1px">(空白と改行抜き)</span>
+                <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--shelf-title-color,#0f172a);font-weight:500">
+                    <span style="font-weight:bold;color:inherit">${folderStat.withoutSpaces.toLocaleString()}文字</span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:1px">(空白と改行抜き)</span>
                     <span style="display:inline-block;width:1px;height:12px;background:#cbd5e1;margin:0 2px"></span>
-                    <span style="color:#475569">セリフ <strong style="color:#0f172a;font-weight:bold">${folderStat.dialogueChars.toLocaleString()}文字</strong></span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:1px">(定義注意)</span>
+                    <span style="color:#475569">セリフ <strong style="color:inherit;font-weight:bold">${folderStat.dialogueChars.toLocaleString()}文字</strong></span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:1px">(定義注意)</span>
                 </div>
             </div>
         `;
@@ -581,9 +593,9 @@ function renderShelfView(){
             card.innerHTML = `
                 <div style="position:relative;display:inline-block">
                     <svg width="68" height="52" viewBox="0 0 68 52" fill="none" style="display:block">
-                      <path d="M4 11C4 8.23858 6.23858 6 9 6H23.5858C24.9119 6 26.1837 6.52679 27.1213 7.46447L31.5355 11.8787C32.4732 12.8163 33.745 13.3431 35.0711 13.3431H59C61.7614 13.3431 64 15.5817 64 18.3431V43C64 45.7614 61.7614 48 59 48H9C6.23858 48 4 45.7614 4 43V11Z" fill="#3b82f6"/>
+                      <path d="M4 11C4 8.23858 6.23858 6 9 6H23.5858C24.9119 6 26.1837 6.52679 27.1213 7.46447L31.5355 11.8787C32.4732 12.8163 33.745 13.3431 35.0711 13.3431H59C61.7614 13.3431 64 15.5817 64 18.3431V43C64 45.7614 61.7614 48 59 48H9C6.23858 48 4 45.7614 4 43V11Z" fill="var(--shelf-folder-color, #3b82f6)"/>
                     </svg>
-                    <button type="button" class="shelf-card-info-btn" style="position:absolute;top:2px;right:2px" onclick="event.stopPropagation();openItemModal('${sf.id}', event)" title="フォルダ設定・名前変更・削除">ℹ️</button>
+                    <button type="button" class="shelf-card-info-btn" style="position:absolute;top:2px;right:2px;font-size:10px;padding:1px 4px" onclick="event.stopPropagation();openItemModal('${sf.id}', event)" title="フォルダ設定・名前変更・削除">設定</button>
                 </div>
                 <div style="font-size:11px;color:#94a3b8;margin-top:4px;font-weight:500">${totalItems}項目</div>
                 <div class="shelf-folder-title">${escapeHtml(sf.name)}</div>
@@ -613,11 +625,11 @@ function renderShelfView(){
             cardWrap.innerHTML = `
                 <div class="shelf-note-card">
                     <div style="display:flex;justify-content:flex-end">
-                        <button type="button" class="shelf-card-info-btn" onclick="event.stopPropagation();openItemModal('${nt.id}', event)" title="設定・タイトル変更・削除">ℹ️</button>
+                        <button type="button" class="shelf-card-info-btn" onclick="event.stopPropagation();openItemModal('${nt.id}', event)" title="設定・タイトル変更・削除">設定</button>
                     </div>
                     <div class="shelf-note-body-spacer"></div>
                     <div class="shelf-note-meta">
-                        <span>${st.withoutSpaces.toLocaleString()}文字</span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:2px">(空白と改行抜き)</span>
+                        <span>${st.withoutSpaces.toLocaleString()}文字</span><span style="font-size:9.5px;opacity:0.75;font-weight:normal;margin-left:2px">(空白と改行抜き)</span>
                     </div>
                 </div>
                 <div class="shelf-note-title" title="${escapeHtml(nt.name)}">${escapeHtml(nt.name || '無題')}</div>
@@ -2719,8 +2731,10 @@ function updateModalContent(id){
     
     let colorBadge=document.getElementById('modalCustomColorBadge');
     if(colorBadge){
-        let hasCustom = it.customColor && it.customColor.enabled;
-        colorBadge.textContent = hasCustom ? '✨ 個別色適用中' : '全体デフォルト';
+        let hasCustom = isFolder
+            ? ((it.customFolderColor && it.customFolderColor.enabled) || (it.customColor && it.customColor.enabled))
+            : (it.customColor && it.customColor.enabled);
+        colorBadge.textContent = hasCustom ? '個別色設定中' : '全体デフォルト';
         colorBadge.style.background = hasCustom ? '#fbcfe8' : '#f1f5f9';
         colorBadge.style.color = hasCustom ? '#be185d' : '#64748b';
     }
@@ -4599,7 +4613,6 @@ function renderTrashList(){
     if(count === 0){
         cont.innerHTML = `
             <div style="text-align:center;padding:32px 12px;color:#94a3b8;font-size:12px;background:#f8fafc;border-radius:6px;border:1px dashed #cbd5e1">
-                <div style="font-size:24px;margin-bottom:6px">🗑️</div>
                 ゴミ箱は空です
             </div>
         `;
@@ -4652,7 +4665,7 @@ function renderTrashList(){
         
         let restoreBtn = document.createElement('button');
         restoreBtn.type = 'button';
-        restoreBtn.innerHTML = '📋 複製（復元）';
+        restoreBtn.innerHTML = '複製（復元）';
         restoreBtn.title = 'この項目を最上層に複製して復元';
         restoreBtn.style.background = '#f0fdf4';
         restoreBtn.style.border = '1px solid #86efac';
@@ -4667,7 +4680,7 @@ function renderTrashList(){
         
         let delBtn = document.createElement('button');
         delBtn.type = 'button';
-        delBtn.innerHTML = '🗑️ 削除';
+        delBtn.innerHTML = '削除';
         delBtn.title = 'この項目を完全に削除';
         delBtn.style.background = '#fff5f5';
         delBtn.style.border = '1px solid #fecaca';
@@ -4686,138 +4699,140 @@ function renderTrashList(){
 }
 
 /* ========================================================
-   テーマ・カラー管理システム（軽量CSS変数駆動・全体＆個別対応）
+   テーマ・カラー管理システム（原稿用紙・フォルダ・サイドバー完全分離）
    ======================================================== */
-const DEFAULT_THEME = {
+const DEFAULT_PAPER_THEME = {
     paperBg: '#ffffff',
     gridLine: '#ececec',
     paperText: '#000000',
     lineNumBg: '#ffffff',
-    lineNumText: '#aaaaaa',
-    sidebarBg: '#f8fafc',
-    sidebarText: '#000000',
-    editorHeaderBg: '#ffffff',
-    editorHeaderText: '#0f172a',
-    appBg: '#f1f5f9'
+    lineNumText: '#aaaaaa'
 };
 
-const COLOR_PRESETS = [
+const PAPER_PRESETS = [
     {
-        id: 'default',
-        name: '📄 標準白（原稿用紙）',
-        desc: '清潔で視認性の高いクラシックな白原稿用紙',
-        theme: {
-            paperBg: '#ffffff',
-            gridLine: '#ececec',
-            paperText: '#000000',
-            lineNumBg: '#ffffff',
-            lineNumText: '#aaaaaa',
-            sidebarBg: '#f8fafc',
-            sidebarText: '#000000',
-            editorHeaderBg: '#ffffff',
-            editorHeaderText: '#0f172a',
-            appBg: '#f1f5f9'
-        }
+        id: 'white',
+        name: '標準白',
+        theme: { paperBg: '#ffffff', gridLine: '#ececec', paperText: '#000000', lineNumBg: '#ffffff', lineNumText: '#aaaaaa' }
     },
     {
         id: 'sepia',
-        name: '📜 生成り（セピア・和紙）',
-        desc: '目に優しく落ち着く伝統的な原稿用紙の風合い',
-        theme: {
-            paperBg: '#fbf7ee',
-            gridLine: '#e6d7c3',
-            paperText: '#3b2d20',
-            lineNumBg: '#f5eee0',
-            lineNumText: '#998675',
-            sidebarBg: '#f6efe2',
-            sidebarText: '#3b2d20',
-            editorHeaderBg: '#fbf7ee',
-            editorHeaderText: '#3b2d20',
-            appBg: '#e8ded0'
-        }
+        name: '生成り（和紙）',
+        theme: { paperBg: '#fbf7ee', gridLine: '#e6d7c3', paperText: '#3b2d20', lineNumBg: '#f5eee0', lineNumText: '#998675' }
     },
     {
         id: 'dark',
-        name: '🌙 ダークモード（夜間執筆）',
-        desc: '暗所でも眩しくない目に優しい濃紺・ダークグレー',
-        theme: {
-            paperBg: '#1e293b',
-            gridLine: '#334155',
-            paperText: '#f8fafc',
-            lineNumBg: '#0f172a',
-            lineNumText: '#64748b',
-            sidebarBg: '#0f172a',
-            sidebarText: '#f1f5f9',
-            editorHeaderBg: '#1e293b',
-            editorHeaderText: '#f1f5f9',
-            appBg: '#020617'
-        }
+        name: 'ダークモード',
+        theme: { paperBg: '#1e293b', gridLine: '#334155', paperText: '#f8fafc', lineNumBg: '#0f172a', lineNumText: '#64748b' }
     },
     {
         id: 'forest',
-        name: '🌲 深緑（エメラルド・抹茶）',
-        desc: '集中力を高める上品な淡緑と深緑のコントラスト',
-        theme: {
-            paperBg: '#f0fdf4',
-            gridLine: '#bbf7d0',
-            paperText: '#14532d',
-            lineNumBg: '#dcfce7',
-            lineNumText: '#15803d',
-            sidebarBg: '#ecfdf5',
-            sidebarText: '#064e3b',
-            editorHeaderBg: '#f0fdf4',
-            editorHeaderText: '#064e3b',
-            appBg: '#cbd5e1'
-        }
+        name: '深緑（抹茶）',
+        theme: { paperBg: '#f0fdf4', gridLine: '#bbf7d0', paperText: '#14532d', lineNumBg: '#dcfce7', lineNumText: '#15803d' }
     },
     {
         id: 'sakura',
-        name: '🌸 桜・撫子（和風ピンク）',
-        desc: '柔らかく温かみのある桜色の用紙と文字',
-        theme: {
-            paperBg: '#fff1f2',
-            gridLine: '#fecdd3',
-            paperText: '#4c0519',
-            lineNumBg: '#ffe4e6',
-            lineNumText: '#9f1239',
-            sidebarBg: '#fff1f2',
-            sidebarText: '#881337',
-            editorHeaderBg: '#fff1f2',
-            editorHeaderText: '#881337',
-            appBg: '#f3e8ff'
-        }
+        name: '桜・撫子',
+        theme: { paperBg: '#fff1f2', gridLine: '#fecdd3', paperText: '#4c0519', lineNumBg: '#ffe4e6', lineNumText: '#9f1239' }
     },
     {
         id: 'ocean',
-        name: '🌊 藍・インク（万年筆ブルー）',
-        desc: '万年筆のブルーブラックを思わせる透明感ある配色',
-        theme: {
-            paperBg: '#f0f9ff',
-            gridLine: '#bae6fd',
-            paperText: '#082f49',
-            lineNumBg: '#e0f2fe',
-            lineNumText: '#0284c7',
-            sidebarBg: '#f0f9ff',
-            sidebarText: '#0c4a6e',
-            editorHeaderBg: '#f0f9ff',
-            editorHeaderText: '#0c4a6e',
-            appBg: '#e0f2fe'
-        }
+        name: '藍・インク',
+        theme: { paperBg: '#f0f9ff', gridLine: '#bae6fd', paperText: '#082f49', lineNumBg: '#e0f2fe', lineNumText: '#0284c7' }
     }
 ];
 
-const COLOR_CONFIG_DEFS = [
-    { key: 'paperBg', label: 'マス目用紙の背景色', desc: '原稿用紙の背景', group: 'paper' },
-    { key: 'gridLine', label: 'マス目の罫線色', desc: '原稿用紙の格子・区切り線', group: 'paper' },
-    { key: 'paperText', label: '本文文字色', desc: '原稿用紙内の本文テキスト', group: 'paper' },
-    { key: 'lineNumBg', label: '行番号の背景色', desc: '左端の行番号エリア背景', group: 'paper' },
-    { key: 'lineNumText', label: '行番号の文字色', desc: '行番号の数字の色', group: 'paper' },
-    { key: 'sidebarBg', label: 'サイドバー（左画面）背景色', desc: 'フォルダ・紙一覧の背景', group: 'ui' },
-    { key: 'sidebarText', label: 'サイドバー文字色', desc: 'ツリー表示の文字色', group: 'ui' },
-    { key: 'editorHeaderBg', label: 'ヘッダー（タイトル帯）背景色', desc: 'タイトルや文字数のある上部帯', group: 'ui' },
-    { key: 'editorHeaderText', label: 'ヘッダー文字色', desc: 'タイトル表示の文字色', group: 'ui' },
-    { key: 'appBg', label: '全体外枠の背景色', desc: '原稿用紙の外側の背景エリア', group: 'ui' }
+const PAPER_COLOR_DEFS = [
+    { key: 'paperBg', label: 'マス目用紙の背景色' },
+    { key: 'gridLine', label: 'マス目の罫線色' },
+    { key: 'paperText', label: '本文文字色' },
+    { key: 'lineNumBg', label: '行番号の背景色' },
+    { key: 'lineNumText', label: '行番号の文字色' }
 ];
+
+const DEFAULT_FOLDER_THEME = {
+    folderBg: '#f8fafc',
+    folderTitleColor: '#0f172a',
+    folderItemBg: '#ffffff',
+    folderItemText: '#0f172a',
+    folderIconColor: '#2563eb'
+};
+
+const FOLDER_PRESETS = [
+    {
+        id: 'slate',
+        name: '標準スレート',
+        theme: { folderBg: '#f8fafc', folderTitleColor: '#0f172a', folderItemBg: '#ffffff', folderItemText: '#0f172a', folderIconColor: '#2563eb' }
+    },
+    {
+        id: 'sepia',
+        name: '生成り和風',
+        theme: { folderBg: '#f6efe2', folderTitleColor: '#3b2d20', folderItemBg: '#fbf7ee', folderItemText: '#3b2d20', folderIconColor: '#b45309' }
+    },
+    {
+        id: 'dark',
+        name: 'ダークモード',
+        theme: { folderBg: '#0f172a', folderTitleColor: '#f1f5f9', folderItemBg: '#1e293b', folderItemText: '#f8fafc', folderIconColor: '#38bdf8' }
+    },
+    {
+        id: 'forest',
+        name: '深緑',
+        theme: { folderBg: '#ecfdf5', folderTitleColor: '#064e3b', folderItemBg: '#f0fdf4', folderItemText: '#14532d', folderIconColor: '#059669' }
+    },
+    {
+        id: 'sakura',
+        name: '桜・撫子',
+        theme: { folderBg: '#fff1f2', folderTitleColor: '#881337', folderItemBg: '#fff5f7', folderItemText: '#4c0519', folderIconColor: '#e11d48' }
+    },
+    {
+        id: 'ocean',
+        name: '藍・インク',
+        theme: { folderBg: '#f0f9ff', folderTitleColor: '#0c4a6e', folderItemBg: '#f0f9ff', folderItemText: '#082f49', folderIconColor: '#0284c7' }
+    }
+];
+
+const FOLDER_COLOR_DEFS = [
+    { key: 'folderBg', label: '画面背景色' },
+    { key: 'folderTitleColor', label: 'タイトル文字色' },
+    { key: 'folderItemBg', label: '収納物（紙）背景色' },
+    { key: 'folderItemText', label: '収納物（紙）文字色' },
+    { key: 'folderIconColor', label: 'フォルダアイコン色' }
+];
+
+const DEFAULT_SIDEBAR_THEME = {
+    sidebarBg: '#f8fafc',
+    sidebarText: '#000000'
+};
+
+const SIDEBAR_PRESETS = [
+    {
+        id: 'light',
+        name: '標準ライト',
+        theme: { sidebarBg: '#f8fafc', sidebarText: '#000000' }
+    },
+    {
+        id: 'dark',
+        name: 'ダーク',
+        theme: { sidebarBg: '#0f172a', sidebarText: '#f1f5f9' }
+    },
+    {
+        id: 'sepia',
+        name: '生成り',
+        theme: { sidebarBg: '#f6efe2', sidebarText: '#3b2d20' }
+    },
+    {
+        id: 'forest',
+        name: '深緑',
+        theme: { sidebarBg: '#ecfdf5', sidebarText: '#064e3b' }
+    }
+];
+
+const SIDEBAR_COLOR_DEFS = [
+    { key: 'sidebarBg', label: 'サイドバー背景色' },
+    { key: 'sidebarText', label: 'サイドバー文字色' }
+];
+
+const DEFAULT_THEME = Object.assign({}, DEFAULT_PAPER_THEME, DEFAULT_FOLDER_THEME, DEFAULT_SIDEBAR_THEME);
 
 function sanitizeHexColor(val, fallback = '#000000'){
     if(!val || typeof val !== 'string') return fallback;
@@ -4833,19 +4848,41 @@ function sanitizeHexColor(val, fallback = '#000000'){
     return s.startsWith('#') ? s : fallback;
 }
 
-function getGlobalTheme(){
-    let saved = localStorage.getItem('n_theme_global_v1');
+function getGlobalPaperTheme(){
+    let saved = localStorage.getItem('n_theme_paper_v2');
     if(saved){
+        try{ return Object.assign({}, DEFAULT_PAPER_THEME, JSON.parse(saved)); }catch(e){}
+    }
+    let legacy = localStorage.getItem('n_theme_global_v1');
+    if(legacy){
         try{
-            let parsed = JSON.parse(saved);
-            return Object.assign({}, DEFAULT_THEME, parsed);
+            let p = JSON.parse(legacy);
+            return {
+                paperBg: p.paperBg || DEFAULT_PAPER_THEME.paperBg,
+                gridLine: p.gridLine || DEFAULT_PAPER_THEME.gridLine,
+                paperText: p.paperText || DEFAULT_PAPER_THEME.paperText,
+                lineNumBg: p.lineNumBg || DEFAULT_PAPER_THEME.lineNumBg,
+                lineNumText: p.lineNumText || DEFAULT_PAPER_THEME.lineNumText
+            };
         }catch(e){}
     }
-    return Object.assign({}, DEFAULT_THEME);
+    return Object.assign({}, DEFAULT_PAPER_THEME);
 }
 
-function saveGlobalTheme(theme){
-    localStorage.setItem('n_theme_global_v1', JSON.stringify(theme));
+function saveGlobalPaperTheme(theme){
+    localStorage.setItem('n_theme_paper_v2', JSON.stringify(theme));
+}
+
+function getGlobalFolderTheme(){
+    let saved = localStorage.getItem('n_theme_folder_v1');
+    if(saved){
+        try{ return Object.assign({}, DEFAULT_FOLDER_THEME, JSON.parse(saved)); }catch(e){}
+    }
+    return Object.assign({}, DEFAULT_FOLDER_THEME);
+}
+
+function saveGlobalFolderTheme(theme){
+    localStorage.setItem('n_theme_folder_v1', JSON.stringify(theme));
 }
 
 function getSidebarCustomTheme(){
@@ -4869,422 +4906,523 @@ function saveSidebarCustomTheme(theme, enabled){
     }
 }
 
-function getActiveTheme(){
-    let globalTheme = getGlobalTheme();
-    let theme = Object.assign({}, globalTheme);
-    
-    // 現在の紙またはフォルダのカスタム設定
-    if(currentViewMode === 'editor' && f){
-        let item = g(f);
-        if(item && item.customColor && item.customColor.enabled && item.customColor.theme){
-            theme = Object.assign({}, theme, item.customColor.theme);
-        }
-    } else if(currentViewMode === 'shelf' && currentShelfFolderId){
-        let folder = g(currentShelfFolderId);
-        if(folder && folder.customColor && folder.customColor.enabled && folder.customColor.theme){
-            theme = Object.assign({}, theme, folder.customColor.theme);
+function getActivePaperTheme(paperId = null){
+    let targetId = paperId || f;
+    let base = getGlobalPaperTheme();
+    if(targetId){
+        let it = g(targetId);
+        if(it && it.customColor && it.customColor.enabled && it.customColor.theme){
+            return Object.assign({}, base, it.customColor.theme);
         }
     }
-    
-    // サイドバー限定の個別カラー設定がある場合はサイドバー部分を上書き
-    let sidebarCustom = getSidebarCustomTheme();
-    if(sidebarCustom){
-        if(sidebarCustom.sidebarBg) theme.sidebarBg = sidebarCustom.sidebarBg;
-        if(sidebarCustom.sidebarText) theme.sidebarText = sidebarCustom.sidebarText;
-    }
-    
-    return theme;
+    return base;
 }
 
-function applyThemeVariables(theme){
-    const root = document.documentElement;
-    const t = Object.assign({}, DEFAULT_THEME, theme || {});
-    root.style.setProperty('--paper-bg', t.paperBg);
-    root.style.setProperty('--grid-color', t.gridLine);
-    root.style.setProperty('--text-color', t.paperText);
-    root.style.setProperty('--linenum-bg', t.lineNumBg);
-    root.style.setProperty('--linenum-text', t.lineNumText);
-    root.style.setProperty('--sidebar-bg', t.sidebarBg);
-    root.style.setProperty('--sidebar-tree-bg', t.sidebarBg);
-    root.style.setProperty('--sidebar-text', t.sidebarText);
-    root.style.setProperty('--header-info-bg', t.editorHeaderBg);
-    root.style.setProperty('--header-info-text', t.editorHeaderText);
-    root.style.setProperty('--editor-bg', t.appBg);
+function getActiveFolderTheme(folderId = null){
+    let targetId = folderId !== null ? folderId : currentShelfFolderId;
+    let base = getGlobalFolderTheme();
+    if(targetId && targetId !== 'root'){
+        let folder = g(targetId);
+        if(folder){
+            let custom = folder.customFolderColor?.theme || folder.customColor?.theme;
+            let enabled = folder.customFolderColor ? folder.customFolderColor.enabled : folder.customColor?.enabled;
+            if(enabled && custom){
+                return Object.assign({}, base, custom);
+            }
+        }
+    }
+    return base;
+}
+
+function getActiveSidebarTheme(){
+    let custom = getSidebarCustomTheme();
+    if(custom){
+        return Object.assign({}, DEFAULT_SIDEBAR_THEME, custom);
+    }
+    return Object.assign({}, DEFAULT_SIDEBAR_THEME);
 }
 
 function applyCurrentTheme(){
-    let theme = getActiveTheme();
-    applyThemeVariables(theme);
+    const root = document.documentElement;
+    // 1. 原稿用紙の色設定
+    const pt = getActivePaperTheme();
+    root.style.setProperty('--paper-bg', pt.paperBg);
+    root.style.setProperty('--grid-color', pt.gridLine);
+    root.style.setProperty('--text-color', pt.paperText);
+    root.style.setProperty('--linenum-bg', pt.lineNumBg);
+    root.style.setProperty('--linenum-text', pt.lineNumText);
+
+    // 2. フォルダ・シェルフの色設定
+    const ft = getActiveFolderTheme();
+    root.style.setProperty('--shelf-bg', ft.folderBg);
+    root.style.setProperty('--shelf-header-bg', ft.folderBg);
+    root.style.setProperty('--shelf-title-color', ft.folderTitleColor);
+    root.style.setProperty('--shelf-item-bg', ft.folderItemBg);
+    root.style.setProperty('--shelf-item-text', ft.folderItemText);
+    root.style.setProperty('--shelf-folder-color', ft.folderIconColor);
+
+    // 3. サイドバーの色設定
+    const st = getActiveSidebarTheme();
+    root.style.setProperty('--sidebar-bg', st.sidebarBg);
+    root.style.setProperty('--sidebar-tree-bg', st.sidebarBg);
+    root.style.setProperty('--sidebar-text', st.sidebarText);
 }
 
-// モーダル編集ステート
-let colorModalState = {
-    targetId: 'global',
-    isCustomEnabled: false,
-    theme: Object.assign({}, DEFAULT_THEME)
+// ドロワー管理ステート
+let colorDrawerState = {
+    type: 'paper', // 'paper' | 'folder' | 'sidebar'
+    targetId: null,
+    scope: 'default', // 'default' | 'custom'
+    workingTheme: {}
 };
 
-function openColorModal(targetId = null, ev = null){
-    if(ev){
-        ev.stopPropagation();
-    }
+function openPaperColorModal(paperId = null, ev = null){
+    if(ev) ev.stopPropagation();
     if(typeof flushPendingHeavyTask === 'function') flushPendingHeavyTask();
     
-    // 優先設定ターゲット
-    let chosenTarget = 'global';
-    if(targetId && targetId !== 'global'){
-        chosenTarget = targetId;
-    } else if(f && targetId === null && currentViewMode === 'editor'){
-        // エディタ画面から押された場合はデフォルトで現在の紙を選択
-        chosenTarget = f;
+    let target = paperId || f;
+    let item = target ? g(target) : null;
+    let hasCustom = item && item.customColor && item.customColor.enabled;
+    
+    colorDrawerState.type = 'paper';
+    colorDrawerState.targetId = target;
+    colorDrawerState.scope = hasCustom ? 'custom' : 'default';
+    
+    if(hasCustom && item.customColor.theme){
+        colorDrawerState.workingTheme = Object.assign({}, DEFAULT_PAPER_THEME, item.customColor.theme);
+    } else {
+        colorDrawerState.workingTheme = Object.assign({}, getGlobalPaperTheme());
     }
     
-    colorModalState.targetId = chosenTarget;
-    populateColorTargetSelect(chosenTarget);
-    loadTargetThemeToModal(chosenTarget);
-    renderPresetButtons();
-    
-    let modal = document.getElementById('colorModal');
-    if(modal) modal.style.display = 'flex';
+    renderColorDrawerUI();
+    document.getElementById('colorDrawer').style.display = 'flex';
 }
 
-function closeColorModal(){
-    let modal = document.getElementById('colorModal');
-    if(modal) modal.style.display = 'none';
-    // 確定していない変更をキャンセルし、元のテーマを再適用
+function openFolderColorModal(folderId = null, ev = null){
+    if(ev) ev.stopPropagation();
+    if(typeof flushPendingHeavyTask === 'function') flushPendingHeavyTask();
+    
+    let target = folderId !== null ? folderId : (currentShelfFolderId || 'root');
+    let isRoot = !target || target === 'root';
+    let folder = (!isRoot) ? g(target) : null;
+    let hasCustom = folder && ((folder.customFolderColor && folder.customFolderColor.enabled) || (folder.customColor && folder.customColor.enabled));
+    
+    colorDrawerState.type = 'folder';
+    colorDrawerState.targetId = target;
+    colorDrawerState.scope = (isRoot || !hasCustom) ? 'default' : 'custom';
+    
+    if(!isRoot && hasCustom){
+        let themeData = folder.customFolderColor?.theme || folder.customColor?.theme;
+        colorDrawerState.workingTheme = Object.assign({}, DEFAULT_FOLDER_THEME, themeData || {});
+    } else {
+        colorDrawerState.workingTheme = Object.assign({}, getGlobalFolderTheme());
+    }
+    
+    renderColorDrawerUI();
+    document.getElementById('colorDrawer').style.display = 'flex';
+}
+
+function openSidebarColorModal(ev = null){
+    if(ev) ev.stopPropagation();
+    if(typeof flushPendingHeavyTask === 'function') flushPendingHeavyTask();
+    
+    let custom = getSidebarCustomTheme();
+    colorDrawerState.type = 'sidebar';
+    colorDrawerState.targetId = 'sidebar';
+    colorDrawerState.scope = custom ? 'custom' : 'default';
+    
+    if(custom){
+        colorDrawerState.workingTheme = Object.assign({}, DEFAULT_SIDEBAR_THEME, custom);
+    } else {
+        colorDrawerState.workingTheme = Object.assign({}, DEFAULT_SIDEBAR_THEME);
+    }
+    
+    renderColorDrawerUI();
+    document.getElementById('colorDrawer').style.display = 'flex';
+}
+
+function openItemColorModal(itemId, ev = null){
+    if(ev) ev.stopPropagation();
+    closeItemModal();
+    let it = g(itemId);
+    if(it && it.type === 'folder'){
+        openFolderColorModal(itemId, ev);
+    } else {
+        openPaperColorModal(itemId, ev);
+    }
+}
+
+function openColorModal(targetId = null, ev = null){
+    if(ev) ev.stopPropagation();
+    if(targetId === 'sidebar'){
+        openSidebarColorModal(ev);
+    } else if(targetId && targetId !== 'global'){
+        let it = g(targetId);
+        if(it && it.type === 'folder'){
+            openFolderColorModal(targetId, ev);
+        } else {
+            openPaperColorModal(targetId, ev);
+        }
+    } else {
+        if(currentViewMode === 'shelf'){
+            openFolderColorModal(currentShelfFolderId, ev);
+        } else {
+            openPaperColorModal(f, ev);
+        }
+    }
+}
+
+function closeColorDrawer(){
+    let drawer = document.getElementById('colorDrawer');
+    if(drawer) drawer.style.display = 'none';
     applyCurrentTheme();
 }
 
-function populateColorTargetSelect(selectedId){
-    let sel = document.getElementById('colorModalTargetSelect');
-    if(!sel) return;
-    sel.innerHTML = '';
-    
-    let optGlobal = document.createElement('option');
-    optGlobal.value = 'global';
-    optGlobal.textContent = '🌐 全体デフォルト設定（基本テーマ）';
-    sel.appendChild(optGlobal);
-    
-    let optSidebar = document.createElement('option');
-    optSidebar.value = 'sidebar';
-    optSidebar.textContent = '🗂️ サイドバー限定（左画面の色設定）';
-    sel.appendChild(optSidebar);
-    
-    let curFile = f ? g(f) : null;
-    if(curFile){
-        let optCur = document.createElement('option');
-        optCur.value = curFile.id;
-        optCur.textContent = `📄 【現在執筆中】${curFile.name}`;
-        sel.appendChild(optCur);
-    }
-    
-    let group = document.createElement('optgroup');
-    group.label = '── 各紙・フォルダの個別設定 ──';
-    
-    function walkItems(items, depth = 0){
-        items.forEach(it => {
-            if(curFile && it.id === curFile.id) return;
-            let opt = document.createElement('option');
-            opt.value = it.id;
-            let icon = it.type === 'folder' ? '📁 ' : '📄 ';
-            opt.textContent = '　'.repeat(depth) + icon + it.name;
-            group.appendChild(opt);
-            if(it.children) walkItems(it.children, depth + 1);
-        });
-    }
-    walkItems(d.r || []);
-    if(group.children.length > 0) sel.appendChild(group);
-    
-    sel.value = selectedId || 'global';
+function closeColorModal(){
+    closeColorDrawer();
 }
 
-function onColorTargetSelectChange(newTargetId){
-    colorModalState.targetId = newTargetId;
-    loadTargetThemeToModal(newTargetId);
-}
-
-function loadTargetThemeToModal(targetId){
-    let toggleSec = document.getElementById('colorModalCustomToggleSec');
-    let targetBadge = document.getElementById('colorModalTargetBadge');
-    let paperSec = document.getElementById('colorModalPaperGroupSec');
-    let otherUiSec = document.getElementById('colorModalOtherUiGroupSec');
-    let uiGroupTitle = document.getElementById('colorModalUiGroupTitle');
+function renderColorDrawerUI(){
+    const state = colorDrawerState;
+    const titleEl = document.getElementById('colorDrawerTitle');
+    const subEl = document.getElementById('colorDrawerSubtitle');
+    const scopeSec = document.getElementById('colorDrawerScopeSec');
+    const scopeBadge = document.getElementById('colorDrawerScopeBadge');
+    const btnDefault = document.getElementById('colorScopeBtnDefault');
+    const btnCustom = document.getElementById('colorScopeBtnCustom');
+    const hintEl = document.getElementById('colorDrawerScopeHint');
     
-    if(targetId === 'global'){
-        if(toggleSec) toggleSec.style.display = 'none';
-        if(paperSec) paperSec.style.display = 'block';
-        if(otherUiSec) otherUiSec.style.display = 'flex';
-        if(uiGroupTitle) uiGroupTitle.textContent = 'サイドバー（左画面）・ヘッダー・枠外背景色';
-        if(targetBadge){
-            targetBadge.textContent = '全体基本設定';
-            targetBadge.style.background = '#e0e7ff';
-            targetBadge.style.color = '#3730a3';
-        }
-        colorModalState.isCustomEnabled = true;
-        colorModalState.theme = getGlobalTheme();
+    if(state.type === 'paper'){
+        let item = state.targetId ? g(state.targetId) : null;
+        let name = item ? item.name : '現在の紙';
+        titleEl.textContent = '紙のカラー設定';
+        subEl.textContent = `対象: ${name}`;
+        scopeSec.style.display = 'flex';
+        btnCustom.style.display = 'block';
         
-        let inputsSec = document.getElementById('colorModalCustomInputsSec');
-        if(inputsSec){
-            inputsSec.style.opacity = '1';
-            inputsSec.style.pointerEvents = 'auto';
-        }
-    } else if(targetId === 'sidebar'){
-        if(toggleSec) toggleSec.style.display = 'block';
-        if(paperSec) paperSec.style.display = 'none';
-        if(otherUiSec) otherUiSec.style.display = 'none';
-        if(uiGroupTitle) uiGroupTitle.textContent = 'サイドバー（左画面）の色設定';
-        if(targetBadge){
-            targetBadge.textContent = 'サイドバー限定設定';
-            targetBadge.style.background = '#e0f2fe';
-            targetBadge.style.color = '#0369a1';
-        }
-        
-        let sidebarCustom = getSidebarCustomTheme();
-        let hasCustom = !!sidebarCustom;
-        colorModalState.isCustomEnabled = hasCustom;
-        
-        let cb = document.getElementById('colorModalCustomEnableCb');
-        if(cb) cb.checked = hasCustom;
-        
-        let baseTheme = getGlobalTheme();
-        if(hasCustom && sidebarCustom){
-            colorModalState.theme = Object.assign({}, baseTheme, sidebarCustom);
+        if(state.scope === 'default'){
+            hintEl.textContent = 'すべての紙に適用される基本カラーです。個別色を持たない紙に反映されます。';
         } else {
-            colorModalState.theme = baseTheme;
+            hintEl.textContent = `この紙（「${name}」）だけに適用される固有のカラーです。`;
         }
+    } else if(state.type === 'folder'){
+        let isRoot = !state.targetId || state.targetId === 'root';
+        let folder = !isRoot ? g(state.targetId) : null;
+        let name = isRoot ? '最上層（全体）' : (folder ? folder.name : 'フォルダ');
+        titleEl.textContent = isRoot ? '最上層のカラー設定' : 'フォルダのカラー設定';
+        subEl.textContent = `対象: ${name}`;
         
-        let inputsSec = document.getElementById('colorModalCustomInputsSec');
-        if(inputsSec){
-            inputsSec.style.opacity = hasCustom ? '1' : '0.45';
-            inputsSec.style.pointerEvents = hasCustom ? 'auto' : 'none';
+        if(isRoot){
+            scopeSec.style.display = 'none';
+        } else {
+            scopeSec.style.display = 'flex';
+            btnCustom.style.display = 'block';
+            if(state.scope === 'default'){
+                hintEl.textContent = 'すべてのフォルダに適用される基本カラーです。';
+            } else {
+                hintEl.textContent = `このフォルダ（「${name}」）だけに適用される固有のカラーです。`;
+            }
         }
+    } else if(state.type === 'sidebar'){
+        titleEl.textContent = 'サイドバーのカラー設定';
+        subEl.textContent = '左側メニュー画面の背景・文字色';
+        scopeSec.style.display = 'flex';
+        btnCustom.style.display = 'block';
+        if(state.scope === 'default'){
+            hintEl.textContent = '初期状態の標準配色を使用します。';
+        } else {
+            hintEl.textContent = 'カスタマイズした配色をサイドバーに適用します。';
+        }
+    }
+    
+    // スコープボタンのアクティブ状態
+    if(state.scope === 'default'){
+        btnDefault.style.background = '#ffffff';
+        btnDefault.style.color = '#1e293b';
+        btnDefault.style.boxShadow = '0 1px 2px rgba(0,0,0,0.08)';
+        btnCustom.style.background = 'transparent';
+        btnCustom.style.color = '#64748b';
+        btnCustom.style.boxShadow = 'none';
+        scopeBadge.textContent = 'デフォルト';
+        scopeBadge.style.background = '#e2e8f0';
+        scopeBadge.style.color = '#475569';
     } else {
-        if(toggleSec) toggleSec.style.display = 'block';
-        if(paperSec) paperSec.style.display = 'block';
-        if(otherUiSec) otherUiSec.style.display = 'flex';
-        if(uiGroupTitle) uiGroupTitle.textContent = 'サイドバー（左画面）・ヘッダー・枠外背景色';
-        let it = g(targetId);
-        let name = it ? it.name : '選択項目';
-        if(targetBadge){
-            targetBadge.textContent = `${it?.type==='folder'?'フォルダ':'紙'}: ${name}`;
-            targetBadge.style.background = '#fce7f3';
-            targetBadge.style.color = '#be185d';
-        }
-        
-        let hasCustom = it && it.customColor && it.customColor.enabled;
-        colorModalState.isCustomEnabled = !!hasCustom;
-        
-        let cb = document.getElementById('colorModalCustomEnableCb');
-        if(cb) cb.checked = !!hasCustom;
-        
-        if(hasCustom && it.customColor.theme){
-            colorModalState.theme = Object.assign({}, getGlobalTheme(), it.customColor.theme);
-        } else {
-            colorModalState.theme = getGlobalTheme();
-        }
-        
-        let inputsSec = document.getElementById('colorModalCustomInputsSec');
-        if(inputsSec){
-            inputsSec.style.opacity = hasCustom ? '1' : '0.45';
-            inputsSec.style.pointerEvents = hasCustom ? 'auto' : 'none';
-        }
+        btnCustom.style.background = '#ffffff';
+        btnCustom.style.color = '#be185d';
+        btnCustom.style.boxShadow = '0 1px 2px rgba(0,0,0,0.08)';
+        btnDefault.style.background = 'transparent';
+        btnDefault.style.color = '#64748b';
+        btnDefault.style.boxShadow = 'none';
+        scopeBadge.textContent = '個別設定';
+        scopeBadge.style.background = '#fce7f3';
+        scopeBadge.style.color = '#be185d';
     }
     
-    updateColorInputFields();
-    updateColorModalPreview();
-    applyThemeVariables(colorModalState.theme);
+    renderDrawerColorFields();
+    renderDrawerPresets();
+    previewDrawerLive();
 }
 
-function onColorCustomEnableToggle(checked){
-    colorModalState.isCustomEnabled = checked;
-    let inputsSec = document.getElementById('colorModalCustomInputsSec');
-    if(inputsSec){
-        inputsSec.style.opacity = checked ? '1' : '0.45';
-        inputsSec.style.pointerEvents = checked ? 'auto' : 'none';
+function setColorDrawerScope(scope){
+    colorDrawerState.scope = scope;
+    if(scope === 'default'){
+        if(colorDrawerState.type === 'paper'){
+            colorDrawerState.workingTheme = Object.assign({}, getGlobalPaperTheme());
+        } else if(colorDrawerState.type === 'folder'){
+            colorDrawerState.workingTheme = Object.assign({}, getGlobalFolderTheme());
+        } else if(colorDrawerState.type === 'sidebar'){
+            colorDrawerState.workingTheme = Object.assign({}, DEFAULT_SIDEBAR_THEME);
+        }
     }
-    if(!checked){
-        // 個別解除時は全体デフォルトに戻す
-        colorModalState.theme = getGlobalTheme();
-        updateColorInputFields();
-    }
-    updateColorModalPreview();
-    applyThemeVariables(colorModalState.theme);
+    renderColorDrawerUI();
 }
 
-function renderPresetButtons(){
-    let cont = document.getElementById('colorPresetContainer');
+function renderDrawerColorFields(){
+    const cont = document.getElementById('colorDrawerFieldsSec');
     if(!cont) return;
     cont.innerHTML = '';
     
-    COLOR_PRESETS.forEach(preset => {
+    let defs = [];
+    if(colorDrawerState.type === 'paper') defs = PAPER_COLOR_DEFS;
+    else if(colorDrawerState.type === 'folder') defs = FOLDER_COLOR_DEFS;
+    else if(colorDrawerState.type === 'sidebar') defs = SIDEBAR_COLOR_DEFS;
+    
+    defs.forEach(def => {
+        let currentVal = colorDrawerState.workingTheme[def.key] || '#ffffff';
+        let hexVal = sanitizeHexColor(currentVal, '#000000');
+        
+        let row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0';
+        
+        let label = document.createElement('span');
+        label.style.cssText = 'font-size:11.5px;color:#334155;flex:1;line-height:1.2';
+        label.textContent = def.label;
+        
+        let ctrlWrap = document.createElement('div');
+        ctrlWrap.style.cssText = 'display:flex;align-items:center;gap:6px';
+        
+        let picker = document.createElement('input');
+        picker.type = 'color';
+        picker.value = hexVal;
+        picker.id = 'drw_picker_' + def.key;
+        picker.style.cssText = 'width:26px;height:26px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none';
+        picker.oninput = (e) => onDrawerColorChange(def.key, e.target.value, 'picker');
+        
+        let textInput = document.createElement('input');
+        textInput.type = 'text';
+        textInput.value = currentVal;
+        textInput.id = 'drw_text_' + def.key;
+        textInput.placeholder = '#ffffff';
+        textInput.style.cssText = 'width:68px;font-family:monospace;font-size:11px;padding:3px 5px;border:1px solid #cbd5e1;border-radius:4px;text-align:center';
+        textInput.oninput = (e) => onDrawerColorChange(def.key, e.target.value, 'text');
+        
+        ctrlWrap.appendChild(picker);
+        ctrlWrap.appendChild(textInput);
+        row.appendChild(label);
+        row.appendChild(ctrlWrap);
+        cont.appendChild(row);
+    });
+}
+
+function onDrawerColorChange(key, rawVal, source){
+    let val = rawVal;
+    if(source === 'picker'){
+        val = rawVal.toLowerCase();
+        let textInput = document.getElementById('drw_text_' + key);
+        if(textInput) textInput.value = val;
+    } else if(source === 'text'){
+        val = rawVal.trim();
+        let hex = sanitizeHexColor(val, null);
+        let picker = document.getElementById('drw_picker_' + key);
+        if(picker && hex) picker.value = hex;
+    }
+    
+    colorDrawerState.workingTheme[key] = val;
+    previewDrawerLive();
+}
+
+function renderDrawerPresets(){
+    const cont = document.getElementById('colorDrawerPresetList');
+    if(!cont) return;
+    cont.innerHTML = '';
+    
+    let presets = [];
+    if(colorDrawerState.type === 'paper') presets = PAPER_PRESETS;
+    else if(colorDrawerState.type === 'folder') presets = FOLDER_PRESETS;
+    else if(colorDrawerState.type === 'sidebar') presets = SIDEBAR_PRESETS;
+    
+    presets.forEach(p => {
         let btn = document.createElement('button');
         btn.type = 'button';
-        btn.style.cssText = 'background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;padding:6px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;text-align:left;transition:all 0.12s ease;width:calc(50% - 4px);box-sizing:border-box';
-        btn.onmouseover = () => btn.style.borderColor = '#2563eb';
-        btn.onmouseout = () => btn.style.borderColor = '#cbd5e1';
-        btn.onclick = () => applyColorPreset(preset.id);
+        btn.style.cssText = 'background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;padding:5px 8px;display:flex;align-items:center;gap:6px;cursor:pointer;text-align:left;transition:all 0.12s ease;box-sizing:border-box';
+        btn.onmouseover = () => { btn.style.borderColor = '#2563eb'; btn.style.background = '#eff6ff'; };
+        btn.onmouseout = () => { btn.style.borderColor = '#cbd5e1'; btn.style.background = '#ffffff'; };
+        btn.onclick = () => applyDrawerPreset(p.id);
+        
+        let c1 = '#ffffff', c2 = '#f1f5f9';
+        if(colorDrawerState.type === 'paper'){
+            c1 = p.theme.paperBg;
+            c2 = p.theme.gridLine;
+        } else if(colorDrawerState.type === 'folder'){
+            c1 = p.theme.folderBg;
+            c2 = p.theme.folderIconColor;
+        } else if(colorDrawerState.type === 'sidebar'){
+            c1 = p.theme.sidebarBg;
+            c2 = p.theme.sidebarText;
+        }
         
         btn.innerHTML = `
-            <div style="display:flex;flex-direction:column;width:18px;height:18px;border-radius:3px;overflow:hidden;border:1px solid rgba(0,0,0,0.15);flex-shrink:0">
-                <div style="flex:1;background:${preset.theme.paperBg}"></div>
-                <div style="flex:1;background:${preset.theme.sidebarBg}"></div>
+            <div style="display:flex;width:14px;height:14px;border-radius:3px;overflow:hidden;border:1px solid rgba(0,0,0,0.15);flex-shrink:0">
+                <div style="flex:1;background:${c1}"></div>
+                <div style="flex:1;background:${c2}"></div>
             </div>
-            <div style="flex:1;min-width:0;overflow:hidden">
-                <div style="font-size:11.5px;font-weight:bold;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${preset.name}</div>
-            </div>
+            <div style="font-size:11px;font-weight:bold;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
         `;
         cont.appendChild(btn);
     });
 }
 
-function applyColorPreset(presetId){
-    let found = COLOR_PRESETS.find(p => p.id === presetId);
+function applyDrawerPreset(presetId){
+    let presets = [];
+    if(colorDrawerState.type === 'paper') presets = PAPER_PRESETS;
+    else if(colorDrawerState.type === 'folder') presets = FOLDER_PRESETS;
+    else if(colorDrawerState.type === 'sidebar') presets = SIDEBAR_PRESETS;
+    
+    let found = presets.find(p => p.id === presetId);
     if(!found) return;
-    colorModalState.theme = Object.assign({}, DEFAULT_THEME, found.theme);
-    if(colorModalState.targetId !== 'global'){
-        colorModalState.isCustomEnabled = true;
-        let cb = document.getElementById('colorModalCustomEnableCb');
-        if(cb) cb.checked = true;
-        onColorCustomEnableToggle(true);
-    }
-    updateColorInputFields();
-    updateColorModalPreview();
-    applyThemeVariables(colorModalState.theme);
+    
+    colorDrawerState.workingTheme = Object.assign({}, found.theme);
+    renderDrawerColorFields();
+    previewDrawerLive();
 }
 
-function updateColorInputFields(){
-    COLOR_CONFIG_DEFS.forEach(def => {
-        let val = colorModalState.theme[def.key] || DEFAULT_THEME[def.key];
-        let picker = document.getElementById('col_picker_' + def.key);
-        let textInput = document.getElementById('col_text_' + def.key);
-        let swatch = document.getElementById('col_swatch_' + def.key);
-        
-        let hex = sanitizeHexColor(val, '#000000');
-        if(picker) picker.value = hex;
-        if(textInput) textInput.value = val;
-        if(swatch) swatch.style.backgroundColor = val;
-    });
-}
-
-function onColorFieldChange(key, rawVal, source){
-    let val = rawVal;
-    if(source === 'picker'){
-        val = rawVal.toLowerCase();
-        let textInput = document.getElementById('col_text_' + key);
-        if(textInput) textInput.value = val;
-    } else if(source === 'text'){
-        val = rawVal.trim();
-        let hex = sanitizeHexColor(val, null);
-        let picker = document.getElementById('col_picker_' + key);
-        if(picker && hex) picker.value = hex;
-    }
+function previewDrawerLive(){
+    const root = document.documentElement;
+    const t = colorDrawerState.workingTheme;
     
-    let swatch = document.getElementById('col_swatch_' + key);
-    if(swatch) swatch.style.backgroundColor = val;
-    
-    colorModalState.theme[key] = val;
-    updateColorModalPreview();
-    applyThemeVariables(colorModalState.theme);
-}
-
-function updateColorModalPreview(){
-    let t = colorModalState.theme;
-    let prevBox = document.getElementById('colorModalLivePreviewBox');
-    if(!prevBox) return;
-    
-    prevBox.style.backgroundColor = t.appBg;
-    
-    let prevSidebar = document.getElementById('prev_sidebar');
-    if(prevSidebar){
-        prevSidebar.style.backgroundColor = t.sidebarBg;
-        prevSidebar.style.color = t.sidebarText;
-    }
-    
-    let prevHeader = document.getElementById('prev_header');
-    if(prevHeader){
-        prevHeader.style.backgroundColor = t.editorHeaderBg;
-        prevHeader.style.color = t.editorHeaderText;
-    }
-    
-    let prevPaper = document.getElementById('prev_paper');
-    if(prevPaper){
-        prevPaper.style.backgroundColor = t.paperBg;
-        prevPaper.style.color = t.paperText;
-        prevPaper.style.backgroundImage = `linear-gradient(90deg, ${t.gridLine} 1px, transparent 1px), linear-gradient(${t.gridLine} 1px, transparent 1px)`;
-    }
-    
-    let prevLineNum = document.getElementById('prev_linenum');
-    if(prevLineNum){
-        prevLineNum.style.backgroundColor = t.lineNumBg;
-        prevLineNum.style.color = t.lineNumText;
-        prevLineNum.style.borderRightColor = t.gridLine;
-    }
-}
-
-function saveColorSettingsFromModal(){
-    let targetId = colorModalState.targetId;
-    
-    if(targetId === 'global'){
-        saveGlobalTheme(colorModalState.theme);
-        alert('✨ 全体デフォルトのカラー設定を保存・適用しました！');
-    } else if(targetId === 'sidebar'){
-        if(colorModalState.isCustomEnabled){
-            saveSidebarCustomTheme({
-                sidebarBg: colorModalState.theme.sidebarBg,
-                sidebarText: colorModalState.theme.sidebarText
-            }, true);
-            alert('✨ サイドバー限定のカラー設定を保存・適用しました！');
-        } else {
-            saveSidebarCustomTheme(null, false);
-            alert('✨ サイドバー限定のカラー設定を解除し、全体デフォルトに戻しました！');
+    if(colorDrawerState.type === 'paper'){
+        // 原稿用紙の色設定のみ更新。フォルダやサイドバーには触れない
+        if(t.paperBg) root.style.setProperty('--paper-bg', t.paperBg);
+        if(t.gridLine) root.style.setProperty('--grid-color', t.gridLine);
+        if(t.paperText) root.style.setProperty('--text-color', t.paperText);
+        if(t.lineNumBg) root.style.setProperty('--linenum-bg', t.lineNumBg);
+        if(t.lineNumText) root.style.setProperty('--linenum-text', t.lineNumText);
+    } else if(colorDrawerState.type === 'folder'){
+        // フォルダ・収納物の色設定のみ更新。原稿用紙やサイドバーには触れない
+        if(t.folderBg){
+            root.style.setProperty('--shelf-bg', t.folderBg);
+            root.style.setProperty('--shelf-header-bg', t.folderBg);
         }
-    } else {
-        let it = g(targetId);
-        if(it){
-            if(colorModalState.isCustomEnabled){
-                it.customColor = {
-                    enabled: true,
-                    theme: Object.assign({}, colorModalState.theme)
-                };
-            } else {
-                delete it.customColor;
+        if(t.folderTitleColor) root.style.setProperty('--shelf-title-color', t.folderTitleColor);
+        if(t.folderItemBg) root.style.setProperty('--shelf-item-bg', t.folderItemBg);
+        if(t.folderItemText) root.style.setProperty('--shelf-item-text', t.folderItemText);
+        if(t.folderIconColor) root.style.setProperty('--shelf-folder-color', t.folderIconColor);
+    } else if(colorDrawerState.type === 'sidebar'){
+        // サイドバーの色設定のみ更新。原稿用紙やフォルダには触れない
+        if(t.sidebarBg){
+            root.style.setProperty('--sidebar-bg', t.sidebarBg);
+            root.style.setProperty('--sidebar-tree-bg', t.sidebarBg);
+        }
+        if(t.sidebarText) root.style.setProperty('--sidebar-text', t.sidebarText);
+    }
+}
+
+function saveAndCloseColorDrawer(){
+    const state = colorDrawerState;
+    
+    if(state.type === 'paper'){
+        if(state.scope === 'default'){
+            saveGlobalPaperTheme(state.workingTheme);
+            if(state.targetId){
+                let item = g(state.targetId);
+                if(item && item.customColor){
+                    delete item.customColor;
+                    s();
+                    r();
+                }
             }
-            s();
-            r();
-            if(currentModalItemId === targetId){
-                updateModalContent(targetId);
+        } else {
+            if(state.targetId){
+                let item = g(state.targetId);
+                if(item){
+                    item.customColor = {
+                        enabled: true,
+                        theme: Object.assign({}, state.workingTheme)
+                    };
+                    s();
+                    r();
+                }
             }
-            alert(`✨ 「${it.name}」の個別カラー設定を保存・適用しました！`);
+        }
+    } else if(state.type === 'folder'){
+        let isRoot = !state.targetId || state.targetId === 'root';
+        if(isRoot || state.scope === 'default'){
+            saveGlobalFolderTheme(state.workingTheme);
+            if(!isRoot && state.targetId){
+                let folder = g(state.targetId);
+                if(folder){
+                    delete folder.customFolderColor;
+                    delete folder.customColor;
+                    s();
+                    r();
+                }
+            }
+        } else {
+            if(state.targetId){
+                let folder = g(state.targetId);
+                if(folder){
+                    folder.customFolderColor = {
+                        enabled: true,
+                        theme: Object.assign({}, state.workingTheme)
+                    };
+                    s();
+                    r();
+                }
+            }
+        }
+    } else if(state.type === 'sidebar'){
+        if(state.scope === 'default'){
+            saveSidebarCustomTheme(null, false);
+        } else {
+            saveSidebarCustomTheme(state.workingTheme, true);
         }
     }
     
     applyCurrentTheme();
-    closeColorModal();
+    if(currentViewMode === 'shelf') renderShelfView();
+    
+    let drawer = document.getElementById('colorDrawer');
+    if(drawer) drawer.style.display = 'none';
 }
 
-function resetColorSettings(){
-    if(!confirm('カラー設定を標準（初期状態）に戻しますか？')) return;
-    
-    if(colorModalState.targetId === 'global'){
-        colorModalState.theme = Object.assign({}, DEFAULT_THEME);
-        saveGlobalTheme(DEFAULT_THEME);
-    } else if(colorModalState.targetId === 'sidebar'){
-        colorModalState.isCustomEnabled = false;
-        let cb = document.getElementById('colorModalCustomEnableCb');
-        if(cb) cb.checked = false;
-        saveSidebarCustomTheme(null, false);
-        colorModalState.theme = getGlobalTheme();
-    } else {
-        colorModalState.isCustomEnabled = false;
-        let cb = document.getElementById('colorModalCustomEnableCb');
-        if(cb) cb.checked = false;
-        colorModalState.theme = getGlobalTheme();
+function resetDrawerColorSettings(){
+    if(colorDrawerState.type === 'paper'){
+        colorDrawerState.workingTheme = Object.assign({}, DEFAULT_PAPER_THEME);
+    } else if(colorDrawerState.type === 'folder'){
+        colorDrawerState.workingTheme = Object.assign({}, DEFAULT_FOLDER_THEME);
+    } else if(colorDrawerState.type === 'sidebar'){
+        colorDrawerState.workingTheme = Object.assign({}, DEFAULT_SIDEBAR_THEME);
     }
-    
-    updateColorInputFields();
-    updateColorModalPreview();
-    applyThemeVariables(colorModalState.theme);
+    renderDrawerColorFields();
+    previewDrawerLive();
 }
+
+// ドロワー外クリックで閉じる処理
+document.addEventListener('click', (ev) => {
+    let drawer = document.getElementById('colorDrawer');
+    if(!drawer || drawer.style.display === 'none') return;
+    if(drawer.contains(ev.target)) return;
+    
+    // カラーボタン自体を押した場合は無視
+    if(ev.target.closest && (
+        ev.target.closest('#titleColorBtn') ||
+        ev.target.closest('#sidebarColorBtn') ||
+        ev.target.closest('#tool_color') ||
+        ev.target.closest('.shelf-color-btn')
+    )) return;
+    
+    closeColorDrawer();
+});
 
 window.addEventListener('keydown', (ev)=>{
     if(ev.key === 'Escape'){
@@ -5293,7 +5431,7 @@ window.addEventListener('keydown', (ev)=>{
         closeCreateModal();
         closeOrderModal();
         closeTrashModal();
-        closeColorModal();
+        closeColorDrawer();
     }
 });
 </script>
@@ -5326,10 +5464,10 @@ window.addEventListener('keydown', (ev)=>{
         <div class="modal-sec-title">操作・保存</div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <button id="modalSaveTxtBtn" onclick="saveModalItemAsTxt()" style="width:100%;background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:8px;border-radius:5px;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:bold;cursor:pointer">
-            💾 .txtファイルとして保存
+            .txtファイルとして保存
           </button>
           <button id="modalDuplicateBtn" onclick="duplicateModalItem()" style="width:100%;background:#f8fafc;border:1px solid #cbd5e1;color:#1e293b;padding:7px 8px;border-radius:5px;font-size:12px;display:flex;align-items:center;justify-content:center;gap:4px;font-weight:bold;cursor:pointer">
-            📋 この紙を複製
+            この紙を複製
           </button>
         </div>
         <div style="display:flex;gap:6px">
@@ -5364,7 +5502,7 @@ window.addEventListener('keydown', (ev)=>{
       <!-- フォルダ専用: フォルダ内の一括置換 -->
       <div id="modalFolderReplaceSection" class="modal-section" style="display:none;background:#fefce8;border-color:#fef08a">
         <div class="modal-sec-title" style="color:#854d0e;display:flex;align-items:center;justify-content:space-between">
-          <span>🔄 フォルダ内の一括文字列置換</span>
+          <span>フォルダ内の一括文字列置換</span>
         </div>
         <div style="font-size:11px;color:#713f12;margin-bottom:8px;line-height:1.4">
           このフォルダ（およびサブフォルダ）に含まれるすべての紙の文字列を一括で検索・置換します。
@@ -5389,7 +5527,7 @@ window.addEventListener('keydown', (ev)=>{
         <div style="font-size:11px;color:#9d174d;margin-bottom:4px;line-height:1.4">
           この項目（紙またはフォルダ）だけに専用の配色・用紙色を適用できます。
         </div>
-        <button type="button" onclick="openColorModal(currentModalItemId, event)" style="width:100%;background:#ffffff;border:1px solid #f472b6;color:#be185d;padding:7px 10px;border-radius:5px;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
+        <button type="button" onclick="openItemColorModal(currentModalItemId, event)" style="width:100%;background:#ffffff;border:1px solid #f472b6;color:#be185d;padding:7px 10px;border-radius:5px;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
           この項目の色を設定する
         </button>
       </div>
@@ -5398,7 +5536,7 @@ window.addEventListener('keydown', (ev)=>{
       <div class="modal-section" style="border-color:#fecaca;background:#fff5f5">
         <div class="modal-sec-title" style="color:#b91c1c">削除</div>
         <button id="modalDeleteBtn" onclick="deleteModalItem()" style="background:#ef4444;color:#fff;border:none;border-radius:5px;padding:8px 10px;font-size:12px;cursor:pointer;font-weight:bold;display:flex;align-items:center;justify-content:center;gap:4px">
-          🗑️ 削除する
+          削除する
         </button>
       </div>
     </div>
@@ -5489,7 +5627,7 @@ window.addEventListener('keydown', (ev)=>{
     </div>
     <div class="modal-body" style="padding:14px;gap:10px;overflow-y:auto;max-height:68vh">
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:10px 12px;font-size:12px;color:#166534;line-height:1.55">
-        <div style="font-weight:bold;margin-bottom:3px">💡 保存方法をお選びください</div>
+        <div style="font-weight:bold;margin-bottom:3px">保存方法をお選びください</div>
         <div>
           ・<strong>各紙を選択または一括選択して個別に保存</strong>：下のファイル名でそれぞれ個別の.txtとして保存します。<br>
           ・<strong>zip(圧縮)ファイルとして保存</strong>：選択した紙をまとめて1つの.zipで保存します。<br>
@@ -5500,8 +5638,8 @@ window.addEventListener('keydown', (ev)=>{
       <!-- 選択コントロールバー -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;margin-top:2px">
         <div style="display:flex;align-items:center;gap:6px">
-          <button type="button" onclick="selectAllFolderSaveFiles(true)" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#334155;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer">☑ 一括選択（全選択）</button>
-          <button type="button" onclick="selectAllFolderSaveFiles(false)" style="background:#f8fafc;border:1px solid #cbd5e1;color:#64748b;padding:4px 8px;border-radius:4px;font-size:11px;cursor:pointer">☐ 全解除</button>
+          <button type="button" onclick="selectAllFolderSaveFiles(true)" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#334155;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer">一括選択（全選択）</button>
+          <button type="button" onclick="selectAllFolderSaveFiles(false)" style="background:#f8fafc;border:1px solid #cbd5e1;color:#64748b;padding:4px 8px;border-radius:4px;font-size:11px;cursor:pointer">全解除</button>
         </div>
         <div id="folderSaveSelectedSummary" style="font-size:12px;font-weight:bold;color:#1e293b">0 / 0 枚選択中</div>
       </div>
@@ -5514,14 +5652,14 @@ window.addEventListener('keydown', (ev)=>{
         <div style="font-size:12px;font-weight:bold;color:#334155">保存の実行：</div>
         <div style="display:flex;flex-wrap:wrap;gap:8px">
           <button type="button" id="btnFolderSaveIndividual" onclick="execFolderSaveIndividual()" style="flex:1;min-width:180px;background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:9px 12px;border-radius:6px;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" title="選択した紙を、上の名前で1枚ずつ個別の.txtファイルとしてダウンロード">
-            📥 個別に.txt保存 (<span id="btnIndividualCount">0</span>件)
+            個別に.txt保存 (<span id="btnIndividualCount">0</span>件)
           </button>
           <button type="button" id="btnFolderSaveZip" onclick="execFolderSaveZip()" style="flex:1;min-width:180px;background:#eff6ff;border:1px solid #93c5fd;color:#1e40af;padding:9px 12px;border-radius:6px;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" title="選択した紙を1つのzip圧縮ファイルにまとめてダウンロード">
-            📦 zip(圧縮)ファイルとして保存
+            zip(圧縮)ファイルとして保存
           </button>
         </div>
         <button type="button" onclick="execFolderSaveCombined()" style="width:100%;background:#f8fafc;border:1px solid #cbd5e1;color:#475569;padding:7px 12px;border-radius:6px;font-size:11.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" title="選択した紙をすべて連結して1つの.txtファイルとしてダウンロード">
-          📄 1つの.txtファイルに結合して保存
+          1つの.txtファイルに結合して保存
         </button>
       </div>
     </div>
@@ -5530,193 +5668,54 @@ window.addEventListener('keydown', (ev)=>{
     </div>
   </div>
 </div>
-<!-- カラー設定モーダル -->
-<div id="colorModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeColorModal()">
-  <div class="modal-card" style="max-width:540px;max-height:88vh;display:flex;flex-direction:column" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <div style="font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px;color:#1e293b">
-        <span>画面・原稿用紙のカラー設定</span>
-      </div>
-      <button type="button" onclick="closeColorModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;padding:0 4px;line-height:1" title="閉じる">✕</button>
+<!-- 左下カラー設定ドロワー -->
+<div id="colorDrawer" class="color-drawer-left-bottom" style="display:none" onclick="event.stopPropagation()">
+  <!-- ドロワーヘッダー -->
+  <div style="padding:10px 14px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div style="display:flex;flex-direction:column;gap:1px;overflow:hidden;min-width:0">
+      <span id="colorDrawerTitle" style="font-weight:bold;font-size:13px;color:#1e293b;line-height:1.2">カラー設定</span>
+      <span id="colorDrawerSubtitle" style="font-size:10.5px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
     </div>
-    
-    <div class="modal-body" style="padding:14px;gap:12px;overflow-y:auto;max-height:70vh">
-      
-      <!-- 設定対象選択バー -->
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <label for="colorModalTargetSelect" style="font-size:12px;font-weight:bold;color:#334155">設定の適用対象：</label>
-          <span id="colorModalTargetBadge" style="font-size:10px;font-weight:bold;padding:2px 8px;border-radius:10px;background:#e0e7ff;color:#3730a3">全体基本設定</span>
-        </div>
-        <select id="colorModalTargetSelect" onchange="onColorTargetSelectChange(this.value)" style="width:100%;box-sizing:border-box;padding:6px 10px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px;background:#fff;outline:none;cursor:pointer"></select>
-        
-        <!-- 個別設定トグル（フォルダまたは紙選択時のみ表示） -->
-        <div id="colorModalCustomToggleSec" style="display:none;margin-top:2px;padding-top:8px;border-top:1px dashed #cbd5e1">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#be185d;font-weight:bold">
-            <input type="checkbox" id="colorModalCustomEnableCb" onchange="onColorCustomEnableToggle(this.checked)" style="width:15px;height:15px;accent-color:#be185d;cursor:pointer">
-            <span>この項目に個別カラーを適用する（チェック解除で全体デフォルトを使用）</span>
-          </label>
-        </div>
+    <button type="button" onclick="closeColorDrawer()" style="background:none;border:none;font-size:16px;cursor:pointer;color:#64748b;padding:2px 6px;line-height:1;border-radius:4px" title="閉じる">✕</button>
+  </div>
+
+  <!-- ドロワー本文 -->
+  <div style="padding:12px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;flex:1">
+
+    <!-- デフォルト／個別 切替タブ -->
+    <div id="colorDrawerScopeSec" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;font-weight:bold;color:#475569">設定の対象範囲</span>
+        <span id="colorDrawerScopeBadge" style="font-size:10px;font-weight:bold;padding:1px 6px;border-radius:4px;background:#e2e8f0;color:#475569">デフォルト</span>
       </div>
-
-      <!-- ライブミニプレビュー -->
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px">
-        <div style="font-size:11px;font-weight:bold;color:#64748b;margin-bottom:6px">ライブプレビュー（リアルタイム確認）</div>
-        <div id="colorModalLivePreviewBox" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px;display:flex;gap:6px;height:78px;box-sizing:border-box;background:#f1f5f9;transition:all 0.15s ease">
-          <!-- ミニサイドバー -->
-          <div id="prev_sidebar" style="width:65px;border-radius:4px;border:1px solid rgba(0,0,0,0.1);padding:4px;display:flex;flex-direction:column;gap:3px;font-size:9px;overflow:hidden;background:#f8fafc;color:#000">
-            <div style="font-weight:bold;font-size:8.5px;opacity:0.8">📁 フォルダ</div>
-            <div style="background:rgba(0,0,0,0.08);padding:1px 3px;border-radius:2px;font-size:8px">📄 1枚目</div>
-          </div>
-          <!-- ミニエディタ -->
-          <div style="flex:1;display:flex;flex-direction:column;border-radius:4px;overflow:hidden;border:1px solid rgba(0,0,0,0.15)">
-            <div id="prev_header" style="height:16px;padding:0 4px;display:flex;align-items:center;font-size:8.5px;font-weight:bold;background:#ffffff;color:#0f172a">
-              タイトル横情報
-            </div>
-            <div style="flex:1;display:flex">
-              <div id="prev_linenum" style="width:18px;font-size:8px;text-align:right;padding-right:2px;background:#ffffff;color:#aaaaaa;border-right:1px solid #ececec;box-sizing:border-box;line-height:16px">1<br>2</div>
-              <div id="prev_paper" style="flex:1;background-color:#ffffff;color:#000000;font-size:9px;padding-left:4px;line-height:16px;background-image:linear-gradient(90deg,#ececec 1px,transparent 1px),linear-gradient(#ececec 1px,transparent 1px);background-size:16px 16px">吾輩は猫である</div>
-            </div>
-          </div>
-        </div>
+      <div style="display:flex;background:#e2e8f0;padding:2px;border-radius:6px;gap:2px">
+        <button type="button" id="colorScopeBtnDefault" onclick="setColorDrawerScope('default')" style="flex:1;padding:5px 8px;font-size:11px;font-weight:bold;border:none;border-radius:4px;cursor:pointer;background:#ffffff;color:#1e293b;box-shadow:0 1px 2px rgba(0,0,0,0.08);transition:all 0.15s ease">デフォルト</button>
+        <button type="button" id="colorScopeBtnCustom" onclick="setColorDrawerScope('custom')" style="flex:1;padding:5px 8px;font-size:11px;font-weight:bold;border:none;border-radius:4px;cursor:pointer;background:transparent;color:#64748b;transition:all 0.15s ease">個別設定</button>
       </div>
-
-      <!-- プリセット選択 -->
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px">
-        <div style="font-size:11px;font-weight:bold;color:#64748b;margin-bottom:6px">プリセットテーマ（ワンクリック適用）</div>
-        <div id="colorPresetContainer" style="display:flex;flex-wrap:wrap;gap:8px"></div>
-      </div>
-
-      <!-- 個別カラーカスタマイズ入力群 -->
-      <div id="colorModalCustomInputsSec" style="display:flex;flex-direction:column;gap:10px">
-        
-        <!-- マス目用紙の色設定 -->
-        <div id="colorModalPaperGroupSec" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:12px">
-          <div style="font-size:12px;font-weight:bold;color:#1e293b;margin-bottom:8px;display:flex;align-items:center;gap:4px">
-            <span>マス目の用紙・文字色設定</span>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr;gap:8px">
-            
-            <!-- paperBg -->
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-              <span style="font-size:12px;color:#334155;flex:1">マス目用紙の背景色</span>
-              <div style="display:flex;align-items:center;gap:6px">
-                <input type="color" id="col_picker_paperBg" onchange="onColorFieldChange('paperBg', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
-                <input type="text" id="col_text_paperBg" oninput="onColorFieldChange('paperBg', this.value, 'text')" placeholder="#ffffff" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
-              </div>
-            </div>
-
-            <!-- gridLine -->
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-              <span style="font-size:12px;color:#334155;flex:1">マス目の罫線（格子）色</span>
-              <div style="display:flex;align-items:center;gap:6px">
-                <input type="color" id="col_picker_gridLine" onchange="onColorFieldChange('gridLine', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
-                <input type="text" id="col_text_gridLine" oninput="onColorFieldChange('gridLine', this.value, 'text')" placeholder="#ececec" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
-              </div>
-            </div>
-
-            <!-- paperText -->
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-              <span style="font-size:12px;color:#334155;flex:1">本文テキストの文字色</span>
-              <div style="display:flex;align-items:center;gap:6px">
-                <input type="color" id="col_picker_paperText" onchange="onColorFieldChange('paperText', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
-                <input type="text" id="col_text_paperText" oninput="onColorFieldChange('paperText', this.value, 'text')" placeholder="#000000" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
-              </div>
-            </div>
-
-            <!-- lineNumBg -->
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-              <span style="font-size:12px;color:#334155;flex:1">行番号エリアの背景色</span>
-              <div style="display:flex;align-items:center;gap:6px">
-                <input type="color" id="col_picker_lineNumBg" onchange="onColorFieldChange('lineNumBg', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
-                <input type="text" id="col_text_lineNumBg" oninput="onColorFieldChange('lineNumBg', this.value, 'text')" placeholder="#ffffff" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
-              </div>
-            </div>
-
-            <!-- lineNumText -->
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-              <span style="font-size:12px;color:#334155;flex:1">行番号の文字色</span>
-              <div style="display:flex;align-items:center;gap:6px">
-                <input type="color" id="col_picker_lineNumText" onchange="onColorFieldChange('lineNumText', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
-                <input type="text" id="col_text_lineNumText" oninput="onColorFieldChange('lineNumText', this.value, 'text')" placeholder="#aaaaaa" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- サイドバー・画面全体の色設定 -->
-        <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:12px">
-          <div style="font-size:12px;font-weight:bold;color:#1e293b;margin-bottom:8px;display:flex;align-items:center;gap:4px">
-            <span id="colorModalUiGroupTitle">サイドバー（左画面）・ヘッダー・枠外背景色</span>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr;gap:8px">
-            
-            <!-- sidebarBg -->
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-              <span style="font-size:12px;color:#334155;flex:1">サイドバー背景色</span>
-              <div style="display:flex;align-items:center;gap:6px">
-                <input type="color" id="col_picker_sidebarBg" onchange="onColorFieldChange('sidebarBg', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
-                <input type="text" id="col_text_sidebarBg" oninput="onColorFieldChange('sidebarBg', this.value, 'text')" placeholder="#f8fafc" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
-              </div>
-            </div>
-
-            <!-- sidebarText -->
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-              <span style="font-size:12px;color:#334155;flex:1">サイドバー文字色</span>
-              <div style="display:flex;align-items:center;gap:6px">
-                <input type="color" id="col_picker_sidebarText" onchange="onColorFieldChange('sidebarText', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
-                <input type="text" id="col_text_sidebarText" oninput="onColorFieldChange('sidebarText', this.value, 'text')" placeholder="#000000" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
-              </div>
-            </div>
-
-            <!-- editorHeader & appBg controls wrapper -->
-            <div id="colorModalOtherUiGroupSec" style="display:flex;flex-direction:column;gap:8px">
-              <!-- editorHeaderBg -->
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-                <span style="font-size:12px;color:#334155;flex:1">ヘッダー（タイトル帯）背景色</span>
-                <div style="display:flex;align-items:center;gap:6px">
-                  <input type="color" id="col_picker_editorHeaderBg" onchange="onColorFieldChange('editorHeaderBg', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
-                  <input type="text" id="col_text_editorHeaderBg" oninput="onColorFieldChange('editorHeaderBg', this.value, 'text')" placeholder="#ffffff" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
-                </div>
-              </div>
-
-              <!-- editorHeaderText -->
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-                <span style="font-size:12px;color:#334155;flex:1">ヘッダー文字色</span>
-                <div style="display:flex;align-items:center;gap:6px">
-                  <input type="color" id="col_picker_editorHeaderText" onchange="onColorFieldChange('editorHeaderText', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
-                  <input type="text" id="col_text_editorHeaderText" oninput="onColorFieldChange('editorHeaderText', this.value, 'text')" placeholder="#0f172a" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
-                </div>
-              </div>
-
-              <!-- appBg -->
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-                <span style="font-size:12px;color:#334155;flex:1">全体外枠（エディタ外側）背景色</span>
-                <div style="display:flex;align-items:center;gap:6px">
-                  <input type="color" id="col_picker_appBg" onchange="onColorFieldChange('appBg', this.value, 'picker')" style="width:28px;height:28px;padding:0;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;background:none">
-                  <input type="text" id="col_text_appBg" oninput="onColorFieldChange('appBg', this.value, 'text')" placeholder="#f1f5f9" style="width:78px;font-family:monospace;font-size:11.5px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:4px;text-align:center">
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-
+      <div id="colorDrawerScopeHint" style="font-size:10px;color:#64748b;line-height:1.35"></div>
     </div>
-    
-    <!-- モーダルフッター -->
-    <div style="padding:10px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;gap:8px;align-items:center;justify-content:space-between">
-      <button type="button" onclick="resetColorSettings()" style="background:#fff;border:1px solid #cbd5e1;color:#dc2626;padding:7px 10px;border-radius:5px;font-size:11px;font-weight:bold;cursor:pointer">初期値に戻す</button>
-      <div style="display:flex;gap:8px">
-        <button type="button" onclick="closeColorModal()" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#475569;padding:7px 12px;border-radius:5px;font-size:12px;cursor:pointer">キャンセル</button>
-        <button type="button" onclick="saveColorSettingsFromModal()" style="background:#2563eb;border:none;color:#fff;padding:7px 14px;border-radius:5px;font-size:12px;font-weight:bold;cursor:pointer">保存して適用</button>
-      </div>
+
+    <!-- 各色の設定項目リスト -->
+    <div id="colorDrawerFieldsSec" style="display:flex;flex-direction:column;gap:8px"></div>
+
+    <!-- プリセットテーマ（下部に配置、絵文字なし） -->
+    <div id="colorDrawerPresetSec" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin-top:2px">
+      <div style="font-size:11px;font-weight:bold;color:#475569;margin-bottom:6px">プリセットテーマ</div>
+      <div id="colorDrawerPresetList" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+    </div>
+
+  </div>
+
+  <!-- ドロワーフッター -->
+  <div style="padding:8px 12px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <button type="button" onclick="resetDrawerColorSettings()" style="background:#ffffff;border:1px solid #cbd5e1;color:#dc2626;padding:5px 10px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer">初期値に戻す</button>
+    <div style="display:flex;gap:6px">
+      <button type="button" onclick="saveAndCloseColorDrawer()" style="background:#2563eb;border:none;color:#ffffff;padding:5px 14px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer">完了</button>
     </div>
   </div>
 </div>
+<!-- 互換用ダミー -->
+<div id="colorModal" style="display:none"></div>
 <div id="noticeModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeNoticeModal()">
   <div class="modal-card" style="max-width:480px;max-height:85vh;display:flex;flex-direction:column" onclick="event.stopPropagation()">
     <div class="modal-header">
