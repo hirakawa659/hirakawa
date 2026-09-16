@@ -43,6 +43,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 .hm-mark{background:#ffedd5!important;border-bottom:2px solid #ea580c!important;color:#c2410c!important;font-weight:bold!important;border-radius:2px}
 .hidden-char-badge{display:inline-block!important;background:#fce7f3!important;color:#be185d!important;border:1px dashed #db2777!important;border-radius:2px!important;font-size:10px!important;padding:0 3px!important;line-height:normal!important;vertical-align:middle!important;margin:0 1px!important;user-select:all!important;cursor:pointer}
 .num-mark{background:#fef08a!important;border-bottom:2px solid #ca8a04!important;color:#854d0e!important;font-weight:bold!important;border-radius:2px}
+.half-mark{background:#e0f2fe!important;border-bottom:2px solid #0284c7!important;color:#0369a1!important;font-weight:bold!important;border-radius:2px}
 .er{background-color:#fce7f3!important;border-bottom:2px dotted #db2777!important}
 .tool-item{cursor:grab;user-select:none;flex-shrink:0;touch-action:pan-x;transition:transform 0.12s ease,opacity 0.12s ease}
 .tool-item:active{cursor:grabbing}
@@ -940,7 +941,7 @@ function cleanSpans(){
         p.removeChild(s);
     });
     cleanContaminatedSpans();
-    let spans=e.querySelectorAll('span:not(.sub-sup):not(.hidden-char-badge):not(.hm-mark):not(.er):not(.sp-nonzen)');
+    let spans=e.querySelectorAll('span:not(.sub-sup):not(.hidden-char-badge):not(.hm-mark):not(.num-mark):not(.half-mark):not(.er):not(.sp-nonzen)');
     spans.forEach(s=>{
         let p=s.parentNode;
         while(s.firstChild)p.insertBefore(s.firstChild,s);
@@ -1024,7 +1025,7 @@ function setCaretCharOffset(lineEl,targetOffset){
             let range=document.createRange();
             let offsetInNode=Math.min(targetOffset-count,len);
             let p=node.parentElement;
-            let isSpecialElem = p && (p.getAttribute('contenteditable')==='false' || p.classList.contains('sp-nonzen') || p.classList.contains('sub-sup') || p.classList.contains('hm-mark') || p.classList.contains('hidden-char-badge'));
+            let isSpecialElem = p && (p.getAttribute('contenteditable')==='false' || p.classList.contains('sp-nonzen') || p.classList.contains('sub-sup') || p.classList.contains('hm-mark') || p.classList.contains('num-mark') || p.classList.contains('half-mark') || p.classList.contains('hidden-char-badge'));
             if(isSpecialElem){
                 if(offsetInNode>=len){
                     range.setStartAfter(p);
@@ -1046,7 +1047,7 @@ function setCaretCharOffset(lineEl,targetOffset){
         let range=document.createRange();
         if(lastNode){
             let p=lastNode.parentElement;
-            let isSpecialElem = p && (p.getAttribute('contenteditable')==='false' || p.classList.contains('sp-nonzen') || p.classList.contains('sub-sup') || p.classList.contains('hm-mark') || p.classList.contains('hidden-char-badge'));
+            let isSpecialElem = p && (p.getAttribute('contenteditable')==='false' || p.classList.contains('sp-nonzen') || p.classList.contains('sub-sup') || p.classList.contains('hm-mark') || p.classList.contains('num-mark') || p.classList.contains('half-mark') || p.classList.contains('hidden-char-badge'));
             if(isSpecialElem){
                 range.setStartAfter(p);
             }else{
@@ -1098,7 +1099,7 @@ function highlightSpaces(optActiveLine, optActiveOffset){
     let nodes=[];
     while(walker.nextNode()){
         let p=walker.currentNode.parentNode;
-        if(p&&(p.classList.contains('sp-nonzen')||p.classList.contains('sub-sup')||p.classList.contains('hidden-char-badge')||p.classList.contains('hm-mark')||p.classList.contains('er')))continue;
+        if(p&&(p.classList.contains('sp-nonzen')||p.classList.contains('sub-sup')||p.classList.contains('hidden-char-badge')||p.classList.contains('hm-mark')||p.classList.contains('num-mark')||p.classList.contains('half-mark')||p.classList.contains('er')))continue;
         nodes.push(walker.currentNode);
     }
     
@@ -3197,27 +3198,93 @@ function execDetectNumericDigits(){
     tgNumericDigits();
 }
 
-function execDetectHalfWidth(){
-    closeDetectMenu();
-    let divs = e.querySelectorAll('#e>div');
-    if(divs.length === 0) divs = e.querySelectorAll('div');
-    let count = 0;
-    const halfRegex = /[!-~]|[^\S\u3000\r\n]|[\uFF61-\uFF9F]/g;
-    divs.forEach(d => {
-        let clone = d.cloneNode(true);
-        clone.querySelectorAll('.sub-sup, .hidden-char-badge').forEach(b => b.remove());
-        let txt = clone.innerText || '';
-        let m = txt.match(halfRegex);
-        if(m) count += m.length;
+let halfActive=false;
+function tgHalfWidth(){
+    if(halfActive){
+        let marks=e.querySelectorAll('.half-mark');
+        marks.forEach(m=>{
+            if(m.classList.contains('sub-sup')){
+                m.classList.remove('half-mark');
+            }else{
+                let p=m.parentNode;
+                if(p){
+                    while(m.firstChild)p.insertBefore(m.firstChild,m);
+                    p.removeChild(m);
+                }
+            }
+        });
+        halfActive=false;
+        alert('半角文字の強調表示を解除しました。');
+        return;
+    }
+    
+    let divs=e.querySelectorAll('#e>div');
+    if(divs.length===0){
+        e.innerHTML='<div>'+e.innerHTML+'</div>';
+        divs=e.querySelectorAll('#e>div');
+    }
+    
+    let count=0;
+    const halfRegex=/[!-~]|[\uFF61-\uFF9F]/g;
+    
+    divs.forEach(d=>{
+        let subSups=d.querySelectorAll('.sub-sup');
+        subSups.forEach(sp=>{
+            let txt=sp.textContent||'';
+            let m=txt.match(halfRegex);
+            if(m){
+                count+=m.length;
+                sp.classList.add('half-mark');
+            }
+        });
+        
+        let walker=document.createTreeWalker(d,NodeFilter.SHOW_TEXT,null,false);
+        let textNodes=[];
+        while(walker.nextNode()){
+            let p=walker.currentNode.parentNode;
+            if(p&&(p.classList.contains('sub-sup')||p.classList.contains('sp-nonzen')||p.classList.contains('hidden-char-badge')||p.classList.contains('char-box')||p.classList.contains('half-mark')||p.classList.contains('num-mark')||p.classList.contains('hm-mark')))continue;
+            textNodes.push(walker.currentNode);
+        }
+        
+        textNodes.forEach(tn=>{
+            let val=tn.nodeValue;
+            if(halfRegex.test(val)){
+                let frag=document.createDocumentFragment();
+                let lastIdx=0;
+                halfRegex.lastIndex=0;
+                let match;
+                while((match=halfRegex.exec(val))!==null){
+                    if(match.index>lastIdx){
+                        frag.appendChild(document.createTextNode(val.substring(lastIdx,match.index)));
+                    }
+                    let ch=match[0];
+                    count++;
+                    let span=document.createElement('span');
+                    span.className='half-mark';
+                    span.textContent=ch;
+                    span.title=`半角文字: ${ch}`;
+                    frag.appendChild(span);
+                    lastIdx=match.index+match[0].length;
+                }
+                if(lastIdx<val.length){
+                    frag.appendChild(document.createTextNode(val.substring(lastIdx)));
+                }
+                tn.parentNode.replaceChild(frag,tn);
+            }
+        });
     });
     
-    let msg = '全角に一括変換しますか？';
-    if(count > 0){
-        msg = `半角文字（英数字・記号・空白等）が ${count} 箇所見つかりました。\n\n全角に一括変換しますか？`;
+    if(count>0){
+        halfActive=true;
+        alert(`🔍 半角文字（英数字・記号・半角カナ等）を計 ${count} 箇所検出しました！水色で強調表示しています。\n\n※ もう一度「検出」→「半角」を押すと強調表示を解除します。`);
+    }else{
+        alert('✨ 半角文字（英数記号・半角カナ等）は検出されませんでした。すべて全角です！');
     }
-    if(confirm(msg)){
-        fx();
-    }
+}
+
+function execDetectHalfWidth(){
+    closeDetectMenu();
+    tgHalfWidth();
 }
 
 function doRep(isAll){
@@ -3332,6 +3399,11 @@ function fx(){
             let p=s.parentNode;while(s.firstChild)p.insertBefore(s.firstChild,s);p.removeChild(s);
         });
         clone.querySelectorAll('.num-mark').forEach(s=>{
+            if(!s.classList.contains('sub-sup')){
+                let p=s.parentNode;if(p){while(s.firstChild)p.insertBefore(s.firstChild,s);p.removeChild(s);}
+            }
+        });
+        clone.querySelectorAll('.half-mark').forEach(s=>{
             if(!s.classList.contains('sub-sup')){
                 let p=s.parentNode;if(p){while(s.firstChild)p.insertBefore(s.firstChild,s);p.removeChild(s);}
             }
