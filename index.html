@@ -276,22 +276,22 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <!-- 行番号の左側（サイドバー境界）に配置した固定ツールバー＋原稿用紙エリア -->
 <div style="flex:1;display:flex;flex-direction:row;min-height:0;overflow:hidden;position:relative">
   <!-- 行番号の左・サイドバー境界の固定ツールエリア（スクロールなし） -->
-  <div id="linenumLeftToolBar" style="width:52px;background:#ffffff;border-right:1px solid var(--grid-color,#ececec);display:flex;flex-direction:column;align-items:center;padding:6px 2px;gap:6px;flex-shrink:0;user-select:none;z-index:90;box-sizing:border-box;touch-action:none">
+  <div id="linenumLeftToolBar" style="width:52px;background:var(--paper-bg,#ffffff);border-right:1px solid var(--sidebar-border,#cbd5e1);display:flex;flex-direction:column;align-items:center;padding:6px 2px;gap:6px;flex-shrink:0;user-select:none;z-index:90;box-sizing:border-box;touch-action:none">
     <!-- 紙の色 -->
-    <button type="button" id="linenumPaperColorBtn" class="linenum-tool-item" onclick="if(f)openPaperColorModal(f, event)" style="width:48px;padding:4px 0;font-size:10.5px;font-weight:bold;line-height:1.2;background:#ffffff;color:#000000;border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="この紙の色を設定（デフォルト／個別）">
+    <button type="button" id="linenumPaperColorBtn" class="linenum-tool-item" onclick="if(f)openPaperColorModal(f, event)" style="width:48px;padding:4px 0;font-size:10.5px;font-weight:bold;line-height:1.2;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="この紙の色を設定（デフォルト／個別）">
       紙の色
     </button>
     <!-- 横の数 -->
-    <button type="button" id="colsBtn" class="linenum-tool-item" onclick="openColsModal(f, event)" style="width:48px;padding:3px 0;font-size:9.5px;font-weight:bold;line-height:1.15;background:#ffffff;color:#000000;border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:normal;text-align:center;touch-action:none" title="横の文字数を設定">
-      横の数<br><span style="font-size:10.5px;font-weight:bold;color:#000000">30字</span><span style="font-size:8px;line-height:1;margin-left:1px">▾</span>
+    <button type="button" id="colsBtn" class="linenum-tool-item" onclick="openColsModal(f, event)" style="width:48px;padding:3px 0;font-size:9.5px;font-weight:bold;line-height:1.15;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:normal;text-align:center;touch-action:none" title="横の文字数を設定">
+      横の数<br><span style="font-size:10.5px;font-weight:bold;color:inherit">30字</span><span style="font-size:8px;line-height:1;margin-left:1px">▾</span>
     </button>
     <!-- 特殊コピー -->
-    <button type="button" id="linenumCopyBtn" class="linenum-tool-item" onclick="c()" style="width:48px;padding:4px 0;font-size:8.5px;font-weight:bold;line-height:1.1;background:#ffffff;color:#000000;border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:normal;text-align:center;touch-action:none" title="エディタの内部装飾タグを除去し、きれいなプレーンテキスト文章にしてコピー">
+    <button type="button" id="linenumCopyBtn" class="linenum-tool-item" onclick="c()" style="width:48px;padding:4px 0;font-size:8.5px;font-weight:bold;line-height:1.1;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:normal;text-align:center;touch-action:none" title="エディタの内部装飾タグを除去し、きれいなプレーンテキスト文章にしてコピー">
       特殊コピー
     </button>
     <!-- 検出 ▾ -->
     <div id="detectContainer" class="linenum-tool-item" style="position:relative;width:48px;touch-action:none">
-      <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="width:48px;padding:4px 0;font-size:10px;font-weight:bold;line-height:1.2;background:#ffffff;color:#000000;border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:1px;touch-action:none" title="検出機能メニュー">
+      <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="width:48px;padding:4px 0;font-size:10px;font-weight:bold;line-height:1.2;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:1px;touch-action:none" title="検出機能メニュー">
         <span>検出</span><span style="font-size:8px;line-height:1">▾</span>
       </button>
       <div id="detectMenuDropdown" style="display:none;position:absolute;top:0;left:calc(100% + 4px);background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,0.15);padding:6px;flex-direction:column;gap:6px;min-width:124px;z-index:9999" onclick="event.stopPropagation()">
@@ -310,7 +310,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
       </div>
     </div>
     <!-- 空白色 -->
-    <button type="button" id="spColBtn" class="linenum-tool-item" onclick="tgSpColor()" style="width:48px;padding:4px 0;font-size:8.5px;font-weight:bold;line-height:1.1;background:#ffffff;color:#000000;border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="全角以外の空白の色をON/OFF">
+    <button type="button" id="spColBtn" class="linenum-tool-item" onclick="tgSpColor()" style="width:48px;padding:4px 0;font-size:8.5px;font-weight:bold;line-height:1.1;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="全角以外の空白の色をON/OFF">
       空白色:OFF
     </button>
   </div>
@@ -5691,15 +5691,16 @@ const DEFAULT_TOOL_COLORS = {
     'tool_redo': '#334155',
     'tool_save_txt': '#166534',
     'tool_rep': '#92400e',
+    'tool_search_folder': '#0369a1',
+    'tool_selcount': '#1e40af',
+    'tool_area': '#334155',
     'tool_hd': '#1e3a8a',
     'tool_hm': '#9a3412',
     'tool_spcol': '#666666',
-    'tool_selcount': '#1e40af',
     'tool_select': '#1e293b',
     'tool_num': '#854d0e',
     'tool_copy': '#000000',
-    'tool_fx': '#0369a1',
-    'tool_area': '#334155'
+    'tool_fx': '#0369a1'
 };
 
 const TOOLBAR_TOOL_COLOR_DEFS = [
@@ -5708,16 +5709,17 @@ const TOOLBAR_TOOL_COLOR_DEFS = [
     { key: 'tool_undo', label: '戻す (Undo)' },
     { key: 'tool_redo', label: 'やり直す (Redo)' },
     { key: 'tool_save_txt', label: '.txt保存' },
-    { key: 'tool_rep', label: '置換' },
+    { key: 'tool_rep', label: '開フォルダ内置換' },
+    { key: 'tool_search_folder', label: '開フォルダ内検索' },
+    { key: 'tool_selcount', label: '選択文字数' },
+    { key: 'tool_area', label: '領域' },
     { key: 'tool_hd', label: '隠し文字' },
     { key: 'tool_hm', label: 'ホモグラフ' },
     { key: 'tool_spcol', label: '空白色' },
-    { key: 'tool_selcount', label: '選択文字数' },
     { key: 'tool_select', label: '横の文字数' },
     { key: 'tool_num', label: '算用数字' },
     { key: 'tool_copy', label: '特殊コピー' },
-    { key: 'tool_fx', label: '半角→全角' },
-    { key: 'tool_area', label: '領域' }
+    { key: 'tool_fx', label: '半角→全角' }
 ];
 
 const TOOLBAR_PRESETS = [
@@ -5731,9 +5733,9 @@ const TOOLBAR_PRESETS = [
         name: 'モノクロ・黒',
         theme: {
             tool_sb: '#111827', tool_shelf: '#111827', tool_undo: '#111827', tool_redo: '#111827',
-            tool_save_txt: '#111827', tool_rep: '#111827', tool_hd: '#111827', tool_hm: '#111827',
-            tool_spcol: '#111827', tool_selcount: '#111827', tool_select: '#111827', tool_num: '#111827',
-            tool_copy: '#111827', tool_fx: '#111827', tool_area: '#111827'
+            tool_save_txt: '#111827', tool_rep: '#111827', tool_search_folder: '#111827', tool_selcount: '#111827',
+            tool_area: '#111827', tool_hd: '#111827', tool_hm: '#111827', tool_spcol: '#111827',
+            tool_select: '#111827', tool_num: '#111827', tool_copy: '#111827', tool_fx: '#111827'
         }
     },
     {
@@ -5741,9 +5743,9 @@ const TOOLBAR_PRESETS = [
         name: 'セピア・茶',
         theme: {
             tool_sb: '#78350f', tool_shelf: '#451a03', tool_undo: '#78350f', tool_redo: '#78350f',
-            tool_save_txt: '#14532d', tool_rep: '#b45309', tool_hd: '#7c2d12', tool_hm: '#9a3412',
-            tool_spcol: '#78350f', tool_selcount: '#854d0e', tool_select: '#451a03', tool_num: '#92400e',
-            tool_copy: '#451a03', tool_fx: '#b45309', tool_area: '#78350f'
+            tool_save_txt: '#14532d', tool_rep: '#b45309', tool_search_folder: '#854d0e', tool_selcount: '#854d0e',
+            tool_area: '#78350f', tool_hd: '#7c2d12', tool_hm: '#9a3412', tool_spcol: '#78350f',
+            tool_select: '#451a03', tool_num: '#92400e', tool_copy: '#451a03', tool_fx: '#b45309'
         }
     },
     {
@@ -5751,9 +5753,9 @@ const TOOLBAR_PRESETS = [
         name: '藍・ブルー',
         theme: {
             tool_sb: '#4338ca', tool_shelf: '#1e3a8a', tool_undo: '#1e40af', tool_redo: '#1e40af',
-            tool_save_txt: '#047857', tool_rep: '#0369a1', tool_hd: '#1d4ed8', tool_hm: '#0284c7',
-            tool_spcol: '#2563eb', tool_selcount: '#1d4ed8', tool_select: '#1e3a8a', tool_num: '#0369a1',
-            tool_copy: '#1e3a8a', tool_fx: '#0284c7', tool_area: '#3b82f6'
+            tool_save_txt: '#047857', tool_rep: '#0369a1', tool_search_folder: '#0284c7', tool_selcount: '#1d4ed8',
+            tool_area: '#3b82f6', tool_hd: '#1d4ed8', tool_hm: '#0284c7', tool_spcol: '#2563eb',
+            tool_select: '#1e3a8a', tool_num: '#0369a1', tool_copy: '#1e3a8a', tool_fx: '#0284c7'
         }
     }
 ];
@@ -5779,19 +5781,17 @@ function applyToolColors(customColors = null){
         
         el.style.color = color;
         
-        if(toolId === 'tool_undo' || toolId === 'tool_redo'){
-            const svg = el.querySelector('svg');
-            if(svg) svg.style.stroke = color;
-        } else if(toolId === 'tool_select'){
+        const svgs = el.querySelectorAll('svg');
+        svgs.forEach(svg => svg.style.stroke = color);
+        
+        const spans = el.querySelectorAll('span');
+        spans.forEach(s => s.style.color = color);
+
+        if(toolId === 'tool_select'){
             const btn = document.getElementById('tool_select_btn');
             if(btn) btn.style.color = color;
             const val = document.getElementById('tool_select_val');
             if(val) val.style.color = color;
-            const spans = el.querySelectorAll('span');
-            spans.forEach(s => s.style.color = color);
-        } else if(toolId === 'tool_sb'){
-            const spans = el.querySelectorAll('span');
-            spans.forEach(s => s.style.color = color);
         }
     });
 }
