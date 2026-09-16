@@ -145,12 +145,12 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_hm" class="tool-item" onclick="tgHomoglyphs()" style="background:transparent;border:none;color:#9a3412;font-weight:bold;padding:2px 4px;font-size:11px" title="紛らわしい類似文字・異言語文字を検出">ホモグラフ</button>
 <button id="tool_spcol" class="tool-item" onclick="tgSpColor()" style="background:transparent;border:none;color:#666666;font-weight:bold;padding:2px 4px;font-size:11px" title="全角以外の空白の色をON/OFF">空白色:OFF</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:transparent;border:none;color:#1e40af;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
-<div id="tool_select" class="tool-item" style="position:relative;display:inline-flex;align-items:center">
+<div id="tool_select" class="tool-item" onclick="openColsModal(f, event)" style="position:relative;display:inline-flex;align-items:center;cursor:pointer" title="横の文字数を設定（この紙のみ／デフォルト）">
   <button id="tool_select_btn" type="button" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 4px;height:36px;border:none;background:transparent;box-shadow:none;outline:none;cursor:pointer;box-sizing:border-box;pointer-events:none">
     <span style="font-size:9px;font-weight:bold;line-height:1.1;margin-bottom:2px;letter-spacing:0.2px">横の文字数</span>
     <span id="tool_select_val" style="font-size:12px;font-weight:bold;color:#1e293b;line-height:1.1">30文字 ▾</span>
   </button>
-  <select id="l" onchange="updateColsDisplay();z()" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2">
+  <select id="l" onchange="updateColsDisplay();z()" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;display:none">
   </select>
 </div>
 <button id="tool_num" class="tool-item" onclick="tgNumericDigits()" style="background:transparent;border:none;color:#854d0e;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="半角・全角・下付き・上付き等の算用数字を検出">算用数字</button>
@@ -690,10 +690,39 @@ function renderShelfView(){
 }
 for(let i=20; i<=40; i++)l.innerHTML+=`<option value="${i}">${i}文字</option>`;l.value="30";
 
+function getGlobalCols(){
+    let saved = localStorage.getItem('n_w');
+    if(saved){
+        let n = parseInt(saved);
+        if(!isNaN(n) && n >= 10 && n <= 100) return n;
+    }
+    return 30;
+}
+
+function saveGlobalCols(cols){
+    localStorage.setItem('n_w', String(cols));
+}
+
+function getActiveCols(paperId = null){
+    let targetId = paperId || f;
+    if(targetId){
+        let it = g(targetId);
+        if(it && it.customCols){
+            let n = parseInt(it.customCols);
+            if(!isNaN(n) && n >= 10 && n <= 100) return n;
+        }
+    }
+    return getGlobalCols();
+}
+
 function updateColsDisplay(){
+    let curCols = getActiveCols(f);
     let valEl=document.getElementById('tool_select_val');
-    if(valEl&&l){
-        valEl.textContent=(l.value||'30')+'文字 ▾';
+    if(valEl){
+        valEl.textContent = curCols + '文字 ▾';
+    }
+    if(l){
+        l.value = String(curCols);
     }
 }
 
@@ -1501,7 +1530,8 @@ function tgS(){
     setTimeout(()=>{z()},30);
 }
 function z(){
-    let v=l.value;let num=parseInt(v);if(!num||isNaN(num))num=30;
+    let num = getActiveCols(f);
+    if(l) l.value = String(num);
     const m=document.querySelector('.m');
     const mWidth=m?m.clientWidth:(window.innerWidth-200);
     const pad=0,lw=36;
@@ -1514,7 +1544,6 @@ function z(){
     document.documentElement.style.setProperty('--cs',cs+'px');
     w.style.width=totalW+'px';
     e.style.width=pw+'px';
-    localStorage.setItem('n_w',v);
     ensureGridLines();
     updateLineNumbers();
     updateColsDisplay();
@@ -3067,6 +3096,45 @@ function deleteModalItem(){
 }
 
 /* 置換ツール */
+function getFolderScopeFiles(){
+    let targetItems = [];
+    if(currentViewMode === 'shelf'){
+        if(currentShelfFolderId && currentShelfFolderId !== 'root'){
+            let folder = g(currentShelfFolderId);
+            if(folder && folder.children){
+                targetItems = folder.children;
+            }
+        } else {
+            targetItems = d.r || [];
+        }
+    } else {
+        if(f){
+            let ctx = findItemContext(f);
+            if(ctx && ctx.parentFolder && ctx.parentFolder.children){
+                targetItems = ctx.parentFolder.children;
+            } else {
+                targetItems = d.r || [];
+            }
+        } else {
+            targetItems = d.r || [];
+        }
+    }
+    
+    let allFiles = [];
+    function collectFiles(items){
+        if(!items || !Array.isArray(items)) return;
+        items.forEach(it => {
+            if(it.type === 'file'){
+                allFiles.push(it);
+            } else if(it.children && Array.isArray(it.children)){
+                collectFiles(it.children);
+            }
+        });
+    }
+    collectFiles(targetItems);
+    return allFiles;
+}
+
 function tgRep(){
     const rb=document.getElementById('repBar');
     const isHidden=(rb.style.display==='none'||!rb.style.display);
@@ -3087,33 +3155,92 @@ function doRep(isAll){
         msg.textContent='検索文字を入力してください';
         return;
     }
+    if(typeof flushPendingHeavyTask === 'function') flushPendingHeavyTask();
     norm();
-    let divs=e.querySelectorAll('#e>div');
-    if(divs.length===0){
-        e.innerHTML='<div>'+e.innerHTML+'</div>';
-        divs=e.querySelectorAll('#e>div');
-    }
-    let count=0;
-    const escaped=fVal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex=new RegExp(escaped, isAll?'g':'');
+    s();
     
-    for(let d of divs){
-        let txt=d.innerText;
-        if(regex.test(txt)){
-            let matches=txt.match(regex);
-            if(matches) count+=matches.length;
-            let newText=txt.replace(regex, tVal);
-            d.innerHTML=newText?newText:'<br>';
-            if(!isAll && count>0) break;
+    let totalCount = 0;
+    let changedFiles = 0;
+    const escaped = fVal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escaped, 'g');
+    
+    let targetFiles = getFolderScopeFiles();
+    if(targetFiles.length === 0 && f){
+        let curItem = g(f);
+        if(curItem) targetFiles = [curItem];
+    }
+    
+    targetFiles.forEach(it => {
+        if(it.id === f){
+            let divs = e.querySelectorAll('#e>div');
+            if(divs.length === 0){
+                e.innerHTML = '<div>' + e.innerHTML + '</div>';
+                divs = e.querySelectorAll('#e>div');
+            }
+            let fileRepCount = 0;
+            for(let d of divs){
+                let txt = d.innerText;
+                if(regex.test(txt)){
+                    let matches = txt.match(regex);
+                    if(matches) fileRepCount += matches.length;
+                    let newText = txt.replace(regex, tVal);
+                    d.innerHTML = newText ? newText : '<br>';
+                }
+            }
+            if(fileRepCount > 0){
+                totalCount += fileRepCount;
+                changedFiles++;
+                it.content = e.innerHTML;
+            }
+        } else {
+            let rawContent = it.content || '<div><br></div>';
+            let wrapper = document.createElement('div');
+            wrapper.innerHTML = rawContent;
+            let divs = wrapper.querySelectorAll('div');
+            let fileRepCount = 0;
+            
+            if(divs.length > 0){
+                divs.forEach(d => {
+                    let txt = d.innerText;
+                    if(regex.test(txt)){
+                        let matches = txt.match(regex);
+                        if(matches) fileRepCount += matches.length;
+                        let newText = txt.replace(regex, tVal);
+                        d.innerHTML = newText ? newText : '<br>';
+                    }
+                });
+            } else {
+                let txt = wrapper.innerText;
+                if(regex.test(txt)){
+                    let matches = txt.match(regex);
+                    if(matches) fileRepCount += matches.length;
+                    let newText = txt.replace(regex, tVal);
+                    wrapper.innerHTML = newText ? `<div>${newText}</div>` : '<div><br></div>';
+                }
+            }
+            
+            if(fileRepCount > 0){
+                totalCount += fileRepCount;
+                changedFiles++;
+                it.content = wrapper.innerHTML;
+            }
         }
-    }
+    });
     
-    if(count>0){
-        msg.textContent=`${count}件置換しました`;
-        v();
+    if(totalCount > 0){
         s();
-    }else{
-        msg.textContent='見つかりませんでした';
+        r();
+        v();
+        if(currentViewMode === 'shelf' && typeof renderShelfView === 'function'){
+            renderShelfView();
+        }
+        if(changedFiles > 1){
+            msg.textContent = `${changedFiles}枚中、計${totalCount}件置換しました`;
+        } else {
+            msg.textContent = `${totalCount}件置換しました`;
+        }
+    } else {
+        msg.textContent = '見つかりませんでした';
     }
 }
 
@@ -5793,6 +5920,92 @@ document.addEventListener('click', (ev) => {
     closeColorDrawer();
 });
 
+let colsModalTargetId = null;
+
+function openColsModal(targetId = null, ev = null){
+    if(ev) ev.stopPropagation();
+    if(typeof flushPendingHeavyTask === 'function') flushPendingHeavyTask();
+    
+    colsModalTargetId = targetId || f;
+    let item = colsModalTargetId ? g(colsModalTargetId) : null;
+    let name = item ? (item.name || '無題') : '現在の紙';
+    let currentVal = getActiveCols(colsModalTargetId);
+    let isCustom = !!(item && item.customCols);
+    
+    let modal = document.getElementById('colsModal');
+    let titleEl = document.getElementById('colsModalTitle');
+    let subEl = document.getElementById('colsModalSubtitle');
+    let sel = document.getElementById('colsModalSelect');
+    let subtextCustom = document.getElementById('colsSubtextCustom');
+    
+    if(titleEl) titleEl.textContent = '横の文字数設定';
+    if(subEl) subEl.textContent = `対象: 「${name}」` + (isCustom ? ' (個別設定中)' : ' (全体デフォルト)');
+    if(subtextCustom) subtextCustom.textContent = `この紙（「${name}」）のみに文字数を保存`;
+    
+    if(sel){
+        if(sel.options.length === 0){
+            for(let i=20; i<=40; i++) sel.innerHTML += `<option value="${i}">${i}文字</option>`;
+        }
+        sel.value = String(currentVal);
+    }
+    
+    if(modal) modal.style.display = 'flex';
+}
+
+function closeColsModal(){
+    let modal = document.getElementById('colsModal');
+    if(modal) modal.style.display = 'none';
+    colsModalTargetId = null;
+    z();
+}
+
+function saveColsSettingWithMode(mode){
+    let sel = document.getElementById('colsModalSelect');
+    let val = sel ? parseInt(sel.value) : 30;
+    if(isNaN(val) || val < 10 || val > 100) val = 30;
+    
+    let targetId = colsModalTargetId || f;
+    let item = targetId ? g(targetId) : null;
+    
+    if(mode === 'custom'){
+        // 1. ここにだけ適用：現在の紙のみに個別設定を保存
+        if(item){
+            item.customCols = val;
+            s();
+            r();
+        }
+    } else if(mode === 'default_keep'){
+        // 2. デフォルトとして適用(以前の紙はそのまま)：
+        // 全体デフォルト文字数を更新。以前に個別の文字数を設定した他の紙はそのまま維持。
+        saveGlobalCols(val);
+        if(item && item.customCols){
+            delete item.customCols;
+            s();
+            r();
+        }
+    } else if(mode === 'default_all'){
+        // 3. デフォルトとして適用(以前の紙にも)：
+        // 全体デフォルト文字数を更新し、過去のすべての紙の個別設定をリセットして一括統一！
+        saveGlobalCols(val);
+        walkAllItems(it => {
+            if(it.type === 'file' && it.customCols){
+                delete it.customCols;
+            }
+        });
+        s();
+        r();
+    }
+    
+    closeColsModal();
+    z();
+}
+
+function resetColsModalDefault(){
+    let sel = document.getElementById('colsModalSelect');
+    if(sel) sel.value = '30';
+    saveColsSettingWithMode('default_all');
+}
+
 window.addEventListener('keydown', (ev)=>{
     if(ev.key === 'Escape'){
         closeNoticeModal();
@@ -5801,6 +6014,7 @@ window.addEventListener('keydown', (ev)=>{
         closeOrderModal();
         closeTrashModal();
         closeColorDrawer();
+        closeColsModal();
     }
 });
 </script>
@@ -6118,6 +6332,59 @@ window.addEventListener('keydown', (ev)=>{
     </div>
     <div style="padding:10px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end">
       <button type="button" onclick="closeTrashModal()" style="background:#e2e8f0;border:1px solid #cbd5e1;color:#334155;padding:6px 14px;border-radius:5px;font-size:12px;cursor:pointer">閉じる</button>
+    </div>
+  </div>
+</div>
+<!-- 横の文字数設定モーダル（紙のみ／デフォルト適用） -->
+<div id="colsModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeColsModal()">
+  <div class="modal-card" style="max-width:380px;display:flex;flex-direction:column" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div style="font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px;color:#1e293b">
+        <span>横の文字数設定</span>
+      </div>
+      <button type="button" onclick="closeColsModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;padding:0 4px;line-height:1" title="閉じる">✕</button>
+    </div>
+    <div class="modal-body" style="padding:14px;gap:12px">
+      <!-- 対象の紙情報 -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;font-size:11.5px;color:#475569;display:flex;align-items:center;justify-content:space-between">
+        <span id="colsModalSubtitle" style="font-weight:bold;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">対象: 現在の紙</span>
+      </div>
+
+      <!-- 文字数選択 -->
+      <div class="modal-section" style="background:#ffffff;border-color:#cbd5e1">
+        <div class="modal-sec-title" style="color:#1e293b">横の文字数（1行あたりのマス数）</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <select id="colsModalSelect" style="flex:1;padding:8px 10px;border:1px solid #94a3b8;border-radius:6px;font-size:14px;font-weight:bold;color:#1e293b;background:#ffffff;outline:none">
+          </select>
+        </div>
+      </div>
+
+      <!-- 保存方法選択セクション（フォルダ・紙の色と同様の3パターン） -->
+      <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:8px 9px;display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:11px;font-weight:bold;color:#334155;line-height:1.2">保存方法をお選びください：</div>
+
+        <!-- 1. ここにだけ適用（赤） -->
+        <button type="button" id="btnColsSaveCustom" onclick="saveColsSettingWithMode('custom')" style="width:100%;background:#fff5f5;border:1px solid #fca5a5;color:#b91c1c;padding:7px 9px;border-radius:6px;cursor:pointer;display:flex;flex-direction:column;text-align:left;gap:1px;box-shadow:0 1px 2px rgba(0,0,0,0.03);transition:all 0.12s ease" onmouseover="this.style.background='#fee2e2';this.style.borderColor='#ef4444'" onmouseout="this.style.background='#fff5f5';this.style.borderColor='#fca5a5'">
+          <span style="font-size:11.5px;font-weight:bold;line-height:1.2">ここにだけ適用</span>
+          <span id="colsSubtextCustom" style="font-size:10px;color:#dc2626;opacity:0.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">この紙のみに文字数を保存</span>
+        </button>
+
+        <!-- 2. デフォルトとして適用(以前の紙にも)（青） -->
+        <button type="button" id="btnColsSaveDefaultAll" onclick="saveColsSettingWithMode('default_all')" style="width:100%;background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:7px 9px;border-radius:6px;cursor:pointer;display:flex;flex-direction:column;text-align:left;gap:1px;box-shadow:0 1px 2px rgba(0,0,0,0.03);transition:all 0.12s ease" onmouseover="this.style.background='#dbeafe';this.style.borderColor='#3b82f6'" onmouseout="this.style.background='#eff6ff';this.style.borderColor='#93c5fd'">
+          <span style="font-size:11.5px;font-weight:bold;line-height:1.2">デフォルトとして適用(以前の紙にも)</span>
+          <span style="font-size:10px;color:#2563eb;opacity:0.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">基本文字数を更新し、過去の個別設定もこの文字数に一括統一</span>
+        </button>
+
+        <!-- 3. デフォルトとして適用(以前の紙はそのまま)（灰色） -->
+        <button type="button" id="btnColsSaveDefaultKeep" onclick="saveColsSettingWithMode('default_keep')" style="width:100%;background:#f8fafc;border:1px solid #cbd5e1;color:#475569;padding:7px 9px;border-radius:6px;cursor:pointer;display:flex;flex-direction:column;text-align:left;gap:1px;box-shadow:0 1px 2px rgba(0,0,0,0.03);transition:all 0.12s ease" onmouseover="this.style.background='#f1f5f9';this.style.borderColor='#94a3b8'" onmouseout="this.style.background='#f8fafc';this.style.borderColor='#cbd5e1'">
+          <span style="font-size:11.5px;font-weight:bold;line-height:1.2">デフォルトとして適用(以前の紙はそのまま)</span>
+          <span style="font-size:10px;color:#64748b;opacity:0.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">基本文字数を更新（以前に個別の文字数を設定した紙は維持）</span>
+        </button>
+      </div>
+    </div>
+    <div style="padding:8px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between">
+      <button type="button" onclick="resetColsModalDefault()" style="background:#ffffff;border:1px solid #cbd5e1;color:#dc2626;padding:5px 10px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer">初期値(30文字)に戻す</button>
+      <button type="button" onclick="closeColsModal()" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#475569;padding:5px 12px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer">閉じる</button>
     </div>
   </div>
 </div>
