@@ -2456,12 +2456,8 @@ function m(i,pid,level=0){
             showEditorView();
             r();
         }else{
-            if(collapsedFolders.has(i.id)){
-                collapsedFolders.delete(i.id);
-            }else{
-                collapsedFolders.add(i.id);
-            }
-            r();
+            collapsedFolders.delete(i.id);
+            showShelfView(i.id);
         }
     }
     
