@@ -277,23 +277,23 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <!-- 行番号の左側（サイドバー境界）に配置した固定ツールバー＋原稿用紙エリア -->
 <div style="flex:1;display:flex;flex-direction:row;min-height:0;overflow:hidden;position:relative">
   <!-- 行番号の左・サイドバー境界の固定ツールエリア（スクロールなし） -->
-  <div id="linenumLeftToolBar" style="width:52px;background:var(--paper-bg,#ffffff);border-right:1px solid var(--sidebar-border,#cbd5e1);display:flex;flex-direction:column;align-items:center;padding:6px 2px;gap:6px;flex-shrink:0;user-select:none;z-index:90;box-sizing:border-box;touch-action:none">
+  <div id="linenumLeftToolBar" style="width:64px;background:var(--paper-bg,#ffffff);border-right:1px solid var(--sidebar-border,#cbd5e1);display:flex;flex-direction:column;align-items:center;padding:8px 3px;gap:8px;flex-shrink:0;user-select:none;z-index:90;box-sizing:border-box;touch-action:none">
     <!-- 紙の色 -->
-    <button type="button" id="linenumPaperColorBtn" class="linenum-tool-item" onclick="if(f)openPaperColorModal(f, event)" style="width:48px;padding:4px 0;font-size:10.5px;font-weight:bold;line-height:1.2;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="この紙の色を設定（デフォルト／個別）">
+    <button type="button" id="linenumPaperColorBtn" class="linenum-tool-item" onclick="if(f)openPaperColorModal(f, event)" style="width:58px;padding:5px 0;font-size:11.5px;font-weight:bold;line-height:1.2;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="この紙の色を設定（デフォルト／個別）">
       紙の色
     </button>
     <!-- 横の数 -->
-    <button type="button" id="colsBtn" class="linenum-tool-item" onclick="openColsModal(f, event)" style="width:48px;padding:3px 0;font-size:9.5px;font-weight:bold;line-height:1.15;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:normal;text-align:center;touch-action:none" title="横の文字数を設定">
-      横の数<br><span style="font-size:10.5px;font-weight:bold;color:inherit">30字</span><span style="font-size:8px;line-height:1;margin-left:1px">▾</span>
+    <button type="button" id="colsBtn" class="linenum-tool-item" onclick="openColsModal(f, event)" style="width:58px;padding:4px 0;font-size:10.5px;font-weight:bold;line-height:1.15;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:normal;text-align:center;touch-action:none" title="横の文字数を設定">
+      横の数<br><span style="font-size:11.5px;font-weight:bold;color:inherit">30字</span><span style="font-size:9px;line-height:1;margin-left:1px">▾</span>
     </button>
     <!-- 特殊コピー -->
-    <button type="button" id="linenumCopyBtn" class="linenum-tool-item" onclick="c()" style="width:48px;padding:4px 0;font-size:8.5px;font-weight:bold;line-height:1.1;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:normal;text-align:center;touch-action:none" title="エディタの内部装飾タグを除去し、きれいなプレーンテキスト文章にしてコピー">
+    <button type="button" id="linenumCopyBtn" class="linenum-tool-item" onclick="c()" style="width:58px;padding:5px 0;font-size:10px;font-weight:bold;line-height:1.15;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:normal;text-align:center;touch-action:none" title="エディタの内部装飾タグを除去し、きれいなプレーンテキスト文章にしてコピー">
       特殊コピー
     </button>
     <!-- 検出 ▾ -->
-    <div id="detectContainer" class="linenum-tool-item" style="position:relative;width:48px;touch-action:none">
-      <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="width:48px;padding:4px 0;font-size:10px;font-weight:bold;line-height:1.2;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:1px;touch-action:none" title="検出機能メニュー">
-        <span>検出</span><span style="font-size:8px;line-height:1">▾</span>
+    <div id="detectContainer" class="linenum-tool-item" style="position:relative;width:58px;touch-action:none">
+      <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="width:58px;padding:5px 0;font-size:11px;font-weight:bold;line-height:1.2;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:2px;touch-action:none" title="検出機能メニュー">
+        <span>検出</span><span style="font-size:9px;line-height:1">▾</span>
       </button>
       <div id="detectMenuDropdown" style="display:none;position:absolute;top:0;left:calc(100% + 4px);background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,0.15);padding:6px;flex-direction:column;gap:6px;min-width:124px;z-index:9999" onclick="event.stopPropagation()">
         <button type="button" onclick="execDetectHiddenChars()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#1e3a8a;font-size:12px;font-weight:bold;padding:8px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
@@ -311,7 +311,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
       </div>
     </div>
     <!-- 空白色 -->
-    <button type="button" id="spColBtn" class="linenum-tool-item" onclick="tgSpColor()" style="width:48px;padding:4px 0;font-size:8.5px;font-weight:bold;line-height:1.1;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:4px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="全角以外の空白の色をON/OFF">
+    <button type="button" id="spColBtn" class="linenum-tool-item" onclick="tgSpColor()" style="width:58px;padding:5px 0;font-size:10px;font-weight:bold;line-height:1.15;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="全角以外の空白の色をON/OFF">
       空白色:OFF
     </button>
   </div>
