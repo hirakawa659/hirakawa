@@ -141,7 +141,8 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   </svg>
 </button>
 <button id="tool_save_txt" class="tool-item" onclick="saveAsTxt()" style="background:transparent;border:none;color:#166534;font-weight:bold;white-space:nowrap;padding:2px 4px;font-size:11px" title="現在の紙を.txtファイルとして保存">.txt保存</button>
-<button id="tool_rep" class="tool-item" onclick="tgRep()" style="background:transparent;border:none;color:#92400e;font-weight:bold;padding:2px 4px;font-size:11px" title="検索・置換バー">置換</button>
+<button id="tool_rep" class="tool-item" onclick="tgRep()" style="background:transparent;border:none;color:#92400e;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="検索・置換バー">開フォルダ内<br>置換</button>
+<button id="tool_search_folder" class="tool-item" onclick="toggleFolderSearchBar()" style="background:transparent;border:none;color:#0369a1;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="現在開いているフォルダ内やノート内の語句を検索">開フォルダ内<br>検索</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:transparent;border:none;color:#1e40af;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
 <button id="tool_area" class="tool-item" onclick="openToolbarColorModal(event)" style="background:transparent;border:none;color:#334155;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="領域の設定（各ツールの文字色設定）">領域</button>
 <select id="l" onchange="updateColsDisplay();z()" style="display:none"></select>
@@ -153,6 +154,14 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button onclick="doRep(true)" style="background:#eab308;border:1px solid #ca8a04;color:#fff;padding:5px 10px;font-size:12px">一括置換</button>
 <span id="repMsg" style="font-size:12px;color:#92400e;margin-left:4px;font-weight:bold"></span>
 <button onclick="tgRep()" style="margin-left:auto;background:none;border:none;font-size:16px;cursor:pointer;color:#92400e;padding:0 6px">✕</button>
+</div>
+<div id="folderSearchBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#f0f9ff;border-bottom:1px solid #bae6fd;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
+<span style="font-size:12px;font-weight:bold;color:#0369a1;white-space:nowrap">🔍 開フォルダ内検索:</span>
+<input id="folderSearchInput" placeholder="検索語句を入力" oninput="executeFolderSearch()" onkeydown="if(event.key==='Enter')executeFolderSearch()" style="padding:5px 8px;border:1px solid #0284c7;border-radius:4px;font-size:12px;width:150px;outline:none;background:#fff">
+<button onclick="executeFolderSearch()" style="background:#0284c7;border:1px solid #0369a1;color:#fff;padding:5px 10px;font-size:12px;border-radius:4px;cursor:pointer;font-weight:bold">検索</button>
+<button onclick="clearFolderSearch()" style="background:#e2e8f0;border:1px solid #cbd5e1;color:#475569;padding:5px 8px;font-size:12px;border-radius:4px;cursor:pointer">クリア</button>
+<span id="folderSearchMsg" style="font-size:12px;color:#0369a1;margin-left:4px;font-weight:bold"></span>
+<button onclick="toggleFolderSearchBar()" style="margin-left:auto;background:none;border:none;font-size:16px;cursor:pointer;color:#0369a1;padding:0 6px">✕</button>
 </div>
 <div id="b">
 <div id="s">
@@ -380,6 +389,7 @@ function showEditorView(){
     setTimeout(()=>{
         z();
         v();
+        if(folderSearchKeyword) applyFolderSearchHighlightsInEditor();
     }, 20);
 }
 
@@ -405,6 +415,7 @@ function openStoryFromShelf(id){
     o(id);
     showEditorView();
     r();
+    if(folderSearchKeyword) applyFolderSearchHighlightsInEditor();
 }
 
 function bindShelfCardDrag(cardEl, item){
@@ -657,6 +668,8 @@ function renderShelfView(){
             let sfColor = sfTheme.folderIconColor || sfTheme.folderBg || '#3b82f6';
             let st = getFolderStats(sf);
             let totalItems = st.files + st.subfolders;
+            let isSfMatch = folderSearchKeyword && typeof checkItemSearchMatch === 'function' && checkItemSearchMatch(sf, folderSearchKeyword);
+            let matchBadgeHtml = isSfMatch ? `<span style="position:absolute;top:2px;left:2px;background:#fef08a;color:#854d0e;font-size:9.5px;font-weight:bold;padding:1px 4px;border-radius:3px;border:1px solid #fde047;display:inline-flex;align-items:center;gap:2px;z-index:2;line-height:1.1">🔍 該当</span>` : '';
             let card = document.createElement('div');
             card.className = 'shelf-folder-card';
             card.title = sf.name;
@@ -667,6 +680,7 @@ function renderShelfView(){
             };
             card.innerHTML = `
                 <div style="position:relative;display:inline-block">
+                    ${matchBadgeHtml}
                     <svg width="68" height="52" viewBox="0 0 68 52" fill="none" style="display:block">
                       <path d="M4 11C4 8.23858 6.23858 6 9 6H23.5858C24.9119 6 26.1837 6.52679 27.1213 7.46447L31.5355 11.8787C32.4732 12.8163 33.745 13.3431 35.0711 13.3431H59C61.7614 13.3431 64 15.5817 64 18.3431V43C64 45.7614 61.7614 48 59 48H9C6.23858 48 4 45.7614 4 43V11Z" fill="${sfColor}"/>
                     </svg>
@@ -688,6 +702,8 @@ function renderShelfView(){
         if(notesCount) notesCount.textContent = `(${notes.length}枚)`;
         notes.forEach(nt=>{
             let st = getChapterStats(nt);
+            let isNtMatch = folderSearchKeyword && typeof checkItemSearchMatch === 'function' && checkItemSearchMatch(nt, folderSearchKeyword);
+            let ntBadgeHtml = isNtMatch ? `<span style="background:#fef08a;color:#854d0e;font-size:9.5px;font-weight:bold;padding:1px 4px;border-radius:3px;border:1px solid #fde047;display:inline-flex;align-items:center;gap:2px;line-height:1.1;margin-right:auto">🔍 該当</span>` : '';
             let cardWrap = document.createElement('div');
             cardWrap.className = 'shelf-note-card-wrap';
             cardWrap.title = nt.name;
@@ -699,8 +715,9 @@ function renderShelfView(){
 
             cardWrap.innerHTML = `
                 <div class="shelf-note-card">
-                    <div style="display:flex;justify-content:flex-end">
-                        <button type="button" class="shelf-card-info-btn" onclick="event.stopPropagation();openItemModal('${nt.id}', event)" title="設定・タイトル変更・削除">設定</button>
+                    <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
+                        ${ntBadgeHtml}
+                        <button type="button" class="shelf-card-info-btn" style="margin-left:auto" onclick="event.stopPropagation();openItemModal('${nt.id}', event)" title="設定・タイトル変更・削除">設定</button>
                     </div>
                     <div class="shelf-note-body-spacer"></div>
                     <div class="shelf-note-meta">
@@ -2399,6 +2416,14 @@ function m(i,pid,level=0){
     nameSpan.title=i.name;
     titleEl.appendChild(nameSpan);
     
+    if(folderSearchKeyword && typeof checkItemSearchMatch === 'function' && checkItemSearchMatch(i, folderSearchKeyword)){
+        let matchBadge = document.createElement('span');
+        matchBadge.className = 'tree-search-match-badge';
+        matchBadge.style.cssText = 'background:#fef08a;color:#854d0e;font-size:9.5px;font-weight:bold;padding:0 3px;border-radius:3px;margin-left:4px;border:1px solid #fde047;white-space:nowrap;flex-shrink:0;line-height:1.2';
+        matchBadge.textContent = '🔍 該当';
+        titleEl.appendChild(matchBadge);
+    }
+    
     contentDiv.appendChild(titleEl);
     
     if(hasChildren){
@@ -3311,6 +3336,178 @@ function execDetectHalfWidth(){
     tgHalfWidth();
 }
 
+/* 選択フォルダ内検索機能 */
+let folderSearchKeyword = '';
+
+function checkItemSearchMatch(item, keyword){
+    if(!keyword || !item) return false;
+    let kw = keyword.toLowerCase();
+    
+    if(item.name && item.name.toLowerCase().includes(kw)) return true;
+    
+    if(item.type === 'file'){
+        if(item.id === f && typeof e !== 'undefined' && e){
+            let txt = e.innerText || '';
+            if(txt.toLowerCase().includes(kw)) return true;
+        }
+        let raw = item.content || '';
+        let cleanTxt = raw.replace(/<[^>]*>/g, '');
+        if(cleanTxt.toLowerCase().includes(kw)) return true;
+    }
+    
+    if(item.type === 'folder' && item.children && Array.isArray(item.children)){
+        return item.children.some(child => checkItemSearchMatch(child, keyword));
+    }
+    
+    return false;
+}
+
+function toggleFolderSearchBar(){
+    const sb = document.getElementById('folderSearchBar');
+    if(!sb) return;
+    const isHidden = (sb.style.display === 'none' || !sb.style.display);
+    
+    const rb = document.getElementById('repBar');
+    if(rb && rb.style.display !== 'none'){
+        rb.style.display = 'none';
+    }
+    
+    sb.style.display = isHidden ? 'flex' : 'none';
+    const b = document.getElementById('b');
+    b.style.top = isHidden ? '92px' : '50px';
+    b.style.height = isHidden ? 'calc(100% - 92px)' : 'calc(100% - 50px)';
+    
+    if(isHidden){
+        const input = document.getElementById('folderSearchInput');
+        if(input){
+            input.focus();
+            if(input.value) executeFolderSearch();
+        }
+    } else {
+        clearFolderSearch();
+    }
+}
+
+function executeFolderSearch(){
+    const input = document.getElementById('folderSearchInput');
+    const msg = document.getElementById('folderSearchMsg');
+    if(!input) return;
+    
+    folderSearchKeyword = input.value.trim();
+    if(!folderSearchKeyword){
+        if(msg) msg.textContent = '';
+        clearFolderSearchHighlightsInEditor();
+        r();
+        renderShelfView();
+        return;
+    }
+    
+    let scopeItems = currentShelfFolderId ? (g(currentShelfFolderId)?.children || []) : (d.r || []);
+    let matchingFolders = 0;
+    let matchingFiles = 0;
+    
+    function countMatches(items){
+        if(!items || !Array.isArray(items)) return;
+        items.forEach(it => {
+            if(it.type === 'file'){
+                if(checkItemSearchMatch(it, folderSearchKeyword)) matchingFiles++;
+            } else if(it.type === 'folder'){
+                if(checkItemSearchMatch(it, folderSearchKeyword)) matchingFolders++;
+                if(it.children) countMatches(it.children);
+            }
+        });
+    }
+    
+    countMatches(scopeItems);
+    
+    if(msg){
+        if(matchingFolders === 0 && matchingFiles === 0){
+            msg.textContent = '見つかりませんでした';
+        } else {
+            let parts = [];
+            if(matchingFolders > 0) parts.push(`フォルダ:${matchingFolders}`);
+            if(matchingFiles > 0) parts.push(`紙:${matchingFiles}`);
+            msg.textContent = `該当あり（${parts.join(' / ')}）`;
+        }
+    }
+    
+    r();
+    renderShelfView();
+    
+    if(f){
+        applyFolderSearchHighlightsInEditor();
+    }
+}
+
+function clearFolderSearch(){
+    const input = document.getElementById('folderSearchInput');
+    const msg = document.getElementById('folderSearchMsg');
+    if(input) input.value = '';
+    if(msg) msg.textContent = '';
+    folderSearchKeyword = '';
+    clearFolderSearchHighlightsInEditor();
+    r();
+    renderShelfView();
+}
+
+function applyFolderSearchHighlightsInEditor(){
+    clearFolderSearchHighlightsInEditor();
+    if(!folderSearchKeyword || typeof e === 'undefined' || !e) return;
+    let divs = e.querySelectorAll('#e>div');
+    if(divs.length === 0) return;
+    
+    let kw = folderSearchKeyword.toLowerCase();
+    
+    divs.forEach(d => {
+        let walker = document.createTreeWalker(d, NodeFilter.SHOW_TEXT, null, false);
+        let textNodes = [];
+        while(walker.nextNode()){
+            let p = walker.currentNode.parentNode;
+            if(p && (p.classList.contains('folder-search-highlight') || p.classList.contains('sp-nonzen') || p.classList.contains('hidden-char-badge') || p.classList.contains('char-box'))) continue;
+            textNodes.push(walker.currentNode);
+        }
+        
+        textNodes.forEach(tn => {
+            let val = tn.nodeValue;
+            let valLower = val.toLowerCase();
+            let idx = valLower.indexOf(kw);
+            if(idx !== -1){
+                let frag = document.createDocumentFragment();
+                let lastIdx = 0;
+                while(idx !== -1){
+                    if(idx > lastIdx){
+                        frag.appendChild(document.createTextNode(val.substring(lastIdx, idx)));
+                    }
+                    let matchedText = val.substring(idx, idx + kw.length);
+                    let markSpan = document.createElement('mark');
+                    markSpan.className = 'folder-search-highlight';
+                    markSpan.style.cssText = 'background:#fef08a;color:#854d0e;padding:0 1px;border-radius:2px;font-weight:bold;box-shadow:0 0 0 1px #fde047;display:inline';
+                    markSpan.textContent = matchedText;
+                    frag.appendChild(markSpan);
+                    lastIdx = idx + kw.length;
+                    idx = valLower.indexOf(kw, lastIdx);
+                }
+                if(lastIdx < val.length){
+                    frag.appendChild(document.createTextNode(val.substring(lastIdx)));
+                }
+                tn.parentNode.replaceChild(frag, tn);
+            }
+        });
+    });
+}
+
+function clearFolderSearchHighlightsInEditor(){
+    if(typeof e === 'undefined' || !e) return;
+    let marks = e.querySelectorAll('.folder-search-highlight');
+    marks.forEach(m => {
+        let p = m.parentNode;
+        if(p){
+            while(m.firstChild) p.insertBefore(m.firstChild, m);
+            p.removeChild(m);
+        }
+    });
+}
+
 function doRep(isAll){
     const fVal=document.getElementById('rFrom').value;
     const tVal=document.getElementById('rTo').value;
@@ -4124,7 +4321,8 @@ const toolDefs={
     'tool_undo':{name:'↩ (元に戻す)',desc:'1つ前の操作を取り消す（アンドゥ）'},
     'tool_redo':{name:'↪ (やり直す)',desc:'取り消した操作をやり直す（リドゥ）'},
     'tool_save_txt':{name:'.txtファイルとして保存',desc:'現在の紙を.txtファイルとしてダウンロード保存'},
-    'tool_rep':{name:'置換',desc:'文字列の検索・置換バー'},
+    'tool_rep':{name:'開フォルダ内\n置換',desc:'文字列の検索・置換バー'},
+    'tool_search_folder':{name:'開フォルダ内\n検索',desc:'現在開いているフォルダ内やノート内の語句を検索'},
     'tool_hd':{name:'隠し文字',desc:'ゼロ幅スペースなどの検出・削除'},
     'tool_hm':{name:'ホモグラフ',desc:'紛らわしい類似文字の検出'},
     'tool_spcol':{name:'空白色',desc:'空白の強調色ON/OFF'},
@@ -4135,7 +4333,7 @@ const toolDefs={
     'tool_fx':{name:'半角→全角',desc:'半角空白・英数記号を全角1マス文字に変換'},
     'tool_area':{name:'領域',desc:'サイドバー・ツールバー・タイトルバーの配色や、ツールボタンの名前・改行・情報設定'}
 };
-const defaultToolOrder=['tool_sb','tool_shelf','tool_undo','tool_redo','tool_save_txt','tool_rep','tool_selcount','tool_area'];
+const defaultToolOrder=['tool_sb','tool_shelf','tool_undo','tool_redo','tool_save_txt','tool_rep','tool_search_folder','tool_selcount','tool_area'];
 
 function getToolOrder(){
     let saved=localStorage.getItem('n_tool_order_v9')||localStorage.getItem('n_tool_order_v8')||localStorage.getItem('n_tool_order_v7')||localStorage.getItem('n_tool_order_v6');
@@ -4146,6 +4344,15 @@ function getToolOrder(){
                 let removedIds = new Set(['tool_count','tool_root','tool_color','tool_hd','tool_hm','tool_spcol','tool_select','tool_num','tool_copy','tool_fx']);
                 arr=arr.filter(id=>!removedIds.has(id)&&toolDefs[id]);
                 let set=new Set(arr);
+                if(!set.has('tool_search_folder')){
+                    let repIdx = arr.indexOf('tool_rep');
+                    if(repIdx !== -1){
+                        arr.splice(repIdx + 1, 0, 'tool_search_folder');
+                    } else {
+                        arr.push('tool_search_folder');
+                    }
+                    set.add('tool_search_folder');
+                }
                 let full=[...arr];
                 defaultToolOrder.forEach(id=>{
                     if(!set.has(id)){
@@ -4617,7 +4824,8 @@ const defaultToolHTML = {
     'tool_undo': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>',
     'tool_redo': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 14 20 9 15 4"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v0A5.5 5.5 0 0 0 9.5 20H13"/></svg>',
     'tool_save_txt': '.txt保存',
-    'tool_rep': '置換',
+    'tool_rep': '開フォルダ内<br>置換',
+    'tool_search_folder': '開フォルダ内<br>検索',
     'tool_hd': '隠し文字',
     'tool_hm': 'ホモグラフ',
     'tool_spcol': '空白色:OFF',
@@ -4635,7 +4843,8 @@ const defaultToolPreviewHTML = {
     'tool_undo': '↩ 戻す',
     'tool_redo': '↪ 直す',
     'tool_save_txt': '.txt保存',
-    'tool_rep': '置換',
+    'tool_rep': '開フォルダ内<br>置換',
+    'tool_search_folder': '開フォルダ内<br>検索',
     'tool_hd': '隠し文字',
     'tool_hm': 'ホモグラフ',
     'tool_spcol': '空白色',
