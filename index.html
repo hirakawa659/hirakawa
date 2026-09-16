@@ -30,7 +30,7 @@ button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;backgroun
 #w{display:flex;flex-direction:row;align-items:stretch;background:var(--paper-bg);color:var(--text-color);box-sizing:border-box;flex-shrink:0;margin:0 0 0 auto;min-height:calc(100vh - 100px);min-height:calc(100dvh - 100px);height:auto;box-shadow:none;position:relative;transform:translateZ(0);contain:layout style}
 .editor-header-info{display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;padding:4px 12px 5px 8px;background:var(--paper-bg);color:var(--text-color);border-bottom:1px solid var(--sidebar-border);min-height:44px;flex-shrink:0;user-select:none;width:100%;z-index:90;gap:2px}
 .story-count-display{display:inline-flex;align-items:center;white-space:nowrap;font-size:11px;cursor:default;gap:4px}
-.l{width:36px;border-right:1px solid var(--grid-color);padding:0;text-align:right;font-size:12px;color:var(--linenum-text);padding-right:6px;user-select:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:var(--paper-bg)}
+.l{width:56px;border-right:1px solid var(--grid-color);padding:0;text-align:right;font-size:12px;color:var(--linenum-text);padding-right:6px;user-select:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:var(--paper-bg);position:relative}
 #e{flex-grow:1;height:auto;min-height:100%;padding:0;outline:0;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;display:block!important;box-sizing:border-box;font-size:calc(var(--cs)*0.78)!important;line-height:var(--cs)!important;letter-spacing:calc(var(--cs)*0.22)!important;text-align:left!important;caret-color:#2563eb;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","MS Gothic",monospace;font-feature-settings:"halt" 0,"palt" 0,"pkna" 0,"fwid" 1!important;font-variant-east-asian:full-width!important;font-kerning:none!important;background-color:var(--paper-bg)!important;color:var(--text-color)!important;background-image:linear-gradient(90deg,var(--grid-color) 1px,transparent 1px),linear-gradient(var(--grid-color) 1px,transparent 1px)!important;background-size:var(--cs) var(--cs)!important;background-repeat:repeat!important;background-position:0 0!important;cursor:text;contain:style}
 #e *{background-color:transparent}
 #e div,#e p{min-height:var(--cs)!important;display:block!important;box-sizing:border-box;text-align:left!important;line-height:var(--cs)!important;padding:0!important;padding-left:calc(var(--cs)*0.11)!important;margin:0!important;background:transparent!important;width:100%!important;overflow:visible!important}
@@ -277,7 +277,29 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   </div>
 </div>
 <div class="m">
-  <div id="w"><div class="l" id="n">1</div><div id="e" contenteditable="true"><div><br></div></div></div>
+  <div id="w">
+    <div class="l" id="n">1</div>
+    <div id="detectContainer" style="position:absolute;top:0;left:0;z-index:95;display:flex;align-items:center;height:var(--cs)">
+      <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="background:var(--paper-bg,#ffffff);border:1px solid #cbd5e1;color:var(--text-color,#334155);border-radius:4px;font-size:10px;font-weight:bold;padding:1px 4px;line-height:1.2;cursor:pointer;display:inline-flex;align-items:center;gap:2px;box-shadow:0 1px 2px rgba(0,0,0,0.05);white-space:nowrap;margin-left:2px" title="検出機能メニュー（隠し文字・ホモグラフ・算用数字・半角）">
+        <span>検出</span><span style="font-size:8px;line-height:1">▾</span>
+      </button>
+      <div id="detectMenuDropdown" style="display:none;position:absolute;top:calc(100% + 2px);left:2px;background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,0.15);padding:4px;flex-direction:column;gap:3px;min-width:118px;z-index:9999" onclick="event.stopPropagation()">
+        <button type="button" onclick="execDetectHiddenChars()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#1e3a8a;font-size:11.5px;font-weight:bold;padding:5px 8px;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:5px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
+          <span>隠し文字</span>
+        </button>
+        <button type="button" onclick="execDetectHomoglyphs()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#9a3412;font-size:11.5px;font-weight:bold;padding:5px 8px;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:5px" onmouseover="this.style.background='#fff7ed'" onmouseout="this.style.background='#f8fafc'">
+          <span>ホモグラフ</span>
+        </button>
+        <button type="button" onclick="execDetectNumericDigits()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#854d0e;font-size:11.5px;font-weight:bold;padding:5px 8px;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:5px" onmouseover="this.style.background='#fefce8'" onmouseout="this.style.background='#f8fafc'">
+          <span>算用数字</span>
+        </button>
+        <button type="button" onclick="execDetectHalfWidth()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#0369a1;font-size:11.5px;font-weight:bold;padding:5px 8px;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:5px" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='#f8fafc'">
+          <span>半角</span>
+        </button>
+      </div>
+    </div>
+    <div id="e" contenteditable="true"><div><br></div></div>
+  </div>
 </div>
 </div>
 </div>
@@ -1534,7 +1556,7 @@ function z(){
     if(l) l.value = String(num);
     const m=document.querySelector('.m');
     const mWidth=m?m.clientWidth:(window.innerWidth-200);
-    const pad=0,lw=36;
+    const pad=0,lw=56;
     let avail=mWidth-pad-lw;
     if(avail<100)avail=100;
     let cs=Math.floor(avail/num);
@@ -3147,6 +3169,57 @@ function tgRep(){
         document.getElementById('repMsg').textContent='';
     }
 }
+function toggleDetectMenu(ev){
+    if(ev){ ev.stopPropagation(); }
+    const menu = document.getElementById('detectMenuDropdown');
+    if(!menu) return;
+    const isHidden = (menu.style.display === 'none' || !menu.style.display);
+    menu.style.display = isHidden ? 'flex' : 'none';
+}
+
+function closeDetectMenu(){
+    const menu = document.getElementById('detectMenuDropdown');
+    if(menu) menu.style.display = 'none';
+}
+
+function execDetectHiddenChars(){
+    closeDetectMenu();
+    tgHiddenChars();
+}
+
+function execDetectHomoglyphs(){
+    closeDetectMenu();
+    tgHomoglyphs();
+}
+
+function execDetectNumericDigits(){
+    closeDetectMenu();
+    tgNumericDigits();
+}
+
+function execDetectHalfWidth(){
+    closeDetectMenu();
+    let divs = e.querySelectorAll('#e>div');
+    if(divs.length === 0) divs = e.querySelectorAll('div');
+    let count = 0;
+    const halfRegex = /[!-~]|[^\S\u3000\r\n]|[\uFF61-\uFF9F]/g;
+    divs.forEach(d => {
+        let clone = d.cloneNode(true);
+        clone.querySelectorAll('.sub-sup, .hidden-char-badge').forEach(b => b.remove());
+        let txt = clone.innerText || '';
+        let m = txt.match(halfRegex);
+        if(m) count += m.length;
+    });
+    
+    let msg = '全角に一括変換しますか？';
+    if(count > 0){
+        msg = `半角文字（英数字・記号・空白等）が ${count} 箇所見つかりました。\n\n全角に一括変換しますか？`;
+    }
+    if(confirm(msg)){
+        fx();
+    }
+}
+
 function doRep(isAll){
     const fVal=document.getElementById('rFrom').value;
     const tVal=document.getElementById('rTo').value;
@@ -3162,7 +3235,6 @@ function doRep(isAll){
     let totalCount = 0;
     let changedFiles = 0;
     const escaped = fVal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(escaped, 'g');
     
     let targetFiles = getFolderScopeFiles();
     if(targetFiles.length === 0 && f){
@@ -3180,10 +3252,10 @@ function doRep(isAll){
             let fileRepCount = 0;
             for(let d of divs){
                 let txt = d.innerText;
-                if(regex.test(txt)){
-                    let matches = txt.match(regex);
-                    if(matches) fileRepCount += matches.length;
-                    let newText = txt.replace(regex, tVal);
+                let matches = txt.match(new RegExp(escaped, 'g'));
+                if(matches && matches.length > 0){
+                    fileRepCount += matches.length;
+                    let newText = txt.replace(new RegExp(escaped, 'g'), tVal);
                     d.innerHTML = newText ? newText : '<br>';
                 }
             }
@@ -3202,19 +3274,19 @@ function doRep(isAll){
             if(divs.length > 0){
                 divs.forEach(d => {
                     let txt = d.innerText;
-                    if(regex.test(txt)){
-                        let matches = txt.match(regex);
-                        if(matches) fileRepCount += matches.length;
-                        let newText = txt.replace(regex, tVal);
+                    let matches = txt.match(new RegExp(escaped, 'g'));
+                    if(matches && matches.length > 0){
+                        fileRepCount += matches.length;
+                        let newText = txt.replace(new RegExp(escaped, 'g'), tVal);
                         d.innerHTML = newText ? newText : '<br>';
                     }
                 });
             } else {
                 let txt = wrapper.innerText;
-                if(regex.test(txt)){
-                    let matches = txt.match(regex);
-                    if(matches) fileRepCount += matches.length;
-                    let newText = txt.replace(regex, tVal);
+                let matches = txt.match(new RegExp(escaped, 'g'));
+                if(matches && matches.length > 0){
+                    fileRepCount += matches.length;
+                    let newText = txt.replace(new RegExp(escaped, 'g'), tVal);
                     wrapper.innerHTML = newText ? `<div>${newText}</div>` : '<div><br></div>';
                 }
             }
@@ -6015,6 +6087,17 @@ window.addEventListener('keydown', (ev)=>{
         closeTrashModal();
         closeColorDrawer();
         closeColsModal();
+        closeDetectMenu();
+    }
+});
+
+window.addEventListener('click', (ev)=>{
+    let btn = document.getElementById('detectBtn');
+    let menu = document.getElementById('detectMenuDropdown');
+    if(menu && menu.style.display !== 'none'){
+        if(btn && !btn.contains(ev.target) && !menu.contains(ev.target)){
+            closeDetectMenu();
+        }
     }
 });
 </script>
