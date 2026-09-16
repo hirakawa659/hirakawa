@@ -170,10 +170,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 </div>
 </div>
 <div id="t"></div>
-<div id="sidebarActionBar" style="border-top:1px solid var(--sidebar-border);background:var(--sidebar-bg);padding:3px 6px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-  <button type="button" id="sidebarPaperColorBtn" onclick="if(f)openPaperColorModal(f, event)" style="background:var(--sidebar-bg);border:none;color:var(--sidebar-text);padding:4px 6px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all 0.1s ease" onmouseover="this.style.background='var(--sidebar-active-bg)'" onmouseout="this.style.background='var(--sidebar-bg)'" title="この紙の色を設定（デフォルト／個別）">
-    <span>紙の色</span>
-  </button>
+<div id="sidebarActionBar" style="border-top:1px solid var(--sidebar-border);background:var(--sidebar-bg);padding:3px 6px;display:flex;align-items:center;justify-content:flex-end;flex-shrink:0">
   <button type="button" id="sidebarColorBtn" onclick="openSidebarColorModal(event)" style="background:var(--sidebar-bg);border:none;color:var(--sidebar-text);padding:4px 8px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.1s ease" onmouseover="this.style.background='var(--sidebar-active-bg)'" onmouseout="this.style.background='var(--sidebar-bg)'" title="サイドバーの色設定を開く">
     <span>色設定</span>
   </button>
@@ -725,13 +722,13 @@ function renderShelfView(){
         emptyMsg.style.display = 'none';
     }
 }
-for(let i=20; i<=40; i++)l.innerHTML+=`<option value="${i}">${i}文字</option>`;l.value="30";
+for(let i=18; i<=40; i++)l.innerHTML+=`<option value="${i}">${i}文字</option>`;l.value="30";
 
 function getGlobalCols(){
     let saved = localStorage.getItem('n_w');
     if(saved){
         let n = parseInt(saved);
-        if(!isNaN(n) && n >= 10 && n <= 100) return n;
+        if(!isNaN(n) && n >= 18 && n <= 100) return n;
     }
     return 30;
 }
@@ -746,7 +743,7 @@ function getActiveCols(paperId = null){
         let it = g(targetId);
         if(it && it.customCols){
             let n = parseInt(it.customCols);
-            if(!isNaN(n) && n >= 10 && n <= 100) return n;
+            if(!isNaN(n) && n >= 18 && n <= 100) return n;
         }
     }
     return getGlobalCols();
@@ -6284,7 +6281,7 @@ function openColsModal(targetId = null, ev = null){
     
     if(sel){
         if(sel.options.length === 0){
-            for(let i=20; i<=40; i++) sel.innerHTML += `<option value="${i}">${i}文字</option>`;
+            for(let i=18; i<=40; i++) sel.innerHTML += `<option value="${i}">${i}文字</option>`;
         }
         sel.value = String(currentVal);
     }
@@ -6302,7 +6299,7 @@ function closeColsModal(){
 function saveColsSettingWithMode(mode){
     let sel = document.getElementById('colsModalSelect');
     let val = sel ? parseInt(sel.value) : 30;
-    if(isNaN(val) || val < 10 || val > 100) val = 30;
+    if(isNaN(val) || val < 18 || val > 100) val = 30;
     
     let targetId = colsModalTargetId || f;
     let item = targetId ? g(targetId) : null;
