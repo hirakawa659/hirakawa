@@ -21,7 +21,7 @@
   --shelf-folder-color:#3b82f6;
 }
 html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0;font-family:monospace}
-.h{position:fixed;top:0;left:0;right:0;width:100%;display:flex;gap:6px;padding:8px;background:#fff;border-bottom:1px solid #ddd;height:50px;box-sizing:border-box;align-items:center;z-index:999;flex-shrink:0;overflow-x:auto;overflow-y:hidden;white-space:nowrap;-webkit-overflow-scrolling:touch}
+.h{position:fixed;top:0;left:0;right:0;width:100%;display:flex;gap:6px;padding:8px;background:var(--header-bg,#fff);color:var(--header-text,#334155);border-bottom:1px solid #ddd;height:50px;box-sizing:border-box;align-items:center;z-index:999;flex-shrink:0;overflow-x:auto;overflow-y:hidden;white-space:nowrap;-webkit-overflow-scrolling:touch}
 button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;background:#f0f0f2;border:1px solid #ccc;border-radius:4px;flex-shrink:0}
 #b{display:flex;position:fixed;top:50px;bottom:0;left:0;right:0;width:100%;height:calc(100% - 50px);height:calc(100dvh - 50px);overflow:hidden}
 #s{width:240px;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);color:var(--sidebar-text);padding:8px 0 0 0;display:flex;flex-direction:column;gap:4px;flex-shrink:0;box-sizing:border-box}
@@ -43,7 +43,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 .hidden-char-badge{display:inline-block!important;background:#fce7f3!important;color:#be185d!important;border:1px dashed #db2777!important;border-radius:2px!important;font-size:10px!important;padding:0 3px!important;line-height:normal!important;vertical-align:middle!important;margin:0 1px!important;user-select:all!important;cursor:pointer}
 .num-mark{background:#fef08a!important;border-bottom:2px solid #ca8a04!important;color:#854d0e!important;font-weight:bold!important;border-radius:2px}
 .er{background-color:#fce7f3!important;border-bottom:2px dotted #db2777!important}
-.tool-item{cursor:grab;user-select:none;flex-shrink:0;touch-action:pan-y;transition:transform 0.12s ease,opacity 0.12s ease}
+.tool-item{cursor:grab;user-select:none;flex-shrink:0;touch-action:pan-x;transition:transform 0.12s ease,opacity 0.12s ease}
 .tool-item:active{cursor:grabbing}
 .tool-item.tool-dragging,.tool-item.dragging{opacity:0.6;transform:scale(1.08);outline:2px solid #2563eb;outline-offset:1px;box-shadow:0 4px 12px rgba(37,99,235,0.28);z-index:1001;position:relative}
 .tool-item.drag-over{transform:scale(1.05)}
@@ -151,8 +151,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_num" class="tool-item" onclick="tgNumericDigits()" style="background:#fef9c3;color:#854d0e;font-weight:bold;font-size:11px;padding:4px 8px;white-space:nowrap" title="半角・全角・下付き・上付き等の算用数字を検出">算用数字</button>
 <button id="tool_copy" class="tool-item" onclick="c()" title="エディタの内部装飾タグを除去し、きれいなプレーンテキスト文章にしてコピー" style="font-weight:bold;font-size:10.5px;padding:2px 6px;white-space:normal;line-height:1.15;text-align:center">特殊コピー<br>プレーンコード化</button>
 <button id="tool_fx" class="tool-item" onclick="fx()" style="background:#e0f2fe;color:#0369a1;font-weight:bold;font-size:11px;padding:4px 8px;white-space:nowrap" title="半角空白・英数記号を全角1マス文字に変換">半角→全角</button>
-<button id="tool_color" class="tool-item" onclick="openColorModal(null)" style="background:#fdf2f8;color:#be185d;border:1px solid #fbcfe8;font-weight:bold;font-size:11px;padding:4px 8px;white-space:nowrap" title="サイドバー・原稿用紙・文字などの色・テーマ設定">カラー</button>
-<button id="renameBtn" onclick="openToolRenameModal()" style="background:#f8fafc;color:#475569;border:1px dashed #94a3b8;padding:5px 8px;font-size:11px" title="ツールボタンの名前変更・改行設定">名前/改行</button>
+<button id="tool_area" class="tool-item" onclick="openSidebarColorModal(event)" style="background:#f8fafc;color:#334155;border:1px solid #cbd5e1;font-weight:bold;font-size:11px;padding:4px 8px;white-space:nowrap" title="領域の設定（配色設定、ツールボタンの名前・改行・情報まとめ）">領域</button>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
 <input id="rFrom" placeholder="検索文字" style="padding:5px 8px;border:1px solid #d97706;border-radius:4px;font-size:12px;width:120px;outline:none;background:#fff">
@@ -180,8 +179,8 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 </div>
 <div id="t"></div>
 <div id="sidebarActionBar" style="border-top:1px solid #e2e8f0;background:#f8fafc;padding:3px 6px;display:flex;align-items:center;justify-content:flex-end;flex-shrink:0">
-  <button type="button" id="sidebarColorBtn" onclick="openSidebarColorModal(event)" style="background:#ffffff;border:1px solid #cbd5e1;color:#334155;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.1s ease" onmouseover="this.style.background='#eff6ff';this.style.borderColor='#93c5fd';this.style.color='#1d4ed8'" onmouseout="this.style.background='#ffffff';this.style.borderColor='#cbd5e1';this.style.color='#334155'" title="サイドバーのカラー設定を開く">
-    <span>カラー設定</span>
+  <button type="button" id="sidebarColorBtn" onclick="openSidebarColorModal(event)" style="background:#ffffff;border:1px solid #cbd5e1;color:#334155;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.1s ease" onmouseover="this.style.background='#eff6ff';this.style.borderColor='#93c5fd';this.style.color='#1d4ed8'" onmouseout="this.style.background='#ffffff';this.style.borderColor='#cbd5e1';this.style.color='#334155'" title="領域（サイドバー画面）の色設定を開く">
+    <span>色設定</span>
   </button>
 </div>
 <div id="sidebarNoticeBar" style="border-top:1px solid #e2e8f0;background:#f8fafc;display:flex;align-items:stretch;user-select:none;flex-shrink:0;height:28px">
@@ -199,22 +198,40 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <div id="mainArea" style="flex:1;display:flex;flex-direction:column;height:100%;min-width:0;overflow:hidden;position:relative">
 <!-- Shelf (GoodNotes-like Notebook & Folder Grid) View -->
 <div id="shelfView" class="shelf-view-container">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--shelf-header-bg, #ffffff);border-bottom:1px solid var(--sidebar-border, #e2e8f0);flex-shrink:0;gap:8px;position:sticky;top:0;z-index:10">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--shelf-header-bg, #ffffff);border-bottom:1px solid var(--sidebar-border, #e2e8f0);flex-shrink:0;gap:8px;position:sticky;top:0;z-index:10">
     <div id="shelfBreadcrumbs" style="display:flex;align-items:center;gap:6px;min-width:0;flex:1"></div>
-    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-      <button type="button" onclick="openFolderSaveTxtModal(currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#f0fdf4;color:#166534;border:1px solid #86efac;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="このフォルダ内の紙をまとめて保存（個別.txt / zip選択）">一括保存</button>
-      <button onclick="a(1, currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#dbeafe;color:#000000;border:1px solid #93c5fd;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しいフォルダを作成">+フォルダ</button>
-      <button onclick="a(0, currentShelfFolderId)" style="font-size:11px;padding:5px 8px;background:#fee2e2;color:#000000;border:1px solid #fca5a5;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap" title="この場所に新しい紙を作成">+紙</button>
+    <div id="shelfHeaderControls" style="display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:4px;flex-shrink:0">
+      <div id="shelfHeaderTopRow" style="display:flex;align-items:center;gap:5px">
+        <button id="shelfFolderSettingsBtn" type="button" class="shelf-card-info-btn" onclick="onShelfFolderSettingsClick(event)" style="font-size:11px;padding:3px 8px;line-height:1.2;cursor:pointer;font-weight:600" title="フォルダの設定・名前変更・削除">フォルダの設定</button>
+      </div>
+      <div id="shelfHeaderBottomRow" style="display:flex;align-items:center;gap:5px">
+        <button id="shelfAreaColorBtn" type="button" class="shelf-card-info-btn" onclick="openSidebarColorModal(event)" style="font-size:11px;padding:3px 8px;line-height:1.2;cursor:pointer;background:#f8fafc;color:#475569;border:1px solid #cbd5e1;border-radius:4px;font-weight:600" title="領域（タイトルバー・サイドバー・ツールバー）の色を設定">領域の色</button>
+      </div>
     </div>
   </div>
-  <div style="padding:16px 20px 80px 20px;display:flex;flex-direction:column;gap:24px">
+  <div style="padding:14px 20px 80px 20px;display:flex;flex-direction:column;gap:18px">
+    <div id="shelfActionHeader" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:2px;width:100%;box-sizing:border-box">
+      <button id="shelfFolderColorBtn" type="button" class="shelf-card-info-btn" onclick="onShelfFolderColorClick(event)" style="font-size:11.5px;padding:4px 10px;line-height:1.2;cursor:pointer;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:5px;font-weight:600;display:inline-flex;align-items:center;gap:5px;box-shadow:0 1px 2px rgba(0,0,0,0.03)" title="フォルダの色を設定（デフォルト／個別）">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/></svg>
+        <span>フォルダの色</span>
+      </button>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+        <button onclick="a(1, currentShelfFolderId)" style="font-size:12px;padding:5px 12px;background:#dbeafe;color:#1e3a8a;border:1px solid #93c5fd;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;box-shadow:0 1px 2px rgba(0,0,0,0.04)" title="この場所に新しいフォルダを作成">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          +フォルダ
+        </button>
+        <button onclick="a(0, currentShelfFolderId)" style="font-size:12px;padding:5px 12px;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:5px;cursor:pointer;font-weight:bold;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;box-shadow:0 1px 2px rgba(0,0,0,0.04)" title="この場所に新しい紙を作成">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          +紙
+        </button>
+      </div>
+    </div>
     <div id="shelfFoldersSec" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <span style="font-size:12.5px;font-weight:bold;color:#334155;letter-spacing:0.5px;display:inline-flex;align-items:center;gap:6px">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0"><path d="M3 8V6.5A2 2 0 0 1 5 4.5H9.5A2 2 0 0 1 11.2 5.4L13 8H20A2 2 0 0 1 22 10V17A2 2 0 0 1 20 19H5A2 2 0 0 1 3 17Z"></path><line x1="3" y1="8" x2="22" y2="8"></line></svg>
           フォルダ
         </span>
-        <span style="font-size:10px;color:#94a3b8;font-weight:500">長押しで並び替え・移動</span>
       </div>
       <div id="shelfFoldersGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(110px, 1fr));gap:14px;align-items:start"></div>
     </div>
@@ -227,13 +244,12 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
           </span>
           <span id="shelfNotesCount" style="font-size:11px;font-weight:normal;color:#94a3b8"></span>
         </div>
-        <span style="font-size:10px;color:#94a3b8;font-weight:500">長押しで並び替え</span>
       </div>
       <div id="shelfNotesGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(110px, 135px));gap:16px;align-items:start"></div>
     </div>
     <div id="shelfEmptyMsg" style="display:none;padding:48px 16px;text-align:center;color:#94a3b8;font-size:13px">
       このフォルダにはまだ項目がありません。<br>
-      右上の「+フォルダ」または「+紙」から作成できます。
+      上部の「+フォルダ」または「+紙」から作成できます。
     </div>
   </div>
 </div>
@@ -249,8 +265,9 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
     </button>
     <div id="currentStoryTitleDisplay" style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
       <span id="storyTitleText" onclick="if(f)openItemModal(f)" style="font-weight:bold;color:#0f172a;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" title="紙の設定・タイトル変更">紙タイトル</span>
-      <button type="button" class="shelf-card-info-btn" onclick="if(f)openItemModal(f, event)" style="font-size:11px;padding:2px 6px;line-height:1.2;cursor:pointer" title="紙の設定・タイトル変更・削除">設定</button>
-      <button id="titleColorBtn" type="button" class="shelf-card-info-btn" onclick="if(f)openPaperColorModal(f, event)" style="font-size:11px;padding:2px 8px;line-height:1.2;cursor:pointer;background:#fdf2f8;color:#be185d;border:1px solid #fbcfe8;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:3px" title="この紙の色を設定（デフォルト／個別）">カラー</button>
+      <button type="button" class="shelf-card-info-btn" onclick="if(f)openItemModal(f, event)" style="font-size:11px;padding:2px 6px;line-height:1.2;cursor:pointer" title="紙の設定・タイトル変更・削除">紙の設定</button>
+      <button id="titleColorBtn" type="button" class="shelf-card-info-btn" onclick="if(f)openPaperColorModal(f, event)" style="font-size:11px;padding:2px 8px;line-height:1.2;cursor:pointer;background:#fdf2f8;color:#be185d;border:1px solid #fbcfe8;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:3px" title="この紙の色を設定（デフォルト／個別）">紙の色</button>
+      <button id="titleAreaColorBtn" type="button" class="shelf-card-info-btn" onclick="openSidebarColorModal(event)" style="font-size:11px;padding:2px 8px;line-height:1.2;cursor:pointer;background:#f8fafc;color:#475569;border:1px solid #cbd5e1;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:3px" title="領域（タイトルバー・サイドバー・ツールバー）の色を設定">領域の色</button>
     </div>
   </div>
   <div id="k" class="story-count-display">
@@ -516,6 +533,16 @@ function bindShelfCardDrag(cardEl, item){
     };
 }
 
+function onShelfFolderSettingsClick(e){
+    if(currentShelfFolderId){
+        openItemModal(currentShelfFolderId, e);
+    }
+}
+
+function onShelfFolderColorClick(e){
+    openFolderColorModal(currentShelfFolderId || 'root', e);
+}
+
 function renderShelfView(){
     const breadcrumbsEl = document.getElementById('shelfBreadcrumbs');
     const foldersSec = document.getElementById('shelfFoldersSec');
@@ -533,6 +560,29 @@ function renderShelfView(){
 
     let folderStat = folderItem ? getFolderStats(folderItem) : getFolderStats({ children: d.r || [] });
     
+    // タイトルバー右上のフォルダ設定・フォルダ色ボタンを同期
+    let shelfSettingsBtn = document.getElementById('shelfFolderSettingsBtn');
+    let shelfFolderColorBtn = document.getElementById('shelfFolderColorBtn');
+    if(shelfSettingsBtn){
+        if(folderItem){
+            shelfSettingsBtn.style.display = 'inline-flex';
+            shelfSettingsBtn.textContent = 'フォルダの設定';
+            shelfSettingsBtn.onclick = (e) => openItemModal(folderItem.id, e);
+        } else {
+            shelfSettingsBtn.style.display = 'none';
+        }
+    }
+    if(shelfFolderColorBtn){
+        shelfFolderColorBtn.style.display = 'inline-flex';
+        let txtSpan = shelfFolderColorBtn.querySelector('span');
+        if(txtSpan){
+            txtSpan.textContent = 'フォルダの色';
+        } else {
+            shelfFolderColorBtn.textContent = 'フォルダの色';
+        }
+        shelfFolderColorBtn.onclick = (e) => openFolderColorModal(folderItem ? folderItem.id : 'root', e);
+    }
+
     if(folderItem){
         breadcrumbsEl.innerHTML = `
             <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
@@ -544,8 +594,6 @@ function renderShelfView(){
                     </button>
                     <span style="display:inline-flex;align-items:center;margin-right:2px">${getFolderIconSvg(false, 'var(--shelf-folder-color, #2563eb)')}</span>
                     <span style="font-size:15px;font-weight:bold;color:var(--shelf-title-color,#0f172a);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" onclick="openItemModal('${folderItem.id}', event)" title="フォルダ設定・名前変更">${escapeHtml(folderItem.name)}</span>
-                    <button type="button" class="shelf-card-info-btn" onclick="openItemModal('${folderItem.id}', event)" title="フォルダ設定・名前変更・削除" style="padding:2px 6px;font-size:11px;line-height:1.2;flex-shrink:0">設定</button>
-                    <button type="button" class="shelf-card-info-btn" onclick="openFolderColorModal('${folderItem.id}', event)" title="このフォルダの色を設定（デフォルト／個別）" style="padding:2px 8px;font-size:11px;line-height:1.2;flex-shrink:0;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:4px;font-weight:600">カラー</button>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--shelf-title-color,#0f172a);font-weight:500">
                     <span style="font-weight:bold;color:inherit">${folderStat.withoutSpaces.toLocaleString()}文字</span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:1px">(空白と改行抜き)</span>
@@ -560,7 +608,6 @@ function renderShelfView(){
                 <div style="display:flex;align-items:center;gap:6px;overflow:hidden">
                     <span style="display:inline-flex;align-items:center;margin-right:2px">${getFolderIconSvg(false, 'var(--shelf-folder-color, #2563eb)')}</span>
                     <span style="font-size:15px;font-weight:bold;color:var(--shelf-title-color,#0f172a)">最上層</span>
-                    <button type="button" class="shelf-card-info-btn" onclick="openFolderColorModal('root', event)" title="フォルダ・最上層の色を設定（デフォルト）" style="padding:2px 8px;font-size:11px;line-height:1.2;flex-shrink:0;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:4px;font-weight:600">カラー</button>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--shelf-title-color,#0f172a);font-weight:500">
                     <span style="font-weight:bold;color:inherit">${folderStat.withoutSpaces.toLocaleString()}文字</span><span style="font-size:9.5px;color:#94a3b8;font-weight:normal;margin-left:1px">(空白と改行抜き)</span>
@@ -3787,17 +3834,17 @@ const toolDefs={
     'tool_num':{name:'算用数字',desc:'半角・全角・下付き・上付きなどの算用数字を検出'},
     'tool_copy':{name:'特殊コピー\nプレーンコード化',desc:'装飾タグを除去しプレーンテキストとしてコピー'},
     'tool_fx':{name:'半角→全角',desc:'半角空白・英数記号を全角1マス文字に変換'},
-    'tool_color':{name:'カラー設定',desc:'サイドバー・原稿用紙・文字・背景の配色設定（デフォルト＆個別）'}
+    'tool_area':{name:'領域',desc:'サイドバー・ツールバー・タイトルバーの配色や、ツールボタンの名前・改行・情報設定'}
 };
-const defaultToolOrder=['tool_sb','tool_shelf','tool_undo','tool_redo','tool_save_txt','tool_rep','tool_hd','tool_hm','tool_spcol','tool_selcount','tool_select','tool_num','tool_copy','tool_fx','tool_color'];
+const defaultToolOrder=['tool_sb','tool_shelf','tool_undo','tool_redo','tool_save_txt','tool_rep','tool_hd','tool_hm','tool_spcol','tool_selcount','tool_select','tool_num','tool_copy','tool_fx','tool_area'];
 
 function getToolOrder(){
-    let saved=localStorage.getItem('n_tool_order_v7')||localStorage.getItem('n_tool_order_v6');
+    let saved=localStorage.getItem('n_tool_order_v8')||localStorage.getItem('n_tool_order_v7')||localStorage.getItem('n_tool_order_v6');
     if(saved){
         try{
             let arr=JSON.parse(saved);
             if(Array.isArray(arr)&&arr.length>0){
-                arr=arr.filter(id=>id!=='tool_count'&&id!=='tool_root'&&toolDefs[id]);
+                arr=arr.filter(id=>id!=='tool_count'&&id!=='tool_root'&&id!=='tool_color'&&toolDefs[id]);
                 let set=new Set(arr);
                 let full=[...arr];
                 defaultToolOrder.forEach(id=>{
@@ -3821,15 +3868,13 @@ function getToolOrder(){
 function applyToolOrder(orderList){
     const header=document.querySelector('.h');
     if(!header)return;
-    const renameBtn=document.getElementById('renameBtn');
     orderList.forEach(toolId=>{
         let el=document.getElementById(toolId);
         if(el){
             header.appendChild(el);
         }
     });
-    if(renameBtn)header.appendChild(renameBtn);
-    localStorage.setItem('n_tool_order_v7',JSON.stringify(orderList));
+    localStorage.setItem('n_tool_order_v8',JSON.stringify(orderList));
     applyCustomToolLabels();
 }
 
@@ -3842,10 +3887,19 @@ function initToolDragAndDrop(){
     let dragItem = null;
     let startX = 0;
     let startY = 0;
+    let isDragMode = false;
     let hasDragged = false;
     let suppressClickUntil = 0;
     let autoScrollTimer = null;
     let scrollSpeed = 0;
+    let longPressTimer = null;
+
+    function clearPressTimer(){
+        if(longPressTimer){
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+    }
 
     function startAutoScroll(speed){
         scrollSpeed = speed;
@@ -3865,6 +3919,14 @@ function initToolDragAndDrop(){
         }
     }
 
+    // マウスホイールでの横スクロール補助（スムーズな左右移動）
+    header.addEventListener('wheel', (e)=>{
+        if(e.deltaY !== 0 && e.deltaX === 0){
+            header.scrollLeft += e.deltaY;
+            e.preventDefault();
+        }
+    }, { passive: false });
+
     // ドラッグ完了直後の誤タップ・クリックを抑制
     header.addEventListener('click', (e)=>{
         if(Date.now() < suppressClickUntil){
@@ -3876,13 +3938,31 @@ function initToolDragAndDrop(){
     header.addEventListener('pointerdown', (e)=>{
         if(e.button !== 0 && e.pointerType === 'mouse') return;
         let item = e.target.closest('.tool-item');
-        if(!item || item.id === 'renameBtn') return;
+        if(!item) return;
         
+        clearPressTimer();
         activePointerId = e.pointerId;
         dragItem = item;
         startX = e.clientX;
         startY = e.clientY;
+        isDragMode = false;
         hasDragged = false;
+
+        if(e.pointerType === 'touch'){
+            // タッチ操作時は長押し（240ms）で並び替えモードへ。
+            // それまでは横スクロールを最優先で滑らかに行えるようにする
+            longPressTimer = setTimeout(()=>{
+                if(dragItem && activePointerId !== null){
+                    isDragMode = true;
+                    hasDragged = true;
+                    dragItem.classList.add('tool-dragging');
+                    try { dragItem.setPointerCapture(activePointerId); } catch(err){}
+                    if(navigator.vibrate) try { navigator.vibrate(35); } catch(err){}
+                }
+            }, 240);
+        } else {
+            // マウス操作時は移動距離で判定
+        }
     });
 
     header.addEventListener('pointermove', (e)=>{
@@ -3891,17 +3971,27 @@ function initToolDragAndDrop(){
         let dx = e.clientX - startX;
         let dy = e.clientY - startY;
 
-        if(!hasDragged){
-            // 指でなぞり始めた（6px以上の移動）ときに並び替えドラッグ開始
-            if(Math.abs(dx) > 6 || Math.abs(dy) > 6){
-                hasDragged = true;
-                try { dragItem.setPointerCapture(e.pointerId); } catch(err){}
-                dragItem.classList.add('tool-dragging');
-            } else {
+        if(!isDragMode){
+            if(e.pointerType === 'touch'){
+                // 指をスライドさせた場合（横スクロール操作）は長押しタイマーを即座に破棄して横スクロールを優先！
+                if(Math.abs(dx) > 8 || Math.abs(dy) > 8){
+                    clearPressTimer();
+                }
                 return;
+            } else {
+                // マウス操作時：8px以上動かしたらドラッグ並び替え開始
+                if(Math.abs(dx) > 7 || Math.abs(dy) > 7){
+                    isDragMode = true;
+                    hasDragged = true;
+                    try { dragItem.setPointerCapture(e.pointerId); } catch(err){}
+                    dragItem.classList.add('tool-dragging');
+                } else {
+                    return;
+                }
             }
         }
 
+        // 並び替えモード中の処理
         e.preventDefault();
 
         // ツールバー両端でのオートスクロール
@@ -3918,7 +4008,7 @@ function initToolDragAndDrop(){
         }
 
         // 指/ポインター位置にある他のボタンを探して入れ替え
-        let items = Array.from(header.querySelectorAll('.tool-item')).filter(el => el.id !== 'renameBtn');
+        let items = Array.from(header.querySelectorAll('.tool-item'));
         for(let other of items){
             if(other === dragItem) continue;
             let r = other.getBoundingClientRect();
@@ -3935,10 +4025,11 @@ function initToolDragAndDrop(){
     }, { passive: false });
 
     function finishDrag(e){
+        clearPressTimer();
         stopAutoScroll();
         if(!dragItem || (activePointerId !== null && e.pointerId !== activePointerId)) return;
         
-        if(hasDragged){
+        if(hasDragged || isDragMode){
             suppressClickUntil = Date.now() + 350;
             dragItem.classList.remove('tool-dragging');
             try { dragItem.releasePointerCapture(e.pointerId); } catch(err){}
@@ -3948,6 +4039,7 @@ function initToolDragAndDrop(){
         
         activePointerId = null;
         dragItem = null;
+        isDragMode = false;
         hasDragged = false;
     }
 
@@ -3960,7 +4052,7 @@ function saveCurrentToolOrderFromDOM(){
     if(!header)return;
     let newOrder=[];
     header.querySelectorAll('.tool-item').forEach(el=>{
-        if(el.id&&el.id!=='orderBtn'&&el.id!=='renameBtn'){
+        if(el.id&&el.id!=='orderBtn'&&el.id!=='renameBtn'&&el.id!=='tool_color'){
             newOrder.push(el.id);
         }
     });
@@ -4066,7 +4158,7 @@ const defaultToolHTML = {
     'tool_num': '算用数字',
     'tool_copy': '特殊コピー<br>プレーンコード化',
     'tool_fx': '半角→全角',
-    'tool_color': 'カラー'
+    'tool_area': '領域'
 };
 
 const defaultToolPreviewHTML = {
@@ -4084,7 +4176,7 @@ const defaultToolPreviewHTML = {
     'tool_num': '算用数字',
     'tool_copy': '特殊コピー<br>プレーン化',
     'tool_fx': '半角→全角',
-    'tool_color': 'カラー'
+    'tool_area': '領域'
 };
 
 function getCustomToolLabels(){
@@ -4881,6 +4973,10 @@ const FOLDER_COLOR_DEFS = [
 ];
 
 const DEFAULT_SIDEBAR_THEME = {
+    titleBarBg: '#ffffff',
+    titleBarText: '#0f172a',
+    headerBg: '#ffffff',
+    headerText: '#334155',
     sidebarBg: '#f8fafc',
     sidebarText: '#000000'
 };
@@ -4889,26 +4985,30 @@ const SIDEBAR_PRESETS = [
     {
         id: 'light',
         name: '標準ライト',
-        theme: { sidebarBg: '#f8fafc', sidebarText: '#000000' }
+        theme: { titleBarBg: '#ffffff', titleBarText: '#0f172a', headerBg: '#ffffff', headerText: '#334155', sidebarBg: '#f8fafc', sidebarText: '#000000' }
     },
     {
         id: 'dark',
         name: 'ダーク',
-        theme: { sidebarBg: '#0f172a', sidebarText: '#f1f5f9' }
+        theme: { titleBarBg: '#1e293b', titleBarText: '#f8fafc', headerBg: '#1e293b', headerText: '#f8fafc', sidebarBg: '#0f172a', sidebarText: '#f1f5f9' }
     },
     {
         id: 'sepia',
         name: '生成り',
-        theme: { sidebarBg: '#f6efe2', sidebarText: '#3b2d20' }
+        theme: { titleBarBg: '#fbf7ee', titleBarText: '#3b2d20', headerBg: '#fbf7ee', headerText: '#3b2d20', sidebarBg: '#f6efe2', sidebarText: '#3b2d20' }
     },
     {
         id: 'forest',
         name: '深緑',
-        theme: { sidebarBg: '#ecfdf5', sidebarText: '#064e3b' }
+        theme: { titleBarBg: '#f0fdf4', titleBarText: '#064e3b', headerBg: '#f0fdf4', headerText: '#064e3b', sidebarBg: '#ecfdf5', sidebarText: '#064e3b' }
     }
 ];
 
 const SIDEBAR_COLOR_DEFS = [
+    { key: 'titleBarBg', label: 'タイトルバー背景色' },
+    { key: 'titleBarText', label: 'タイトルバー文字色' },
+    { key: 'headerBg', label: 'ツールバー背景色' },
+    { key: 'headerText', label: 'ツールバー文字色' },
     { key: 'sidebarBg', label: 'サイドバー背景色' },
     { key: 'sidebarText', label: 'サイドバー文字色' }
 ];
@@ -5046,17 +5146,21 @@ function applyCurrentTheme(){
     // 2. フォルダ・シェルフの色設定
     const ft = getActiveFolderTheme();
     root.style.setProperty('--shelf-bg', ft.folderBg);
-    root.style.setProperty('--shelf-header-bg', ft.folderBg);
-    root.style.setProperty('--shelf-title-color', ft.folderTitleColor);
     root.style.setProperty('--shelf-item-bg', ft.folderItemBg);
     root.style.setProperty('--shelf-item-text', ft.folderItemText);
     root.style.setProperty('--shelf-folder-color', ft.folderIconColor);
 
-    // 3. サイドバーの色設定
+    // 3. 領域（タイトルバー・ツールバー・サイドバー）の色設定
     const st = getActiveSidebarTheme();
     root.style.setProperty('--sidebar-bg', st.sidebarBg);
     root.style.setProperty('--sidebar-tree-bg', st.sidebarBg);
     root.style.setProperty('--sidebar-text', st.sidebarText);
+    root.style.setProperty('--header-bg', st.headerBg || '#ffffff');
+    root.style.setProperty('--header-text', st.headerText || '#334155');
+    root.style.setProperty('--shelf-header-bg', st.titleBarBg || '#ffffff');
+    root.style.setProperty('--shelf-title-color', st.titleBarText || '#0f172a');
+    root.style.setProperty('--header-info-bg', st.titleBarBg || '#ffffff');
+    root.style.setProperty('--header-info-text', st.titleBarText || '#0f172a');
 }
 
 // ドロワー管理ステート
@@ -5177,7 +5281,6 @@ function renderColorDrawerUI(){
     const state = colorDrawerState;
     const titleEl = document.getElementById('colorDrawerTitle');
     const subEl = document.getElementById('colorDrawerSubtitle');
-    const badgeEl = document.getElementById('colorDrawerTargetBadge');
     const subtextCustom = document.getElementById('subtextSaveCustom');
     const btnCustom = document.getElementById('btnColorSaveCustom');
     const btnKeep = document.getElementById('btnColorSaveDefaultKeep');
@@ -5186,24 +5289,22 @@ function renderColorDrawerUI(){
     if(state.type === 'paper'){
         let item = state.targetId ? g(state.targetId) : null;
         let name = item ? item.name : '現在の紙';
-        if(titleEl) titleEl.textContent = '紙のカラー設定';
-        if(subEl) subEl.textContent = `対象: ${name}`;
-        if(badgeEl) badgeEl.textContent = `対象: ${name}（紙）`;
+        if(titleEl) titleEl.textContent = '紙の色設定';
+        if(subEl) subEl.textContent = name;
         if(btnCustom) {
             btnCustom.style.display = 'flex';
             let label = btnCustom.querySelector('span:first-child');
             if(label) label.textContent = 'ここにだけ適用';
         }
-        if(subtextCustom) subtextCustom.textContent = `この紙（「${name}」）のみに色を保存（他には影響しません）`;
-        if(btnKeep) btnKeep.style.display = 'flex';
+        if(subtextCustom) subtextCustom.textContent = `この紙（「${name}」）のみに色を保存`;
         if(btnAll) btnAll.style.display = 'flex';
+        if(btnKeep) btnKeep.style.display = 'flex';
     } else if(state.type === 'folder'){
         let isRoot = !state.targetId || state.targetId === 'root';
         let folder = !isRoot ? g(state.targetId) : null;
         let name = isRoot ? '最上層（本棚）' : (folder ? folder.name : 'フォルダ');
-        if(titleEl) titleEl.textContent = isRoot ? '最上層のカラー設定' : 'フォルダのカラー設定';
-        if(subEl) subEl.textContent = `対象: ${name}`;
-        if(badgeEl) badgeEl.textContent = isRoot ? '対象: 最上層（全体本棚）' : `対象: ${name}（フォルダ）`;
+        if(titleEl) titleEl.textContent = isRoot ? '最上層の色設定' : 'フォルダの色設定';
+        if(subEl) subEl.textContent = name;
         if(btnCustom) {
             btnCustom.style.display = 'flex';
             let label = btnCustom.querySelector('span:first-child');
@@ -5211,27 +5312,25 @@ function renderColorDrawerUI(){
         }
         if(subtextCustom){
             subtextCustom.textContent = isRoot 
-                ? '最上層のみに色を保存（他フォルダには影響しません）'
-                : `このフォルダ（「${name}」）のみに色を保存（他フォルダには影響しません）`;
+                ? '最上層のみに色を保存'
+                : `このフォルダ（「${name}」）のみに色を保存`;
         }
-        if(btnKeep) btnKeep.style.display = 'flex';
         if(btnAll) btnAll.style.display = 'flex';
+        if(btnKeep) btnKeep.style.display = 'flex';
     } else if(state.type === 'sidebar'){
-        if(titleEl) titleEl.textContent = 'サイドバーのカラー設定';
-        if(subEl) subEl.textContent = '左側メニュー画面の背景・文字色';
-        if(badgeEl) badgeEl.textContent = '対象: サイドバー画面';
+        if(titleEl) titleEl.textContent = '領域の色・設定';
+        if(subEl) subEl.textContent = 'サイドバーとツールバーの配色・ボタン設定';
         if(btnCustom) {
             btnCustom.style.display = 'flex';
             let label = btnCustom.querySelector('span:first-child');
-            if(label) label.textContent = 'サイドバーに適用して保存';
+            if(label) label.textContent = '領域に適用して保存';
         }
-        if(subtextCustom) subtextCustom.textContent = 'サイドバーの表示配色として保存します';
-        if(btnKeep) btnKeep.style.display = 'none';
+        if(subtextCustom) subtextCustom.textContent = 'サイドバーとツールバーの表示色を保存します';
         if(btnAll) btnAll.style.display = 'none';
+        if(btnKeep) btnKeep.style.display = 'none';
     }
     
     renderDrawerColorFields();
-    renderDrawerPresets();
     previewDrawerLive();
 }
 
@@ -5294,6 +5393,72 @@ function renderDrawerColorFields(){
         row.appendChild(ctrlWrap);
         cont.appendChild(row);
     });
+
+    if(colorDrawerState.type === 'sidebar'){
+        let toolSection = document.createElement('div');
+        toolSection.style.cssText = 'margin-top:12px;padding-top:10px;border-top:1px dashed #cbd5e1;display:flex;flex-direction:column;gap:8px';
+        
+        let customLabels = getCustomToolLabels();
+        let curOrder = getToolOrder();
+
+        let toolListHtml = curOrder.map((id, index) => {
+            let def = toolDefs[id];
+            if(!def) return '';
+            let label = customLabels[id] !== undefined ? customLabels[id] : (defaultToolPreviewHTML[id] || def.name);
+            let displayLabel = escapeHtml(label).replace(/\n/g, ' / ');
+            let desc = escapeHtml(def.desc || '');
+            return `
+                <div style="display:flex;flex-direction:column;gap:2px;padding:6px 8px;background:#ffffff;border:1px solid #e2e8f0;border-radius:6px;font-size:11px">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+                        <span style="font-weight:bold;color:#1e293b;display:inline-flex;align-items:center;gap:5px">
+                            <span style="font-size:9.5px;color:#64748b;font-family:monospace">#${index + 1}</span>
+                            <span>${displayLabel}</span>
+                        </span>
+                        <span style="font-size:9.5px;color:#64748b;font-family:monospace">${id}</span>
+                    </div>
+                    <div style="font-size:10.5px;color:#475569;line-height:1.35">${desc}</div>
+                </div>
+            `;
+        }).join('');
+
+        toolSection.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:space-between">
+                <span style="font-size:11px;font-weight:bold;color:#475569">ツールボタンの情報・設定</span>
+                <span style="font-size:10px;color:#64748b">${curOrder.length}個のツール</span>
+            </div>
+            <div style="display:flex;gap:6px">
+                <button type="button" id="btnOpenRenameFromDrawer" style="flex:1;background:#f8fafc;border:1px solid #94a3b8;color:#1e293b;padding:6px 8px;border-radius:5px;font-size:11px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px" onmouseover="this.style.background='#eff6ff';this.style.borderColor='#2563eb'" onmouseout="this.style.background='#f8fafc';this.style.borderColor='#94a3b8'">
+                    <span>名前・改行を設定</span>
+                </button>
+                <button type="button" id="btnToggleToolInfoList" style="flex:1;background:#f8fafc;border:1px solid #94a3b8;color:#1e293b;padding:6px 8px;border-radius:5px;font-size:11px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px" onmouseover="this.style.background='#eff6ff';this.style.borderColor='#2563eb'" onmouseout="this.style.background='#f8fafc';this.style.borderColor='#94a3b8'">
+                    <span id="btnToggleToolInfoListText">機能一覧を表示</span>
+                </button>
+            </div>
+            <div id="drawerToolInfoList" style="display:none;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;padding-right:2px">
+                ${toolListHtml}
+            </div>
+        `;
+        let btnRename = toolSection.querySelector('#btnOpenRenameFromDrawer');
+        if(btnRename){
+            btnRename.onclick = () => {
+                closeColorDrawer();
+                openToolRenameModal();
+            };
+        }
+        let btnToggleList = toolSection.querySelector('#btnToggleToolInfoList');
+        let listContainer = toolSection.querySelector('#drawerToolInfoList');
+        let btnToggleText = toolSection.querySelector('#btnToggleToolInfoListText');
+        if(btnToggleList && listContainer){
+            btnToggleList.onclick = () => {
+                let isHidden = listContainer.style.display === 'none';
+                listContainer.style.display = isHidden ? 'flex' : 'none';
+                if(btnToggleText){
+                    btnToggleText.textContent = isHidden ? '機能一覧を閉じる' : '機能一覧を表示';
+                }
+            };
+        }
+        cont.appendChild(toolSection);
+    }
 }
 
 function onDrawerColorChange(key, rawVal, source){
@@ -5381,21 +5546,27 @@ function previewDrawerLive(){
         if(t.lineNumText) root.style.setProperty('--linenum-text', t.lineNumText);
     } else if(colorDrawerState.type === 'folder'){
         // フォルダ・収納物の色設定のみ更新。原稿用紙やサイドバーには触れない
-        if(t.folderBg){
-            root.style.setProperty('--shelf-bg', t.folderBg);
-            root.style.setProperty('--shelf-header-bg', t.folderBg);
-        }
-        if(t.folderTitleColor) root.style.setProperty('--shelf-title-color', t.folderTitleColor);
+        if(t.folderBg) root.style.setProperty('--shelf-bg', t.folderBg);
         if(t.folderItemBg) root.style.setProperty('--shelf-item-bg', t.folderItemBg);
         if(t.folderItemText) root.style.setProperty('--shelf-item-text', t.folderItemText);
         if(t.folderIconColor) root.style.setProperty('--shelf-folder-color', t.folderIconColor);
     } else if(colorDrawerState.type === 'sidebar'){
-        // サイドバーの色設定のみ更新。原稿用紙やフォルダには触れない
+        // 領域（タイトルバー・ツールバー・サイドバー）の色設定のみ更新。原稿用紙やフォルダには触れない
         if(t.sidebarBg){
             root.style.setProperty('--sidebar-bg', t.sidebarBg);
             root.style.setProperty('--sidebar-tree-bg', t.sidebarBg);
         }
         if(t.sidebarText) root.style.setProperty('--sidebar-text', t.sidebarText);
+        if(t.headerBg) root.style.setProperty('--header-bg', t.headerBg);
+        if(t.headerText) root.style.setProperty('--header-text', t.headerText);
+        if(t.titleBarBg){
+            root.style.setProperty('--shelf-header-bg', t.titleBarBg);
+            root.style.setProperty('--header-info-bg', t.titleBarBg);
+        }
+        if(t.titleBarText){
+            root.style.setProperty('--shelf-title-color', t.titleBarText);
+            root.style.setProperty('--header-info-text', t.titleBarText);
+        }
     }
 }
 
@@ -5524,7 +5695,6 @@ document.addEventListener('click', (ev) => {
     if(ev.target.closest && (
         ev.target.closest('#titleColorBtn') ||
         ev.target.closest('#sidebarColorBtn') ||
-        ev.target.closest('#tool_color') ||
         ev.target.closest('.shelf-color-btn')
     )) return;
     
@@ -5625,10 +5795,10 @@ window.addEventListener('keydown', (ev)=>{
           <div id="modalFolderRepMsg" style="font-size:11px;font-weight:bold;min-height:16px;color:#a16207"></div>
         </div>
       </div>
-      <!-- 個別カラー設定 -->
+      <!-- 個別色設定 -->
       <div class="modal-section" style="border-color:#fbcfe8;background:#fff5f7">
         <div class="modal-sec-title" style="color:#9d174d;display:flex;align-items:center;justify-content:space-between">
-          <span>個別カラー・用紙色設定</span>
+          <span>個別色設定</span>
           <span id="modalCustomColorBadge" style="font-size:10px;font-weight:normal;padding:2px 6px;border-radius:10px;background:#fce7f3;color:#be185d">全体デフォルト</span>
         </div>
         <div style="font-size:11px;color:#9d174d;margin-bottom:4px;line-height:1.4">
@@ -5758,65 +5928,53 @@ window.addEventListener('keydown', (ev)=>{
     </div>
   </div>
 </div>
-<!-- 左下カラー設定ドロワー -->
+<!-- 左下色設定ドロワー -->
 <div id="colorDrawer" class="color-drawer-left-bottom" style="display:none" onclick="event.stopPropagation()">
   <!-- ドロワーヘッダー -->
-  <div style="padding:10px 14px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+  <div style="padding:9px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
     <div style="display:flex;flex-direction:column;gap:1px;overflow:hidden;min-width:0">
-      <span id="colorDrawerTitle" style="font-weight:bold;font-size:13px;color:#1e293b;line-height:1.2">カラー設定</span>
+      <span id="colorDrawerTitle" style="font-weight:bold;font-size:13px;color:#1e293b;line-height:1.2">色設定</span>
       <span id="colorDrawerSubtitle" style="font-size:10.5px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
     </div>
     <button type="button" onclick="closeColorDrawer()" style="background:none;border:none;font-size:16px;cursor:pointer;color:#64748b;padding:2px 6px;line-height:1;border-radius:4px" title="閉じる">✕</button>
   </div>
 
-  <!-- ドロワー本文 -->
-  <div style="padding:12px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;flex:1">
-
-    <!-- 現在の対象情報 -->
-    <div id="colorDrawerInfoSec" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;display:flex;align-items:center;justify-content:space-between">
-      <span id="colorDrawerTargetBadge" style="font-size:11px;font-weight:bold;color:#334155">対象: 原稿用紙</span>
-      <span style="font-size:10px;color:#059669;font-weight:600">リアルタイム反映中</span>
-    </div>
+  <!-- ドロワー本文（スクロールなしで収まるコンパクト構成） -->
+  <div style="padding:10px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;flex:1">
 
     <!-- 各色の設定項目リスト -->
-    <div id="colorDrawerFieldsSec" style="display:flex;flex-direction:column;gap:8px"></div>
-
-    <!-- プリセットテーマ（下部に配置、絵文字なし） -->
-    <div id="colorDrawerPresetSec" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin-top:2px">
-      <div style="font-size:11px;font-weight:bold;color:#475569;margin-bottom:6px">プリセットテーマ</div>
-      <div id="colorDrawerPresetList" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
-    </div>
+    <div id="colorDrawerFieldsSec" style="display:flex;flex-direction:column;gap:6px"></div>
 
     <!-- 保存方法選択セクション -->
-    <div id="colorDrawerSaveSec" style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:7px;margin-top:2px">
-      <div style="font-size:11px;font-weight:bold;color:#334155">保存方法をお選びください：</div>
+    <div id="colorDrawerSaveSec" style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:8px 9px;display:flex;flex-direction:column;gap:6px;margin-top:2px">
+      <div style="font-size:11px;font-weight:bold;color:#334155;line-height:1.2">保存方法をお選びください：</div>
       
-      <!-- 1. ここにだけ適用 -->
-      <button type="button" id="btnColorSaveCustom" onclick="saveColorSettingsWithMode('custom')" style="width:100%;background:#ffffff;border:1px solid #93c5fd;color:#1d4ed8;padding:8px 10px;border-radius:6px;cursor:pointer;display:flex;flex-direction:column;text-align:left;gap:2px;box-shadow:0 1px 2px rgba(0,0,0,0.04);transition:all 0.12s ease" onmouseover="this.style.background='#eff6ff';this.style.borderColor='#3b82f6'" onmouseout="this.style.background='#ffffff';this.style.borderColor='#93c5fd'">
-        <span style="font-size:12px;font-weight:bold">ここにだけ適用</span>
-        <span id="subtextSaveCustom" style="font-size:10px;color:#3b82f6;opacity:0.9">この紙（またはフォルダ）のみに色を保存</span>
+      <!-- 1. ここにだけ適用（赤） -->
+      <button type="button" id="btnColorSaveCustom" onclick="saveColorSettingsWithMode('custom')" style="width:100%;background:#fff5f5;border:1px solid #fca5a5;color:#b91c1c;padding:6px 9px;border-radius:6px;cursor:pointer;display:flex;flex-direction:column;text-align:left;gap:1px;box-shadow:0 1px 2px rgba(0,0,0,0.03);transition:all 0.12s ease" onmouseover="this.style.background='#fee2e2';this.style.borderColor='#ef4444'" onmouseout="this.style.background='#fff5f5';this.style.borderColor='#fca5a5'">
+        <span style="font-size:11.5px;font-weight:bold;line-height:1.2">ここにだけ適用</span>
+        <span id="subtextSaveCustom" style="font-size:10px;color:#dc2626;opacity:0.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">この紙（またはフォルダ）のみに色を保存</span>
       </button>
 
-      <!-- 2. デフォルトとして適用(以前の色はそのまま) -->
-      <button type="button" id="btnColorSaveDefaultKeep" onclick="saveColorSettingsWithMode('default_keep')" style="width:100%;background:#ffffff;border:1px solid #86efac;color:#15803d;padding:8px 10px;border-radius:6px;cursor:pointer;display:flex;flex-direction:column;text-align:left;gap:2px;box-shadow:0 1px 2px rgba(0,0,0,0.04);transition:all 0.12s ease" onmouseover="this.style.background='#f0fdf4';this.style.borderColor='#22c55e'" onmouseout="this.style.background='#ffffff';this.style.borderColor='#86efac'">
-        <span style="font-size:12px;font-weight:bold">デフォルトとして適用(以前の色はそのまま)</span>
-        <span style="font-size:10px;color:#16a34a;opacity:0.9">全体基本色を更新（以前に個別の色を設定したものは維持）</span>
+      <!-- 2. デフォルトとして適用(以前の色にも)（青） - ここにだけ適用の直下 -->
+      <button type="button" id="btnColorSaveDefaultAll" onclick="saveColorSettingsWithMode('default_all')" style="width:100%;background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:6px 9px;border-radius:6px;cursor:pointer;display:flex;flex-direction:column;text-align:left;gap:1px;box-shadow:0 1px 2px rgba(0,0,0,0.03);transition:all 0.12s ease" onmouseover="this.style.background='#dbeafe';this.style.borderColor='#3b82f6'" onmouseout="this.style.background='#eff6ff';this.style.borderColor='#93c5fd'">
+        <span style="font-size:11.5px;font-weight:bold;line-height:1.2">デフォルトとして適用(以前の色にも)</span>
+        <span style="font-size:10px;color:#2563eb;opacity:0.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">基本色を更新し、過去の個別設定もこの色に一括統一</span>
       </button>
 
-      <!-- 3. デフォルトとして適用(以前の色にも) -->
-      <button type="button" id="btnColorSaveDefaultAll" onclick="saveColorSettingsWithMode('default_all')" style="width:100%;background:#ffffff;border:1px solid #cbd5e1;color:#334155;padding:8px 10px;border-radius:6px;cursor:pointer;display:flex;flex-direction:column;text-align:left;gap:2px;box-shadow:0 1px 2px rgba(0,0,0,0.04);transition:all 0.12s ease" onmouseover="this.style.background='#f1f5f9';this.style.borderColor='#94a3b8'" onmouseout="this.style.background='#ffffff';this.style.borderColor='#cbd5e1'">
-        <span style="font-size:12px;font-weight:bold">デフォルトとして適用(以前の色にも)</span>
-        <span style="font-size:10px;color:#64748b;opacity:0.9">全体基本色を更新し、過去のすべての個別設定もこの色に一括統一</span>
+      <!-- 3. デフォルトとして適用(以前の色はそのまま)（灰色） -->
+      <button type="button" id="btnColorSaveDefaultKeep" onclick="saveColorSettingsWithMode('default_keep')" style="width:100%;background:#f8fafc;border:1px solid #cbd5e1;color:#475569;padding:6px 9px;border-radius:6px;cursor:pointer;display:flex;flex-direction:column;text-align:left;gap:1px;box-shadow:0 1px 2px rgba(0,0,0,0.03);transition:all 0.12s ease" onmouseover="this.style.background='#f1f5f9';this.style.borderColor='#94a3b8'" onmouseout="this.style.background='#f8fafc';this.style.borderColor='#cbd5e1'">
+        <span style="font-size:11.5px;font-weight:bold;line-height:1.2">デフォルトとして適用(以前の色はそのまま)</span>
+        <span style="font-size:10px;color:#64748b;opacity:0.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">基本色を更新（以前に個別の色を設定したものは維持）</span>
       </button>
     </div>
 
   </div>
 
   <!-- ドロワーフッター -->
-  <div style="padding:8px 12px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-    <button type="button" onclick="resetDrawerColorSettings()" style="background:#ffffff;border:1px solid #cbd5e1;color:#dc2626;padding:5px 10px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer">初期値に戻す</button>
+  <div style="padding:7px 12px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <button type="button" onclick="resetDrawerColorSettings()" style="background:#ffffff;border:1px solid #cbd5e1;color:#dc2626;padding:4px 9px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer">初期値に戻す</button>
     <div style="display:flex;gap:6px">
-      <button type="button" onclick="closeColorDrawer()" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#475569;padding:5px 12px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer">閉じる</button>
+      <button type="button" onclick="closeColorDrawer()" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#475569;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer">閉じる</button>
     </div>
   </div>
 </div>
