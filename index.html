@@ -315,6 +315,12 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
     <button type="button" id="spColBtn" class="linenum-tool-item" onclick="tgSpColor()" style="width:58px;padding:5px 0;font-size:10px;font-weight:bold;line-height:1.15;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="全角以外の空白の色をON/OFF">
       空白色:OFF
     </button>
+    <!-- △、ワープ、▽の順に並べたグループボタン -->
+    <div style="display:flex;flex-direction:column;width:58px;border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;overflow:hidden;background:var(--paper-bg,#ffffff)">
+      <button type="button" id="warpPrevBtn" onclick="warpPrev()" style="width:100%;padding:4px 0;font-size:12px;font-weight:bold;background:transparent;color:var(--text-color,#000000);border:none;border-bottom:1px solid var(--sidebar-border,#cbd5e1);cursor:pointer;text-align:center;touch-action:none" title="前のマッチへワープ">△</button>
+      <button type="button" id="warpBtn" onclick="openWarpModal(event)" style="width:100%;padding:4px 0;font-size:10px;font-weight:bold;background:transparent;color:var(--text-color,#000000);border:none;border-bottom:1px solid var(--sidebar-border,#cbd5e1);cursor:pointer;text-align:center;touch-action:none" title="文字検索ワープ設定">ワープ</button>
+      <button type="button" id="warpNextBtn" onclick="warpNext()" style="width:100%;padding:4px 0;font-size:12px;font-weight:bold;background:transparent;color:var(--text-color,#000000);border:none;cursor:pointer;text-align:center;touch-action:none" title="次のマッチへワープ">▽</button>
+    </div>
   </div>
 
   <div class="m" style="flex:1">
@@ -6539,6 +6545,134 @@ function resetColsModalDefault(){
     saveColsSettingWithMode('default_all');
 }
 
+let globalWarpKeyword = localStorage.getItem('n_global_warp_keyword') || '';
+
+function getActiveWarpKeyword(){
+    let item = f ? g(f) : null;
+    if(item && item.localWarpKeyword){
+        return item.localWarpKeyword;
+    }
+    return globalWarpKeyword || '';
+}
+
+function openWarpModal(ev){
+    if(ev) ev.stopPropagation();
+    const modal = document.getElementById('warpModal');
+    const localInput = document.getElementById('localWarpInput');
+    const globalInput = document.getElementById('globalWarpInput');
+    
+    let item = f ? g(f) : null;
+    if(localInput) localInput.value = (item && item.localWarpKeyword) || '';
+    if(globalInput) globalInput.value = globalWarpKeyword || '';
+    
+    if(modal) modal.style.display = 'flex';
+    if(localInput){
+        setTimeout(() => { localInput.focus(); localInput.select(); }, 50);
+    }
+}
+
+function closeWarpModal(){
+    const modal = document.getElementById('warpModal');
+    if(modal) modal.style.display = 'none';
+}
+
+function executeWarpKeyword(kw){
+    if(!kw){
+        alert('検索する文字を入力してください。');
+        return;
+    }
+    closeWarpModal();
+    
+    e.focus();
+    let found = window.find(kw, false, false, true, false, false, false);
+    if(!found){
+        const sel = window.getSelection();
+        if(sel && sel.rangeCount > 0){
+            let range = document.createRange();
+            range.selectNodeContents(e);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+            found = window.find(kw, false, false, true, false, false, false);
+        }
+        if(!found){
+            alert('「' + kw + '」が見つかりませんでした。');
+        }
+    }
+}
+
+function applyLocalWarp(){
+    const input = document.getElementById('localWarpInput');
+    if(!input) return;
+    const kw = input.value;
+    if(!kw){
+        alert('ここだけのワープ文字を入力してください。');
+        return;
+    }
+    let item = f ? g(f) : null;
+    if(item){
+        item.localWarpKeyword = kw;
+        if(typeof s === 'function') s();
+        if(typeof r === 'function') r();
+    }
+    executeWarpKeyword(kw);
+}
+
+function applyGlobalWarp(){
+    const input = document.getElementById('globalWarpInput');
+    if(!input) return;
+    const kw = input.value;
+    if(!kw){
+        alert('デフォルトのワープ文字を入力してください。');
+        return;
+    }
+    globalWarpKeyword = kw;
+    localStorage.setItem('n_global_warp_keyword', kw);
+    executeWarpKeyword(kw);
+}
+
+function warpNext(){
+    const kw = getActiveWarpKeyword();
+    if(!kw){
+        openWarpModal();
+        return;
+    }
+    e.focus();
+    let found = window.find(kw, false, false, true, false, false, false);
+    if(!found){
+        const sel = window.getSelection();
+        if(sel && sel.rangeCount > 0){
+            let range = document.createRange();
+            range.selectNodeContents(e);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+            window.find(kw, false, false, false, false, false, false);
+        }
+    }
+}
+
+function warpPrev(){
+    const kw = getActiveWarpKeyword();
+    if(!kw){
+        openWarpModal();
+        return;
+    }
+    e.focus();
+    let found = window.find(kw, false, true, true, false, false, false);
+    if(!found){
+        const sel = window.getSelection();
+        if(sel && sel.rangeCount > 0){
+            let range = document.createRange();
+            range.selectNodeContents(e);
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+            window.find(kw, false, true, false, false, false, false);
+        }
+    }
+}
+
 window.addEventListener('keydown', (ev)=>{
     if(ev.key === 'Escape'){
         closeNoticeModal();
@@ -6548,6 +6682,7 @@ window.addEventListener('keydown', (ev)=>{
         closeTrashModal();
         closeColorDrawer();
         closeColsModal();
+        closeWarpModal();
         closeDetectMenu();
     }
 });
@@ -6929,6 +7064,37 @@ window.addEventListener('click', (ev)=>{
     <div style="padding:8px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between">
       <button type="button" onclick="resetColsModalDefault()" style="background:#ffffff;border:1px solid #cbd5e1;color:#dc2626;padding:5px 10px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer">初期値(30文字)に戻す</button>
       <button type="button" onclick="closeColsModal()" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#475569;padding:5px 12px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer">閉じる</button>
+    </div>
+  </div>
+</div>
+<!-- ワープ検索モーダル -->
+<div id="warpModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeWarpModal()">
+  <div class="modal-card" style="max-width:340px;display:flex;flex-direction:column" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div style="font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px;color:#1e293b">
+        <span>🔍 文字ワープ設定</span>
+      </div>
+      <button type="button" onclick="closeWarpModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;padding:0 4px;line-height:1" title="閉じる">✕</button>
+    </div>
+    <div class="modal-body" style="padding:14px;gap:14px">
+      <!-- ここだけのワープ -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:12px;font-weight:bold;color:#1e293b">ここだけのワープ</div>
+        <div style="font-size:10.5px;color:#64748b;line-height:1.3">これはここだけのワープで他のノートとは関係ない。</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+          <input id="localWarpInput" type="text" placeholder="検索ワード" style="flex:1;padding:6px 8px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px;outline:none;background:#fff" onkeydown="if(event.key==='Enter') applyLocalWarp()">
+          <button type="button" onclick="applyLocalWarp()" style="background:#2563eb;color:#fff;border:none;padding:6px 12px;border-radius:4px;font-size:12px;font-weight:bold;cursor:pointer;white-space:nowrap">適用</button>
+        </div>
+      </div>
+      <!-- デフォルトでのワープ -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:12px;font-weight:bold;color:#1e293b">デフォルトでのワープ</div>
+        <div style="font-size:10.5px;color:#64748b;line-height:1.3">これは他のノートにも通用して他のノートで、△などを押すと基準とする文字を毎回入れなくても機能する。</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+          <input id="globalWarpInput" type="text" placeholder="共通検索ワード" style="flex:1;padding:6px 8px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px;outline:none;background:#fff" onkeydown="if(event.key==='Enter') applyGlobalWarp()">
+          <button type="button" onclick="applyGlobalWarp()" style="background:#059669;color:#fff;border:none;padding:6px 12px;border-radius:4px;font-size:12px;font-weight:bold;cursor:pointer;white-space:nowrap">適用</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
