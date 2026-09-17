@@ -1070,6 +1070,8 @@ function autoFormatEditor(optActiveLine, optActiveOffset){
 function setCaretCharOffset(lineEl,targetOffset){
     let sel=window.getSelection();
     if(!sel||!lineEl)return;
+    const mCont=document.querySelector('.m');
+    const savedScrollTop=mCont?mCont.scrollTop:0;
     if(lineEl.nodeType===3) lineEl=lineEl.parentElement||lineEl;
     if(!lineEl||lineEl.nodeType!==1)return;
     let walker=document.createTreeWalker(lineEl,NodeFilter.SHOW_TEXT,null,false);
@@ -1123,6 +1125,9 @@ function setCaretCharOffset(lineEl,targetOffset){
         range.collapse(true);
         sel.removeAllRanges();
         sel.addRange(range);
+    }
+    if(mCont && mCont.scrollTop !== savedScrollTop){
+        mCont.scrollTop = savedScrollTop;
     }
 }
 
@@ -1757,9 +1762,12 @@ function countCharsFromLines(lines){
 }
 
 function ensureGridLines(){
+    const mCont = document.querySelector('.m');
+    const savedScrollTop = mCont ? mCont.scrollTop : 0;
     let childNodes = Array.from(e.childNodes);
     if(childNodes.length === 0){
         e.innerHTML = '<div><br></div>';
+        if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
         return;
     }
     
@@ -1864,6 +1872,9 @@ function ensureGridLines(){
             if(!d.hasChildNodes()) d.innerHTML = '<br>';
             node.replaceWith(d);
         }
+    }
+    if(mCont && mCont.scrollTop !== savedScrollTop){
+        mCont.scrollTop = savedScrollTop;
     }
 }
 
@@ -5280,6 +5291,8 @@ window.addEventListener('scroll',()=>{if(window.scrollY!==0||window.scrollX!==0)
 /* マス目やエディタ領域をクリック・タップした時のカーソル配置処理 */
 function applyCaretToDiv(targetDiv, targetCol, maxCols){
     if(!targetDiv) return;
+    const mCont = document.querySelector('.m');
+    const savedScrollTop = mCont ? mCont.scrollTop : 0;
     targetCol = Math.min(targetCol, maxCols);
     let lineText = targetDiv.textContent.replace(/\r?\n/g,'');
     let sel = window.getSelection();
@@ -5335,6 +5348,9 @@ function applyCaretToDiv(targetDiv, targetCol, maxCols){
     }
     sel.removeAllRanges();
     sel.addRange(range);
+    if(mCont && mCont.scrollTop !== savedScrollTop){
+        mCont.scrollTop = savedScrollTop;
+    }
 }
 
 let lastHandleTime = 0;
@@ -5459,17 +5475,60 @@ function handleCellClick(ev){
     
     let targetDiv = divs[targetRow];
     if(targetDiv){
+        const mCont = document.querySelector('.m');
+        const savedScrollTop = mCont ? mCont.scrollTop : 0;
         if(document.activeElement !== e){
-            e.focus();
+            try {
+                e.focus({ preventScroll: true });
+            } catch(err) {
+                e.focus();
+            }
+        }
+        if(mCont && mCont.scrollTop !== savedScrollTop){
+            mCont.scrollTop = savedScrollTop;
         }
         applyCaretToDiv(targetDiv, targetCol, maxCols);
         v();
         s();
+        if(mCont && mCont.scrollTop !== savedScrollTop){
+            mCont.scrollTop = savedScrollTop;
+        }
+        if(mCont && savedScrollTop > 0){
+            requestAnimationFrame(()=>{
+                if(mCont && mCont.scrollTop === 0) mCont.scrollTop = savedScrollTop;
+            });
+            setTimeout(()=>{
+                if(mCont && mCont.scrollTop === 0) mCont.scrollTop = savedScrollTop;
+            }, 40);
+        }
     }
 }
-e.addEventListener('mousedown',()=>{ if(document.activeElement !== e) e.focus(); });
+e.addEventListener('mousedown',()=>{
+    const mCont = document.querySelector('.m');
+    const savedScrollTop = mCont ? mCont.scrollTop : 0;
+    if(document.activeElement !== e){
+        try {
+            e.focus({ preventScroll: true });
+        } catch(err) {
+            e.focus();
+        }
+    }
+    if(mCont && mCont.scrollTop !== savedScrollTop){
+        mCont.scrollTop = savedScrollTop;
+    }
+    if(mCont && savedScrollTop > 0){
+        requestAnimationFrame(()=>{
+            if(mCont && mCont.scrollTop === 0) mCont.scrollTop = savedScrollTop;
+        });
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop === 0) mCont.scrollTop = savedScrollTop;
+        }, 40);
+    }
+});
 e.addEventListener('click',(ev)=>{
     if(touchHandled && (Date.now() - (lastTouchPos?.time || 0) < 500)) return;
+    const mCont = document.querySelector('.m');
+    const savedScrollTop = mCont ? mCont.scrollTop : 0;
     let closestDiv = ev.target.closest('#e>div');
     if(closestDiv){
         let lineText = closestDiv.textContent.replace(/[\r\n]/g, '');
@@ -5479,6 +5538,17 @@ e.addEventListener('click',(ev)=>{
         let clickCol = Math.floor((ev.clientX - rect.left - padLeft) / cs);
         if(clickCol < lineText.length && ev.target !== e){
             v();
+            if(mCont && mCont.scrollTop !== savedScrollTop){
+                mCont.scrollTop = savedScrollTop;
+            }
+            if(mCont && savedScrollTop > 0){
+                requestAnimationFrame(()=>{
+                    if(mCont && mCont.scrollTop === 0) mCont.scrollTop = savedScrollTop;
+                });
+                setTimeout(()=>{
+                    if(mCont && mCont.scrollTop === 0) mCont.scrollTop = savedScrollTop;
+                }, 40);
+            }
             return;
         }
     }
