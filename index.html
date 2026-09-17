@@ -1859,7 +1859,7 @@ function z(){
     let oldCs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 0;
     let cs=Math.floor(avail/num);
     if(cs<12)cs=12;if(cs>64)cs=64;
-    const pw=cs*num + Math.ceil(cs*0.25);
+    const pw=cs*num;
     const totalW=pw+lw;
     
     let curScroll = m ? m.scrollTop : 0;
@@ -1879,6 +1879,7 @@ function z(){
     document.documentElement.style.setProperty('--cs',cs+'px');
     w.style.width=totalW+'px';
     e.style.width=pw+'px';
+    e.style.borderRight='1px solid var(--grid-color)';
     ensureGridLines();
     updateLineNumbers();
     updateColsDisplay();
@@ -4298,27 +4299,48 @@ function execConvertSpecifiedHalfToZen(ev){
 /* 選択フォルダ内検索機能 */
 let folderSearchKeyword = '';
 
+let searchMatchCache = new Map();
+let currentSearchCacheKeyword = '';
+let currentSearchCacheActiveFileId = null;
+
 function checkItemSearchMatch(item, keyword){
     if(!keyword || !item) return false;
     let kw = keyword.toLowerCase();
     
-    if(item.name && item.name.toLowerCase().includes(kw)) return true;
+    if(currentSearchCacheKeyword !== kw || currentSearchCacheActiveFileId !== f){
+        searchMatchCache.clear();
+        currentSearchCacheKeyword = kw;
+        currentSearchCacheActiveFileId = f;
+    }
     
-    if(item.type === 'file'){
+    if(searchMatchCache.has(item.id)) {
+        return searchMatchCache.get(item.id);
+    }
+    
+    let isMatch = false;
+    if(item.name && item.name.toLowerCase().includes(kw)) {
+        isMatch = true;
+    } else if(item.type === 'file'){
         if(item.id === f && typeof e !== 'undefined' && e){
             let txt = e.innerText || '';
-            if(txt.toLowerCase().includes(kw)) return true;
+            if(txt.toLowerCase().includes(kw)) isMatch = true;
+        } else {
+            let raw = item.content || '';
+            let cleanTxt = raw.replace(/<[^>]*>/g, '');
+            if(cleanTxt.toLowerCase().includes(kw)) isMatch = true;
         }
-        let raw = item.content || '';
-        let cleanTxt = raw.replace(/<[^>]*>/g, '');
-        if(cleanTxt.toLowerCase().includes(kw)) return true;
+    } else if(item.type === 'folder' && item.children && Array.isArray(item.children)){
+        isMatch = item.children.some(child => checkItemSearchMatch(child, keyword));
     }
     
-    if(item.type === 'folder' && item.children && Array.isArray(item.children)){
-        return item.children.some(child => checkItemSearchMatch(child, keyword));
-    }
-    
-    return false;
+    searchMatchCache.set(item.id, isMatch);
+    return isMatch;
+}
+
+let folderSearchTimer = null;
+function executeFolderSearch(){
+    clearTimeout(folderSearchTimer);
+    folderSearchTimer = setTimeout(_executeFolderSearchCore, 300);
 }
 
 function toggleFolderSearchBar(){
@@ -4347,7 +4369,7 @@ function toggleFolderSearchBar(){
     }
 }
 
-function executeFolderSearch(){
+function _executeFolderSearchCore(){
     const input = document.getElementById('folderSearchInput');
     const msg = document.getElementById('folderSearchMsg');
     if(!input) return;
