@@ -1594,7 +1594,41 @@ function checkAndDisplaySelectionCount(){
     }, 5000);
 }
 
+let lastActiveLine = null;
+let lastActiveOffset = 0;
+let lastActiveRange = null;
+
+function recordActiveSelection(){
+    let sel = window.getSelection();
+    if(!sel || sel.rangeCount === 0 || !e.contains(sel.anchorNode)) return;
+    let range = sel.getRangeAt(0);
+    lastActiveRange = range.cloneRange();
+    
+    let n = range.startContainer;
+    while(n && n.parentElement !== e && n !== e){
+        n = n.parentElement;
+    }
+    if(n && n.parentElement === e){
+        lastActiveLine = n;
+        try {
+            let r = range.cloneRange();
+            r.selectNodeContents(n);
+            r.setEnd(range.startContainer, range.startOffset);
+            lastActiveOffset = r.toString().length;
+        }catch(err){
+            lastActiveOffset = 0;
+        }
+    } else if(n === e){
+        let idx = Math.min(range.startOffset, e.children.length - 1);
+        if(idx >= 0){
+            lastActiveLine = e.children[idx];
+            lastActiveOffset = 0;
+        }
+    }
+}
+
 function handleSelectionEvent(){
+    recordActiveSelection();
     if(selChangeDebounce) clearTimeout(selChangeDebounce);
     selChangeDebounce = setTimeout(checkAndDisplaySelectionCount, 120);
 }
@@ -1602,6 +1636,8 @@ function handleSelectionEvent(){
 document.addEventListener('selectionchange', handleSelectionEvent);
 window.addEventListener('mouseup', handleSelectionEvent);
 window.addEventListener('touchend', handleSelectionEvent);
+e.addEventListener('keyup', recordActiveSelection);
+e.addEventListener('pointerup', recordActiveSelection);
 
 function norm(){
     if(!e.innerHTML.trim()){e.innerHTML='<div><br></div>';return}
@@ -1722,151 +1758,112 @@ function countCharsFromLines(lines){
 
 function ensureGridLines(){
     let childNodes = Array.from(e.childNodes);
-    let needsFix = false;
     if(childNodes.length === 0){
-        needsFix = true;
-    } else {
-        for(let n of childNodes){
-            if(n.nodeType !== 1 || n.tagName !== 'DIV'){
-                needsFix = true;
-                break;
-            }
-            if(n.querySelector('div, p, h1, h2, h3, h4, h5, h6, blockquote, section, article, li')){
-                needsFix = true;
-                break;
-            }
-            let brs = n.querySelectorAll('br');
-            if(brs.length > 1){
-                needsFix = true;
-                break;
-            } else if(brs.length === 1){
-                let txt = (n.textContent || '').replace(/[\r\n]/g, '');
-                if(txt.length > 0){
-                    needsFix = true;
-                    break;
-                }
-            }
-            let walker = document.createTreeWalker(n, NodeFilter.SHOW_TEXT, null, false);
-            while(walker.nextNode()){
-                if(/[\r\n]/.test(walker.currentNode.nodeValue)){
-                    needsFix = true;
-                    break;
-                }
-            }
-            if(needsFix) break;
-        }
+        e.innerHTML = '<div><br></div>';
+        return;
     }
     
-    if(!needsFix) return;
-
-    const mCont = document.querySelector('.m');
-    const savedScrollTop = mCont ? mCont.scrollTop : 0;
-    
-    let sel = window.getSelection();
-    let savedRange = (sel && sel.rangeCount > 0 && e.contains(sel.anchorNode)) ? sel.getRangeAt(0) : null;
-    let targetLineIdx = -1;
-    let targetLineOffset = 0;
-    if(savedRange){
-        let n = savedRange.startContainer;
-        while(n && n.parentElement !== e && n !== e){
-            n = n.parentElement;
-        }
-        if(n && n.parentElement === e){
-            let origDivs = Array.from(e.children);
-            targetLineIdx = origDivs.indexOf(n);
-            try {
-                let r = savedRange.cloneRange();
-                r.selectNodeContents(n);
-                r.setEnd(savedRange.startContainer, savedRange.startOffset);
-                targetLineOffset = r.toString().length;
-            }catch(err){}
-        }
-    }
-    
-    let lines = [];
-    let curLineNodes = [];
-    
-    function flushLine(){
-        let div = document.createElement('div');
-        if(curLineNodes.length === 0){
-            div.innerHTML = '<br>';
-        }else{
-            curLineNodes.forEach(node => div.appendChild(node));
-            if(!div.hasChildNodes()){
-                div.innerHTML = '<br>';
-            }
-        }
-        lines.push(div);
-        curLineNodes = [];
-    }
-    
-    function processNode(node){
+    // In-place normalization: ensure every child of e is a DIV representing one line
+    for(let i = 0; i < e.childNodes.length; i++){
+        let node = e.childNodes[i];
         if(node.nodeType === 3){
             let text = node.nodeValue;
             let parts = text.split(/\r?\n/);
-            for(let i = 0; i < parts.length; i++){
-                if(i > 0) flushLine();
-                if(parts[i].length > 0){
-                    curLineNodes.push(document.createTextNode(parts[i]));
-                }
+            let frag = document.createDocumentFragment();
+            for(let p = 0; p < parts.length; p++){
+                let d = document.createElement('div');
+                if(parts[p].length > 0) d.textContent = parts[p];
+                else d.innerHTML = '<br>';
+                frag.appendChild(d);
             }
-        } else if(node.nodeType === 1){
-            let tag = node.tagName;
-            if(tag === 'BR'){
-                flushLine();
-            } else if(tag === 'DIV' || tag === 'P' || /^H[1-6]$/.test(tag) || tag === 'LI' || tag === 'BLOCKQUOTE' || tag === 'SECTION' || tag === 'ARTICLE'){
-                if(curLineNodes.length > 0) flushLine();
-                if(node.childNodes.length === 0 || (node.childNodes.length === 1 && node.firstChild.tagName === 'BR')){
-                    flushLine();
-                } else {
-                    Array.from(node.childNodes).forEach(ch => processNode(ch));
-                    if(curLineNodes.length > 0) flushLine();
-                }
-            } else {
-                let hasBlockOrBr = node.querySelector('div, p, h1, h2, h3, h4, h5, h6, br, li, blockquote, section, article');
-                let hasNewline = false;
+            node.replaceWith(frag);
+            continue;
+        }
+        if(node.nodeType === 1){
+            if(node.tagName === 'BR'){
+                let d = document.createElement('div');
+                d.innerHTML = '<br>';
+                node.replaceWith(d);
+                continue;
+            }
+            if(node.tagName === 'DIV'){
+                let nestedBlocks = node.querySelector('div, p, h1, h2, h3, h4, h5, h6, blockquote, section, article, li');
+                let brs = node.querySelectorAll('br');
+                let hasNewlineInText = false;
                 let walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null, false);
                 while(walker.nextNode()){
                     if(/[\r\n]/.test(walker.currentNode.nodeValue)){
-                        hasNewline = true;
+                        hasNewlineInText = true;
                         break;
                     }
                 }
-                if(hasBlockOrBr || hasNewline){
-                    Array.from(node.childNodes).forEach(ch => processNode(ch));
-                } else {
-                    curLineNodes.push(node.cloneNode(true));
+                
+                if(!nestedBlocks && !hasNewlineInText && brs.length <= 1){
+                    let text = node.textContent.replace(/[\r\n]/g, '');
+                    if(brs.length === 1 && text.length > 0){
+                        brs[0].remove();
+                    } else if(brs.length === 0 && text.length === 0 && !node.querySelector('img, span')){
+                        node.innerHTML = '<br>';
+                    }
+                    continue;
                 }
+                
+                // Only split THIS specific div if it has nested blocks or multiple BRs
+                let curLineNodes = [];
+                let newDivs = [];
+                function flushSubLine(){
+                    let d = document.createElement('div');
+                    if(curLineNodes.length === 0){
+                        d.innerHTML = '<br>';
+                    } else {
+                        curLineNodes.forEach(n => d.appendChild(n));
+                        if(!d.hasChildNodes()) d.innerHTML = '<br>';
+                    }
+                    newDivs.push(d);
+                    curLineNodes = [];
+                }
+                function parseSubNode(sn){
+                    if(sn.nodeType === 3){
+                        let parts = sn.nodeValue.split(/\r?\n/);
+                        for(let k = 0; k < parts.length; k++){
+                            if(k > 0) flushSubLine();
+                            if(parts[k].length > 0) curLineNodes.push(document.createTextNode(parts[k]));
+                        }
+                    } else if(sn.nodeType === 1){
+                        let tag = sn.tagName;
+                        if(tag === 'BR'){
+                            flushSubLine();
+                        } else if(tag === 'DIV' || tag === 'P' || /^H[1-6]$/.test(tag) || tag === 'LI' || tag === 'BLOCKQUOTE' || tag === 'SECTION' || tag === 'ARTICLE'){
+                            if(curLineNodes.length > 0) flushSubLine();
+                            if(sn.childNodes.length === 0 || (sn.childNodes.length === 1 && sn.firstChild.tagName === 'BR')){
+                                flushSubLine();
+                            } else {
+                                Array.from(sn.childNodes).forEach(ch => parseSubNode(ch));
+                                if(curLineNodes.length > 0) flushSubLine();
+                            }
+                        } else {
+                            curLineNodes.push(sn.cloneNode(true));
+                        }
+                    }
+                }
+                Array.from(node.childNodes).forEach(ch => parseSubNode(ch));
+                if(curLineNodes.length > 0) flushSubLine();
+                if(newDivs.length === 0){
+                    let d = document.createElement('div');
+                    d.innerHTML = '<br>';
+                    newDivs.push(d);
+                }
+                let frag = document.createDocumentFragment();
+                newDivs.forEach(d => frag.appendChild(d));
+                node.replaceWith(frag);
+                continue;
             }
+            
+            let d = document.createElement('div');
+            while(node.firstChild) d.appendChild(node.firstChild);
+            if(!d.hasChildNodes()) d.innerHTML = '<br>';
+            node.replaceWith(d);
         }
-    }
-    
-    Array.from(e.childNodes).forEach(ch => processNode(ch));
-    if(curLineNodes.length > 0) flushLine();
-    
-    if(lines.length === 0){
-        let d = document.createElement('div');
-        d.innerHTML = '<br>';
-        lines.push(d);
-    }
-    
-    e.innerHTML = '';
-    lines.forEach(div => e.appendChild(div));
-    
-    if(mCont){
-        mCont.scrollTop = savedScrollTop;
-    }
-    
-    if(targetLineIdx !== -1 && lines.length > 0){
-        try {
-            let destIdx = Math.min(Math.max(0, targetLineIdx), lines.length - 1);
-            let destDiv = lines[destIdx];
-            setCaretCharOffset(destDiv, targetLineOffset);
-        }catch(err){}
-    }
-    
-    if(mCont){
-        mCont.scrollTop = savedScrollTop;
     }
 }
 
@@ -4142,6 +4139,7 @@ function sc(){
             if(mCont){
                 const mRect=mCont.getBoundingClientRect();
                 const nRect=node.getBoundingClientRect();
+                if(nRect.width === 0 && nRect.height === 0) return;
                 if(nRect.top < mRect.top + 40){
                     mCont.scrollTop -= (mRect.top + 40 - nRect.top);
                 }else if(nRect.bottom > mRect.bottom - 80){
@@ -4255,6 +4253,7 @@ window.addEventListener('beforeunload',()=>{
 
 e.addEventListener('paste', (ev)=>{
     ev.preventDefault();
+    recordActiveSelection();
     let text = (ev.clipboardData || window.clipboardData)?.getData('text/plain') || '';
     if(!text) return;
     
@@ -4265,7 +4264,7 @@ e.addEventListener('paste', (ev)=>{
     
     // 現在のエディタが実質空（空白のみ、または初期の空行のみ）か確認
     let currentPure = getEditorPureTextFromElement(e).join('').trim();
-    let isDocEmpty = (currentPure.length === 0);
+    let isDocEmpty = (currentPure.length === 0 && e.children.length <= 1);
     
     if(isDocEmpty){
         text = text.replace(/^\n+/, '');
@@ -4280,9 +4279,9 @@ e.addEventListener('paste', (ev)=>{
         e.innerHTML = '';
         e.appendChild(frag);
         
-        let lastDiv = e.lastElementChild;
-        if(lastDiv){
-            setCaretCharOffset(lastDiv, lastDiv.textContent.length);
+        let targetDiv = e.firstElementChild;
+        if(targetDiv){
+            setCaretCharOffset(targetDiv, 0);
         }
         if(mCont) mCont.scrollTop = 0;
         scheduleHeavyTask(400, false);
@@ -4291,73 +4290,71 @@ e.addEventListener('paste', (ev)=>{
     
     let sel = window.getSelection();
     let lines = text.split('\n');
-    let range = (sel && sel.rangeCount > 0 && e.contains(sel.anchorNode)) ? sel.getRangeAt(0) : null;
+    let range = (sel && sel.rangeCount > 0 && e.contains(sel.anchorNode)) ? sel.getRangeAt(0) : (lastActiveRange && e.contains(lastActiveRange.startContainer) ? lastActiveRange : null);
     
-    if(!range){
-        let lastDiv = e.lastElementChild || e.firstElementChild;
-        if(!lastDiv){
-            lastDiv = document.createElement('div');
-            e.appendChild(lastDiv);
-        }
-        let preText = lastDiv.textContent.replace(/[\r\n]/g, '');
-        lastDiv.textContent = preText + lines[0];
-        if(!lastDiv.textContent) lastDiv.innerHTML = '<br>';
-        let nextSibling = lastDiv.nextSibling;
-        let lastInserted = lastDiv;
-        for(let i = 1; i < lines.length; i++){
-            let nd = document.createElement('div');
-            if(lines[i]) nd.textContent = lines[i];
-            else nd.innerHTML = '<br>';
-            e.insertBefore(nd, nextSibling);
-            lastInserted = nd;
-        }
-        setCaretCharOffset(lastInserted, lastInserted.textContent.length);
-        if(mCont) mCont.scrollTop = savedScrollTop;
-        scheduleHeavyTask(400, false);
-        return;
-    }
-    
-    // 選択範囲がある場合、事前に開始行・終了行と行内オフセットを安全に特定
-    let startNode = range.startContainer;
-    while(startNode && startNode.parentElement !== e && startNode !== e){
-        startNode = startNode.parentElement;
-    }
-    let startDiv = (startNode && startNode.parentElement === e) ? startNode : null;
-    
-    let endNode = range.endContainer;
-    while(endNode && endNode.parentElement !== e && endNode !== e){
-        endNode = endNode.parentElement;
-    }
-    let endDiv = (endNode && endNode.parentElement === e) ? endNode : null;
-    
-    if(!startDiv && startNode === e){
-        let idx = Math.min(range.startOffset, e.children.length - 1);
-        if(idx >= 0) startDiv = e.children[idx];
-    }
-    if(!endDiv && endNode === e){
-        let idx = Math.min(range.endOffset, e.children.length - 1);
-        if(idx >= 0) endDiv = e.children[idx];
-    }
-    if(!startDiv) startDiv = endDiv || e.firstElementChild;
-    if(!endDiv) endDiv = startDiv;
-    
+    let startDiv = null;
+    let endDiv = null;
     let preText = '';
     let postText = '';
-    try {
-        let preRange = range.cloneRange();
-        preRange.selectNodeContents(startDiv);
-        preRange.setEnd(range.startContainer, range.startOffset);
-        preText = preRange.toString();
-    }catch(err){
-        preText = '';
+    
+    if(range){
+        let startNode = range.startContainer;
+        while(startNode && startNode.parentElement !== e && startNode !== e){
+            startNode = startNode.parentElement;
+        }
+        startDiv = (startNode && startNode.parentElement === e) ? startNode : null;
+        
+        let endNode = range.endContainer;
+        while(endNode && endNode.parentElement !== e && endNode !== e){
+            endNode = endNode.parentElement;
+        }
+        endDiv = (endNode && endNode.parentElement === e) ? endNode : null;
+        
+        if(!startDiv && startNode === e){
+            let idx = Math.min(range.startOffset, e.children.length - 1);
+            if(idx >= 0) startDiv = e.children[idx];
+        }
+        if(!endDiv && endNode === e){
+            let idx = Math.min(range.endOffset, e.children.length - 1);
+            if(idx >= 0) endDiv = e.children[idx];
+        }
     }
-    try {
-        let postRange = range.cloneRange();
-        postRange.selectNodeContents(endDiv);
-        postRange.setStart(range.endContainer, range.endOffset);
-        postText = postRange.toString();
-    }catch(err){
-        postText = '';
+    
+    if(!startDiv){
+        startDiv = lastActiveLine || e.firstElementChild;
+    }
+    if(!endDiv){
+        endDiv = startDiv;
+    }
+    if(!startDiv){
+        startDiv = document.createElement('div');
+        startDiv.innerHTML = '<br>';
+        e.appendChild(startDiv);
+        endDiv = startDiv;
+    }
+    
+    if(range && e.contains(range.startContainer) && e.contains(range.endContainer)){
+        try {
+            let preRange = range.cloneRange();
+            preRange.selectNodeContents(startDiv);
+            preRange.setEnd(range.startContainer, range.startOffset);
+            preText = preRange.toString();
+        }catch(err){
+            preText = '';
+        }
+        try {
+            let postRange = range.cloneRange();
+            postRange.selectNodeContents(endDiv);
+            postRange.setStart(range.endContainer, range.endOffset);
+            postText = postRange.toString();
+        }catch(err){
+            postText = '';
+        }
+    } else {
+        let full = (startDiv.textContent || '').replace(/[\r\n]/g, '');
+        let off = Math.min(lastActiveOffset || 0, full.length);
+        preText = full.substring(0, off);
+        postText = full.substring(off);
     }
     
     // 複数行にまたがる選択範囲の削除（中間の行を削除し、endDiv も統合するため削除）
@@ -4380,6 +4377,8 @@ e.addEventListener('paste', (ev)=>{
             startDiv.innerHTML = '<br>';
         }
         setCaretCharOffset(startDiv, (preText + lines[0]).length);
+        lastActiveLine = startDiv;
+        lastActiveOffset = (preText + lines[0]).length;
     } else {
         startDiv.textContent = preText + lines[0];
         if(!startDiv.textContent) startDiv.innerHTML = '<br>';
@@ -4400,6 +4399,8 @@ e.addEventListener('paste', (ev)=>{
         lastInserted = lastDiv;
         
         setCaretCharOffset(lastDiv, lines[lines.length - 1].length);
+        lastActiveLine = lastDiv;
+        lastActiveOffset = lines[lines.length - 1].length;
     }
     
     if(mCont){
@@ -4410,12 +4411,16 @@ e.addEventListener('paste', (ev)=>{
 });
 
 e.addEventListener('cut', (ev)=>{
+    recordActiveSelection();
     let sel = window.getSelection();
-    if(!sel || sel.rangeCount === 0 || !e.contains(sel.anchorNode)) return;
-    let range = sel.getRangeAt(0);
-    if(range.collapsed) return;
+    let range = (sel && sel.rangeCount > 0 && e.contains(sel.anchorNode)) ? sel.getRangeAt(0) : (lastActiveRange && e.contains(lastActiveRange.startContainer) ? lastActiveRange : null);
+    if(!range || range.collapsed) return;
     
-    let selectedText = sel.toString();
+    let selectedText = '';
+    try {
+        selectedText = range.toString();
+    }catch(err){}
+    if(!selectedText && sel) selectedText = sel.toString();
     if(!selectedText) return;
     
     if(ev.clipboardData){
@@ -4450,6 +4455,7 @@ e.addEventListener('cut', (ev)=>{
     }
     if(!startDiv && !endDiv){
         range.deleteContents();
+        if(mCont) mCont.scrollTop = savedScrollTop;
         scheduleHeavyTask(300, false);
         return;
     }
@@ -4493,6 +4499,8 @@ e.addEventListener('cut', (ev)=>{
     }
     
     setCaretCharOffset(startDiv, preText.length);
+    lastActiveLine = startDiv;
+    lastActiveOffset = preText.length;
     
     if(mCont){
         mCont.scrollTop = savedScrollTop;
@@ -5268,7 +5276,6 @@ function resetAllToolNames(){
     renderToolRenameList();
 }
 window.addEventListener('scroll',()=>{if(window.scrollY!==0||window.scrollX!==0)window.scrollTo(0,0)});
-e.addEventListener('focus',()=>{setTimeout(()=>{window.scrollTo(0,0);},50)});
 
 /* マス目やエディタ領域をクリック・タップした時のカーソル配置処理 */
 function applyCaretToDiv(targetDiv, targetCol, maxCols){
@@ -5365,6 +5372,8 @@ window.addEventListener('touchmove', (ev)=>{
 }, {passive:true});
 
 window.addEventListener('touchend', (ev)=>{
+    let sel = window.getSelection();
+    if(sel && !sel.isCollapsed) return;
     if(!touchMoved && lastTouchPos && (Date.now() - lastTouchPos.time < 500)){
         let changed = ev.changedTouches && ev.changedTouches[0];
         if(changed){
@@ -5386,6 +5395,8 @@ window.addEventListener('touchend', (ev)=>{
 
 function handleCellClick(ev){
     if(!ev || !ev.target) return;
+    let sel = window.getSelection();
+    if(sel && !sel.isCollapsed) return;
     // エディタ本文（#e）の内側のみ反応。行番号（#n, .l）やその左側（ツールバーや余白など）は完全無反応
     if(!ev.target.closest('#e')) return;
     if(ev.target.closest('#n') || ev.target.closest('.l') || ev.target.closest('#linenumLeftToolBar')) return;
@@ -5421,13 +5432,8 @@ function handleCellClick(ev){
         divs = e.querySelectorAll('#e>div');
     }
     
-    // 1. 本文より上をクリックした場合：1行目の先頭に合わせる
+    // 1. 本文より上をクリックした場合：何もしない（1行目への暴走ジャンプを防止）
     if(clickY < 0){
-        let firstDiv = divs[0];
-        if(firstDiv){
-            if(document.activeElement !== e) e.focus();
-            applyCaretToDiv(firstDiv, 0, maxCols);
-        }
         return;
     }
     
