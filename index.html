@@ -421,6 +421,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <script>
 const e=document.getElementById('e'),l=document.getElementById('l'),t=document.getElementById('t'),k=document.getElementById('k'),w=document.getElementById('w'),n=document.getElementById('n');
 let d={r:[]},f=null,pId=null;
+let lastStableUserScrollTop=0, lastCsAtScroll=32, lastBlurTime=0, isRestoringAppScroll=false, userIsActivelyInteracting=false;
 let currentViewMode='editor';
 let currentShelfFolderId=null;
 let treeActiveDrag=null;
@@ -1756,16 +1757,35 @@ function z(){
     const pad=0,lw=70;
     let avail=mWidth-pad-lw;
     if(avail<100)avail=100;
+    let oldCs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 0;
     let cs=Math.floor(avail/num);
     if(cs<12)cs=12;if(cs>64)cs=64;
     const pw=cs*num;
     const totalW=pw+lw;
+    
+    let curScroll = m ? m.scrollTop : 0;
+    let targetScroll = (curScroll > 0) ? curScroll : (lastStableUserScrollTop > 0 ? lastStableUserScrollTop : 0);
+    if(oldCs > 0 && cs > 0 && oldCs !== cs && targetScroll > 0){
+        targetScroll = Math.round(targetScroll * (cs / oldCs));
+    }
+    
     document.documentElement.style.setProperty('--cs',cs+'px');
     w.style.width=totalW+'px';
     e.style.width=pw+'px';
     ensureGridLines();
     updateLineNumbers();
     updateColsDisplay();
+    
+    if(m && targetScroll > 0){
+        if(Math.abs(m.scrollTop - targetScroll) > 2){
+            m.scrollTop = targetScroll;
+        }
+        requestAnimationFrame(()=>{
+            if(m && Math.abs(m.scrollTop - targetScroll) > 2){
+                m.scrollTop = targetScroll;
+            }
+        });
+    }
 }
 function getEditorPureTextFromElement(el){
     let divs=el.querySelectorAll('#e>div');
@@ -2073,6 +2093,7 @@ function o(id){
     v();
     const mCont=document.querySelector('.m');
     if(mCont)mCont.scrollTop=0;
+    lastStableUserScrollTop=0;
     document.querySelectorAll('.tree-row').forEach(el=>{
         if(id && el.dataset.id === id){
             el.classList.add('active');
@@ -6643,11 +6664,139 @@ w.addEventListener('click',(ev)=>{
     // 行番号（#n, .l）およびその左側・外側のクリックでエディタが反応・リセットしないようガード
     return;
 });
-window.addEventListener('resize',()=>{z();window.scrollTo(0,0)});
+// ==========================================
+// アプリ・タブ切り替え時のスクロール位置ズレ防止機構
+// ==========================================
+if('scrollRestoration' in history){
+    try {
+        history.scrollRestoration = 'manual';
+    } catch(err){}
+}
+
+function onUserInteractionActive(){
+    userIsActivelyInteracting = true;
+    isRestoringAppScroll = false;
+}
+window.addEventListener('touchstart', onUserInteractionActive, { passive: true });
+window.addEventListener('touchmove', onUserInteractionActive, { passive: true });
+window.addEventListener('wheel', onUserInteractionActive, { passive: true });
+window.addEventListener('mousedown', onUserInteractionActive, { passive: true });
+window.addEventListener('keydown', onUserInteractionActive, { passive: true });
+
+function initScrollTracker(){
+    const mCont = document.querySelector('.m');
+    if(!mCont) return;
+    
+    mCont.addEventListener('scroll', () => {
+        if(isRestoringAppScroll) return;
+        if(document.hidden) return;
+        
+        // 別アプリ移動時やキーボード格納時（blur直後）にブラウザが自動的に上へスクロールさせる挙動を無視
+        if(Date.now() - lastBlurTime < 600 && mCont.scrollTop < lastStableUserScrollTop - 10){
+            return;
+        }
+        
+        lastStableUserScrollTop = mCont.scrollTop;
+        let cs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 32;
+        lastCsAtScroll = cs;
+        try {
+            if(f) sessionStorage.setItem('app_scroll_' + f, String(mCont.scrollTop));
+        } catch(err){}
+    }, { passive: true });
+}
+
+function restoreAppScroll(){
+    const mCont = document.querySelector('.m');
+    if(!mCont) return;
+    let target = (lastStableUserScrollTop > 0) ? lastStableUserScrollTop : 0;
+    if(target <= 0){
+        try {
+            let saved = f ? sessionStorage.getItem('app_scroll_' + f) : null;
+            if(saved) target = parseFloat(saved) || 0;
+        } catch(err){}
+    }
+    if(target <= 0) return;
+    
+    let cs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 32;
+    if(lastCsAtScroll > 0 && cs > 0 && Math.abs(cs - lastCsAtScroll) > 0.5){
+        target = Math.round(target * (cs / lastCsAtScroll));
+    }
+    
+    // スクロール位置が上へズレている場合に元の位置へ復元
+    if(mCont.scrollTop < target - 5 || Math.abs(mCont.scrollTop - target) > 5){
+        isRestoringAppScroll = true;
+        userIsActivelyInteracting = false;
+        mCont.scrollTop = target;
+        
+        requestAnimationFrame(()=>{
+            if(mCont && !userIsActivelyInteracting && Math.abs(mCont.scrollTop - target) > 3){
+                mCont.scrollTop = target;
+            }
+        });
+        
+        [30, 80, 150, 300, 500].forEach(delay => {
+            setTimeout(()=>{
+                if(mCont && !userIsActivelyInteracting && Math.abs(mCont.scrollTop - target) > 3){
+                    mCont.scrollTop = target;
+                }
+                if(delay === 500){
+                    isRestoringAppScroll = false;
+                }
+            }, delay);
+        });
+    }
+}
+
+window.addEventListener('blur', () => {
+    lastBlurTime = Date.now();
+    const mCont = document.querySelector('.m');
+    if(mCont && mCont.scrollTop > 0){
+        lastStableUserScrollTop = mCont.scrollTop;
+        let cs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 32;
+        lastCsAtScroll = cs;
+        try {
+            if(f) sessionStorage.setItem('app_scroll_' + f, String(mCont.scrollTop));
+        } catch(err){}
+    }
+});
+
+document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'hidden'){
+        lastBlurTime = Date.now();
+        const mCont = document.querySelector('.m');
+        if(mCont && mCont.scrollTop > 0){
+            lastStableUserScrollTop = mCont.scrollTop;
+            let cs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 32;
+            lastCsAtScroll = cs;
+            try {
+                if(f) sessionStorage.setItem('app_scroll_' + f, String(mCont.scrollTop));
+            } catch(err){}
+        }
+    } else if(document.visibilityState === 'visible'){
+        restoreAppScroll();
+    }
+});
+
+window.addEventListener('pageshow', () => {
+    restoreAppScroll();
+});
+
+window.addEventListener('focus', () => {
+    restoreAppScroll();
+});
+
+window.addEventListener('resize',()=>{
+    z();
+    window.scrollTo(0,0);
+    if(document.visibilityState === 'visible' && !userIsActivelyInteracting && lastStableUserScrollTop > 0){
+        restoreAppScroll();
+    }
+});
 if(window.ResizeObserver){
     let obsEl = document.querySelector('.m');
     if(obsEl) new ResizeObserver(()=>{z()}).observe(obsEl);
 }
+initScrollTracker();
 
 const noticeText1 = `【注意事項1】
 
