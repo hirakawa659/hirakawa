@@ -27,7 +27,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;overflow:hidde
 button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;background:#f0f0f2;border:1px solid #ccc;border-radius:4px;flex-shrink:0}
 #b{display:flex;position:fixed;top:50px;bottom:0;left:0;right:0;width:100%;height:calc(100% - 50px);height:calc(100dvh - 50px);overflow:hidden}
 #s{width:155px;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);color:var(--sidebar-text);padding:8px 0 0 0;display:flex;flex-direction:column;gap:4px;flex-shrink:0;box-sizing:border-box}
-.m{flex:1;padding:0 0 35vh 0;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;display:flex;flex-direction:column;align-items:flex-end;-webkit-overflow-scrolling:touch;background:var(--paper-bg)}
+.m{flex:1;padding:0 0 35vh 0;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;box-sizing:border-box;display:flex;flex-direction:column;align-items:flex-end;-webkit-overflow-scrolling:touch;background:var(--paper-bg)}
 #w{display:flex;flex-direction:row;align-items:stretch;background:var(--paper-bg);color:var(--text-color);box-sizing:border-box;flex-shrink:0;margin:0 0 0 auto;min-height:calc(100vh - 100px);min-height:calc(100dvh - 100px);height:auto;box-shadow:none;position:relative;contain:layout style}
 .editor-header-info{display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;padding:4px 12px 5px 8px;background:var(--paper-bg);color:var(--text-color);border-bottom:1px solid var(--sidebar-border);min-height:44px;flex-shrink:0;user-select:none;width:100%;z-index:90;gap:2px}
 .story-count-display{display:inline-flex;align-items:center;white-space:nowrap;font-size:11px;cursor:default;gap:4px}
@@ -421,7 +421,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <script>
 const e=document.getElementById('e'),l=document.getElementById('l'),t=document.getElementById('t'),k=document.getElementById('k'),w=document.getElementById('w'),n=document.getElementById('n');
 let d={r:[]},f=null,pId=null;
-let lastStableUserScrollTop=0, lastCsAtScroll=32, lastBlurTime=0, isRestoringAppScroll=false, userIsActivelyInteracting=false;
+let lastStableUserScrollTop=0, lastCsAtScroll=32, lastBlurTime=0, lastResumeTime=0, isRestoringAppScroll=false, userIsActivelyInteracting=false, isUserTouchingOrWheeling=false, userTouchEndTime=0, touchScrollTimeout=null;
 let currentViewMode='editor';
 let currentShelfFolderId=null;
 let treeActiveDrag=null;
@@ -982,6 +982,16 @@ window.onload=()=>{
     updateSelCountBtn();
     updateTrashCount();
     norm();cleanSpans();autoFormatEditor();highlightSpaces();z();v();
+    try {
+        let savedScroll = f ? (localStorage.getItem('app_scroll_' + f) || sessionStorage.getItem('app_scroll_' + f)) : null;
+        if(savedScroll){
+            let t = parseFloat(savedScroll);
+            if(t > 0){
+                lastStableUserScrollTop = t;
+                restoreAppScroll();
+            }
+        }
+    } catch(err){}
 };
 function cleanExcessiveLeadingLines(root = e){
     let divs = root.querySelectorAll('#e>div');
@@ -1764,9 +1774,20 @@ function z(){
     const totalW=pw+lw;
     
     let curScroll = m ? m.scrollTop : 0;
-    let targetScroll = (curScroll > 0) ? curScroll : (lastStableUserScrollTop > 0 ? lastStableUserScrollTop : 0);
+    let targetScroll = 0;
+    if(lastStableUserScrollTop > 0){
+        let isBrowserDrift = (curScroll < lastStableUserScrollTop - 5) || isRestoringAppScroll || (Date.now() - lastResumeTime < 1200);
+        if(isBrowserDrift){
+            targetScroll = lastStableUserScrollTop;
+        } else {
+            targetScroll = curScroll;
+        }
+    } else if(curScroll > 0){
+        targetScroll = curScroll;
+    }
     if(oldCs > 0 && cs > 0 && oldCs !== cs && targetScroll > 0){
         targetScroll = Math.round(targetScroll * (cs / oldCs));
+        lastStableUserScrollTop = targetScroll;
     }
     
     document.documentElement.style.setProperty('--cs',cs+'px');
@@ -2064,12 +2085,14 @@ function v(){
     updateCharCount();
 }
 function o(id){
+    let prevF = f;
     if(typeof flushPendingHeavyTask === 'function' && f && f !== id){
         flushPendingHeavyTask();
     }
     if(f && f !== id){
         s();
     }
+    let isDifferentFile = (prevF !== null && prevF !== id);
     let i=id?g(id):null;
     if(i){
         e.innerHTML=(i.content&&i.content.trim())?i.content:'<div><br></div>';
@@ -2092,8 +2115,20 @@ function o(id){
     z();
     v();
     const mCont=document.querySelector('.m');
-    if(mCont)mCont.scrollTop=0;
-    lastStableUserScrollTop=0;
+    if(isDifferentFile){
+        if(mCont)mCont.scrollTop=0;
+        lastStableUserScrollTop=0;
+    } else {
+        let saved = null;
+        try {
+            saved = f ? (localStorage.getItem('app_scroll_' + f) || sessionStorage.getItem('app_scroll_' + f)) : null;
+        } catch(err){}
+        let target = saved ? parseFloat(saved) : lastStableUserScrollTop;
+        if(target > 0 && mCont){
+            lastStableUserScrollTop = target;
+            mCont.scrollTop = target;
+        }
+    }
     document.querySelectorAll('.tree-row').forEach(el=>{
         if(id && el.dataset.id === id){
             el.classList.add('active');
@@ -6673,15 +6708,29 @@ if('scrollRestoration' in history){
     } catch(err){}
 }
 
-function onUserInteractionActive(){
+function markUserInteractionStart(){
+    isUserTouchingOrWheeling = true;
     userIsActivelyInteracting = true;
     isRestoringAppScroll = false;
+    if(touchScrollTimeout) clearTimeout(touchScrollTimeout);
 }
-window.addEventListener('touchstart', onUserInteractionActive, { passive: true });
-window.addEventListener('touchmove', onUserInteractionActive, { passive: true });
-window.addEventListener('wheel', onUserInteractionActive, { passive: true });
-window.addEventListener('mousedown', onUserInteractionActive, { passive: true });
-window.addEventListener('keydown', onUserInteractionActive, { passive: true });
+
+function markUserInteractionEnd(){
+    userTouchEndTime = Date.now();
+    if(touchScrollTimeout) clearTimeout(touchScrollTimeout);
+    touchScrollTimeout = setTimeout(()=>{
+        isUserTouchingOrWheeling = false;
+    }, 1500);
+}
+
+window.addEventListener('touchstart', markUserInteractionStart, { passive: true });
+window.addEventListener('touchmove', markUserInteractionStart, { passive: true });
+window.addEventListener('wheel', markUserInteractionStart, { passive: true });
+window.addEventListener('mousedown', markUserInteractionStart, { passive: true });
+window.addEventListener('keydown', markUserInteractionStart, { passive: true });
+window.addEventListener('touchend', markUserInteractionEnd, { passive: true });
+window.addEventListener('touchcancel', markUserInteractionEnd, { passive: true });
+window.addEventListener('mouseup', markUserInteractionEnd, { passive: true });
 
 function initScrollTracker(){
     const mCont = document.querySelector('.m');
@@ -6691,16 +6740,31 @@ function initScrollTracker(){
         if(isRestoringAppScroll) return;
         if(document.hidden) return;
         
-        // 別アプリ移動時やキーボード格納時（blur直後）にブラウザが自動的に上へスクロールさせる挙動を無視
-        if(Date.now() - lastBlurTime < 600 && mCont.scrollTop < lastStableUserScrollTop - 10){
+        let now = Date.now();
+        // 復帰直後（1000ms以内）または別アプリ移行直後（1000ms以内）のスクロールはブラウザの自動ズレなので無視
+        if(now - lastResumeTime < 1000 || now - lastBlurTime < 1000){
             return;
         }
         
-        lastStableUserScrollTop = mCont.scrollTop;
+        let currentScroll = mCont.scrollTop;
+        
+        // 上方向へのスクロール（currentScroll < lastStableUserScrollTop - 6）のとき、
+        // ユーザーが手動操作していない場合はOS/ブラウザによるキーボード格納やアンカーズレと判定して除外
+        if(lastStableUserScrollTop > 0 && currentScroll < lastStableUserScrollTop - 6){
+            let isActivelyDrivenByUser = isUserTouchingOrWheeling || (now - userTouchEndTime < 1500);
+            if(!isActivelyDrivenByUser){
+                return;
+            }
+        }
+        
+        lastStableUserScrollTop = currentScroll;
         let cs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 32;
         lastCsAtScroll = cs;
         try {
-            if(f) sessionStorage.setItem('app_scroll_' + f, String(mCont.scrollTop));
+            if(f){
+                localStorage.setItem('app_scroll_' + f, String(currentScroll));
+                sessionStorage.setItem('app_scroll_' + f, String(currentScroll));
+            }
         } catch(err){}
     }, { passive: true });
 }
@@ -6711,7 +6775,7 @@ function restoreAppScroll(){
     let target = (lastStableUserScrollTop > 0) ? lastStableUserScrollTop : 0;
     if(target <= 0){
         try {
-            let saved = f ? sessionStorage.getItem('app_scroll_' + f) : null;
+            let saved = f ? (localStorage.getItem('app_scroll_' + f) || sessionStorage.getItem('app_scroll_' + f)) : null;
             if(saved) target = parseFloat(saved) || 0;
         } catch(err){}
     }
@@ -6722,76 +6786,90 @@ function restoreAppScroll(){
         target = Math.round(target * (cs / lastCsAtScroll));
     }
     
-    // スクロール位置が上へズレている場合に元の位置へ復元
-    if(mCont.scrollTop < target - 5 || Math.abs(mCont.scrollTop - target) > 5){
-        isRestoringAppScroll = true;
-        userIsActivelyInteracting = false;
-        mCont.scrollTop = target;
-        
-        requestAnimationFrame(()=>{
-            if(mCont && !userIsActivelyInteracting && Math.abs(mCont.scrollTop - target) > 3){
-                mCont.scrollTop = target;
+    lastStableUserScrollTop = target;
+    isRestoringAppScroll = true;
+    
+    const applyScroll = () => {
+        if(isUserTouchingOrWheeling) return;
+        if(mCont && Math.abs(mCont.scrollTop - target) > 3){
+            mCont.scrollTop = target;
+        }
+    };
+    
+    applyScroll();
+    requestAnimationFrame(applyScroll);
+    
+    [25, 60, 120, 200, 350, 550, 800, 1200].forEach(delay => {
+        setTimeout(()=>{
+            applyScroll();
+            if(delay === 1200){
+                isRestoringAppScroll = false;
             }
-        });
-        
-        [30, 80, 150, 300, 500].forEach(delay => {
-            setTimeout(()=>{
-                if(mCont && !userIsActivelyInteracting && Math.abs(mCont.scrollTop - target) > 3){
-                    mCont.scrollTop = target;
-                }
-                if(delay === 500){
-                    isRestoringAppScroll = false;
-                }
-            }, delay);
-        });
-    }
+        }, delay);
+    });
 }
 
-window.addEventListener('blur', () => {
+function handleAppBackground(){
     lastBlurTime = Date.now();
     const mCont = document.querySelector('.m');
     if(mCont && mCont.scrollTop > 0){
-        lastStableUserScrollTop = mCont.scrollTop;
-        let cs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 32;
-        lastCsAtScroll = cs;
-        try {
-            if(f) sessionStorage.setItem('app_scroll_' + f, String(mCont.scrollTop));
-        } catch(err){}
-    }
-});
-
-document.addEventListener('visibilitychange', () => {
-    if(document.visibilityState === 'hidden'){
-        lastBlurTime = Date.now();
-        const mCont = document.querySelector('.m');
-        if(mCont && mCont.scrollTop > 0){
+        if(lastStableUserScrollTop <= 0 || mCont.scrollTop >= lastStableUserScrollTop - 15){
             lastStableUserScrollTop = mCont.scrollTop;
             let cs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 32;
             lastCsAtScroll = cs;
-            try {
-                if(f) sessionStorage.setItem('app_scroll_' + f, String(mCont.scrollTop));
-            } catch(err){}
         }
+        try {
+            if(f){
+                localStorage.setItem('app_scroll_' + f, String(lastStableUserScrollTop));
+                sessionStorage.setItem('app_scroll_' + f, String(lastStableUserScrollTop));
+            }
+        } catch(err){}
+    }
+    // エディタにフォーカスがある場合、iOSがキーボード格納時や復帰時にカーソル位置へ不規則にスクロールするのを防ぐため blur
+    if(document.activeElement && (document.activeElement === e || e.contains(document.activeElement))){
+        try {
+            document.activeElement.blur();
+        } catch(err){}
+    }
+}
+
+function handleAppForeground(){
+    lastResumeTime = Date.now();
+    restoreAppScroll();
+}
+
+window.addEventListener('blur', handleAppBackground);
+window.addEventListener('pagehide', handleAppBackground);
+document.addEventListener('freeze', handleAppBackground);
+
+document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'hidden'){
+        handleAppBackground();
     } else if(document.visibilityState === 'visible'){
-        restoreAppScroll();
+        handleAppForeground();
     }
 });
 
-window.addEventListener('pageshow', () => {
-    restoreAppScroll();
-});
-
-window.addEventListener('focus', () => {
-    restoreAppScroll();
-});
+window.addEventListener('pageshow', handleAppForeground);
+window.addEventListener('focus', handleAppForeground);
+document.addEventListener('resume', handleAppForeground);
 
 window.addEventListener('resize',()=>{
     z();
     window.scrollTo(0,0);
-    if(document.visibilityState === 'visible' && !userIsActivelyInteracting && lastStableUserScrollTop > 0){
+    if(document.visibilityState === 'visible' && !isUserTouchingOrWheeling && lastStableUserScrollTop > 0){
         restoreAppScroll();
     }
 });
+
+if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', () => {
+        if(document.visibilityState === 'visible' && !isUserTouchingOrWheeling && lastStableUserScrollTop > 0){
+            restoreAppScroll();
+        }
+    });
+}
+
 if(window.ResizeObserver){
     let obsEl = document.querySelector('.m');
     if(obsEl) new ResizeObserver(()=>{z()}).observe(obsEl);
