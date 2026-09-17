@@ -4995,8 +4995,6 @@ let pendingCleanLines=false;
 // 文字のマス入れ（空白ハイライト・添字1マス化・スパンクリーン）、文字数カウント、保存を一括実行
 function runHeavyTask(){
     if(isComposing) return;
-    const mCont = document.querySelector('.m');
-    const savedScrollTop = mCont ? mCont.scrollTop : 0;
     if(pendingCleanLines){
         cleanExcessiveLeadingLines();
         pendingCleanLines=false;
@@ -5009,17 +5007,7 @@ function runHeavyTask(){
     try{
         localStorage.setItem('n_r',e.innerHTML);
     }catch(err){}
-    if(mCont && mCont.scrollTop !== savedScrollTop){
-        mCont.scrollTop = savedScrollTop;
-    }
-    if(mCont && savedScrollTop > 0){
-        requestAnimationFrame(()=>{
-            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
-        });
-        setTimeout(()=>{
-            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
-        }, 50);
-    }
+    sc();
 }
 
 // 確定保存が必要なタイミング（タブ切り替え・保存・コピー・離脱等）で即時実行
@@ -5264,24 +5252,7 @@ e.addEventListener('paste', (ev)=>{
     }
     
     v();
-
-    if(mCont){
-        mCont.scrollTop = savedScrollTop;
-    }
-    if(mCont && savedScrollTop > 0){
-        requestAnimationFrame(()=>{
-            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
-        });
-        setTimeout(()=>{
-            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
-        }, 30);
-        setTimeout(()=>{
-            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
-        }, 100);
-        setTimeout(()=>{
-            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
-        }, 300);
-    }
+    sc();
     scheduleHeavyTask(300, false);
 });
 
@@ -5330,21 +5301,7 @@ e.addEventListener('cut', (ev)=>{
     }
     if(!startDiv && !endDiv){
         range.deleteContents();
-        if(mCont) mCont.scrollTop = savedScrollTop;
-        if(mCont && savedScrollTop > 0){
-            requestAnimationFrame(()=>{
-                if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
-            });
-            setTimeout(()=>{
-                if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
-            }, 30);
-            setTimeout(()=>{
-                if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
-            }, 100);
-            setTimeout(()=>{
-                if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
-            }, 300);
-        }
+        sc();
         scheduleHeavyTask(300, false);
         return;
     }
@@ -5391,23 +5348,8 @@ e.addEventListener('cut', (ev)=>{
     lastActiveLine = startDiv;
     lastActiveOffset = preText.length;
     
-    if(mCont){
-        mCont.scrollTop = savedScrollTop;
-    }
-    if(mCont && savedScrollTop > 0){
-        requestAnimationFrame(()=>{
-            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
-        });
-        setTimeout(()=>{
-            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
-        }, 30);
-        setTimeout(()=>{
-            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
-        }, 100);
-        setTimeout(()=>{
-            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
-        }, 300);
-    }
+    v();
+    sc();
     scheduleHeavyTask(300, false);
 });
 
