@@ -76,6 +76,21 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   background:rgba(37,99,235,0.12)!important;
   border-radius:5px!important;
 }
+.detect-menu-item.detect-drop-top{
+  box-shadow:inset 0 3.5px 0 0 #2563eb!important;
+  background:rgba(37,99,235,0.12)!important;
+  border-radius:5px!important;
+}
+.detect-menu-item.detect-drop-bottom{
+  box-shadow:inset 0 -3.5px 0 0 #2563eb!important;
+  background:rgba(37,99,235,0.12)!important;
+  border-radius:5px!important;
+}
+.detect-menu-item.detect-dragging{
+  opacity: 0.55!important;
+  background: #f1f5f9!important;
+  border-radius:5px!important;
+}
 #t{overflow-y:auto;flex:1;font-size:12px;padding:0;border-top:1px solid var(--sidebar-border);background:var(--sidebar-tree-bg)}
 .tree-node{margin-bottom:0;user-select:none;width:100%}
 .tree-row{display:flex;align-items:center;padding-top:7px;padding-bottom:7px;padding-right:8px;padding-left:calc(8px + var(--tree-level, 0) * 14px);border-radius:0;background:var(--sidebar-tree-bg);border:none;transition:background 0.1s ease;gap:4px;position:relative;cursor:pointer;touch-action:manipulation;user-select:none;width:100%;box-sizing:border-box;min-height:32px;color:var(--sidebar-text)}
@@ -317,24 +332,100 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
     <button type="button" id="linenumCopyBtn" class="linenum-tool-item" onclick="c()" style="width:58px;padding:5px 0;font-size:10px;font-weight:bold;line-height:1.15;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:normal;text-align:center;touch-action:none" title="エディタの内部装飾タグを除去し、きれいなプレーンテキスト文章にしてコピー">
       特殊コピー
     </button>
-    <!-- 検出 ▾ -->
+    <!-- 検出と変換 ▾ -->
     <div id="detectContainer" class="linenum-tool-item" style="position:relative;width:58px;touch-action:none">
-      <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="width:58px;padding:5px 0;font-size:11px;font-weight:bold;line-height:1.2;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:2px;touch-action:none" title="検出機能メニュー">
-        <span>検出</span><span style="font-size:9px;line-height:1">▾</span>
+      <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="width:58px;padding:3.5px 1px;font-size:9.5px;font-weight:bold;line-height:1.15;letter-spacing:-0.4px;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:1px;touch-action:none" title="検出と変換メニュー">
+        <span>検出と変換</span><span style="font-size:8px;line-height:1">▾</span>
       </button>
-      <div id="detectMenuDropdown" style="display:none;position:absolute;top:0;left:calc(100% + 4px);background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,0.15);padding:6px;flex-direction:column;gap:6px;min-width:124px;z-index:9999" onclick="event.stopPropagation()">
-        <button type="button" onclick="execDetectHiddenChars()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#1e3a8a;font-size:12px;font-weight:bold;padding:8px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
-          <span>隠し文字</span>
-        </button>
-        <button type="button" onclick="execDetectHomoglyphs()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#9a3412;font-size:12px;font-weight:bold;padding:8px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:6px" onmouseover="this.style.background='#fff7ed'" onmouseout="this.style.background='#f8fafc'">
-          <span>ホモグラフ</span>
-        </button>
-        <button type="button" onclick="execDetectNumericDigits()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#854d0e;font-size:12px;font-weight:bold;padding:8px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:6px" onmouseover="this.style.background='#fefce8'" onmouseout="this.style.background='#f8fafc'">
-          <span>算用数字</span>
-        </button>
-        <button type="button" onclick="execDetectHalfWidth()" style="width:100%;text-align:left;background:#f8fafc;border:none;color:#0369a1;font-size:12px;font-weight:bold;padding:8px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:6px" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='#f8fafc'">
-          <span>半角</span>
-        </button>
+      <div id="detectMenuDropdown" style="display:none;position:absolute;top:0;left:calc(100% + 4px);background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,0.15);padding:6px;flex-direction:column;gap:6px;width:246px;box-sizing:border-box;z-index:9999" onclick="event.stopPropagation()">
+        <!-- 隠し文字 -->
+        <div id="detect_item_hidden" class="detect-menu-item" data-detect-id="detect_item_hidden" style="width:100%;touch-action:none;user-select:none;cursor:grab">
+          <button type="button" onclick="execDetectHiddenChars()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#1e3a8a;font-size:12px;font-weight:bold;padding:7px 9px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
+            <span>隠し文字</span>
+            <span style="color:#94a3b8;font-size:12px;user-select:none;letter-spacing:-1px">⋮⋮</span>
+          </button>
+        </div>
+        <!-- 隠し文字 一括削除 -->
+        <div id="detect_item_hidden_del" class="detect-menu-item" data-detect-id="detect_item_hidden_del" style="width:100%;touch-action:none;user-select:none;cursor:grab">
+          <button type="button" onclick="execDeleteAllHiddenChars(event)" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#b91c1c;font-size:12px;font-weight:bold;padding:7px 9px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='#f8fafc'" title="エディタ内の隠し文字を一括削除">
+            <span style="display:inline-flex;align-items:center;gap:4px">
+              <span>隠し文字 一括削除</span>
+            </span>
+            <span style="color:#94a3b8;font-size:12px;user-select:none;letter-spacing:-1px">⋮⋮</span>
+          </button>
+        </div>
+        <!-- ホモグラフ -->
+        <div id="detect_item_homo" class="detect-menu-item" data-detect-id="detect_item_homo" style="width:100%;touch-action:none;user-select:none;cursor:grab">
+          <button type="button" onclick="execDetectHomoglyphs()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#9a3412;font-size:12px;font-weight:bold;padding:7px 9px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#fff7ed'" onmouseout="this.style.background='#f8fafc'">
+            <span>ホモグラフ</span>
+            <span style="color:#94a3b8;font-size:12px;user-select:none;letter-spacing:-1px">⋮⋮</span>
+          </button>
+        </div>
+        <!-- 算用数字 -->
+        <div id="detect_item_num" class="detect-menu-item" data-detect-id="detect_item_num" style="width:100%;touch-action:none;user-select:none;cursor:grab">
+          <button type="button" onclick="execDetectNumericDigits()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#854d0e;font-size:12px;font-weight:bold;padding:7px 9px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#fefce8'" onmouseout="this.style.background='#f8fafc'">
+            <span>算用数字</span>
+            <span style="color:#94a3b8;font-size:12px;user-select:none;letter-spacing:-1px">⋮⋮</span>
+          </button>
+        </div>
+        <!-- 半角 -->
+        <div id="detect_item_half" class="detect-menu-item" data-detect-id="detect_item_half" style="width:100%;touch-action:none;user-select:none;cursor:grab">
+          <button type="button" onclick="execDetectHalfWidth()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#0369a1;font-size:12px;font-weight:bold;padding:7px 9px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='#f8fafc'">
+            <span>半角</span>
+            <span style="color:#94a3b8;font-size:12px;user-select:none;letter-spacing:-1px">⋮⋮</span>
+          </button>
+        </div>
+        <!-- 半角全角（トグルボタン ＆ 一括変換・指定変換10マス） -->
+        <div id="detect_item_half_zen" class="detect-menu-item" data-detect-id="detect_item_half_zen" style="width:100%;touch-action:none;user-select:none;display:flex;flex-direction:column;gap:4px">
+          <button type="button" id="halfToZenToggleBtn" onclick="toggleHalfToZenSubmenu(event)" style="width:100%;text-align:left;background:#f8fafc;border:1px solid #cbd5e1;color:#2563eb;font-size:12px;font-weight:bold;padding:7px 9px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
+            <span>半角全角</span>
+            <span style="display:inline-flex;align-items:center;gap:6px">
+              <span id="halfToZenArrow" style="font-size:10px;color:#64748b">▾</span>
+              <span style="color:#94a3b8;font-size:12px;user-select:none;letter-spacing:-1px">⋮⋮</span>
+            </span>
+          </button>
+          <!-- 展開パネル：一括変換 適用 ＆ 指定変換 適用 ＆ 10個のマス目 -->
+          <div id="halfToZenPanel" style="display:none;background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;padding:8px;flex-direction:column;gap:8px" onclick="event.stopPropagation()">
+            <!-- 一括変換 -->
+            <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:5px;padding:6px 8px;display:flex;align-items:center;justify-content:space-between;gap:6px">
+              <div>
+                <div style="font-size:11.5px;font-weight:bold;color:#1e293b">一括変換</div>
+                <div style="font-size:9px;color:#64748b">すべての半角を全角に変換</div>
+              </div>
+              <button type="button" onclick="execConvertAllHalfToZen(event)" style="padding:4px 10px;font-size:11px;font-weight:bold;background:#2563eb;color:#ffffff;border:none;border-radius:4px;cursor:pointer;white-space:nowrap" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+                適用
+              </button>
+            </div>
+            <!-- 指定変換 -->
+            <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:5px;padding:6px 8px;display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div>
+                  <div style="font-size:11.5px;font-weight:bold;color:#1e293b">指定変換</div>
+                  <div style="font-size:9px;color:#64748b">下のマス目の文字のみ変換</div>
+                </div>
+                <button type="button" onclick="execConvertSpecifiedHalfToZen(event)" style="padding:4px 10px;font-size:11px;font-weight:bold;background:#2563eb;color:#ffffff;border:none;border-radius:4px;cursor:pointer;white-space:nowrap" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+                  適用
+                </button>
+              </div>
+              <!-- マス目 10個 (5×2) -->
+              <div id="halfZenSlotGrid" style="display:grid;grid-template-columns:repeat(5, 1fr);gap:4px;margin-top:2px">
+                <input type="text" maxlength="1" class="half-zen-slot" data-idx="0" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+                <input type="text" maxlength="1" class="half-zen-slot" data-idx="1" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+                <input type="text" maxlength="1" class="half-zen-slot" data-idx="2" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+                <input type="text" maxlength="1" class="half-zen-slot" data-idx="3" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+                <input type="text" maxlength="1" class="half-zen-slot" data-idx="4" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+                <input type="text" maxlength="1" class="half-zen-slot" data-idx="5" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+                <input type="text" maxlength="1" class="half-zen-slot" data-idx="6" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+                <input type="text" maxlength="1" class="half-zen-slot" data-idx="7" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+                <input type="text" maxlength="1" class="half-zen-slot" data-idx="8" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+                <input type="text" maxlength="1" class="half-zen-slot" data-idx="9" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+              </div>
+              <div style="display:flex;justify-content:flex-end">
+                <button type="button" onclick="clearHalfZenSlots()" style="background:transparent;border:none;color:#64748b;font-size:9.5px;cursor:pointer;text-decoration:underline">マス目をクリア</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <!-- 空白色 -->
@@ -915,6 +1006,8 @@ window.onload=()=>{
     initToolDragAndDrop();
     applyLinenumToolOrder(getLinenumToolOrder());
     initLinenumToolDragAndDrop();
+    applyDetectMenuOrder(getDetectMenuOrder());
+    initDetectMenuDragAndDrop();
     initTreeDragAndDropTouch();
     applyCurrentTheme();
     updateSelCountBtn();
@@ -3323,6 +3416,10 @@ function toggleDetectMenu(ev){
     const menu = document.getElementById('detectMenuDropdown');
     if(!menu) return;
     const isHidden = (menu.style.display === 'none' || !menu.style.display);
+    if(isHidden){
+        applyDetectMenuOrder(getDetectMenuOrder());
+        initDetectMenuDragAndDrop();
+    }
     menu.style.display = isHidden ? 'flex' : 'none';
 }
 
@@ -3334,6 +3431,266 @@ function closeDetectMenu(){
 function execDetectHiddenChars(){
     closeDetectMenu();
     tgHiddenChars();
+}
+
+function execDeleteAllHiddenChars(ev){
+    if(ev){ ev.stopPropagation(); }
+    closeDetectMenu();
+    ensureGridLines();
+    const hiddenRegex = /[\u200B-\u200F\u2028\u2029\u202A-\u202E\u2060-\u206F\uFEFF\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g;
+    
+    let badges = e.querySelectorAll('.hidden-char-badge');
+    badges.forEach(b => b.remove());
+    
+    let divs = e.querySelectorAll('#e>div');
+    if(divs.length === 0){
+        e.innerHTML = '<div><br></div>';
+        divs = e.querySelectorAll('#e>div');
+    }
+    
+    let deletedCount = 0;
+    divs.forEach(d => {
+        let walker = document.createTreeWalker(d, NodeFilter.SHOW_TEXT, null, false);
+        let textNodes = [];
+        while(walker.nextNode()){
+            let p = walker.currentNode.parentNode;
+            if(p && (p.classList.contains('sub-sup') || p.classList.contains('sp-nonzen') || p.classList.contains('char-box'))) continue;
+            textNodes.push(walker.currentNode);
+        }
+        textNodes.forEach(tn => {
+            let val = tn.nodeValue;
+            if(hiddenRegex.test(val)){
+                let matches = val.match(hiddenRegex);
+                if(matches) deletedCount += matches.length;
+                let newVal = val.replace(hiddenRegex, '');
+                tn.nodeValue = newVal;
+            }
+        });
+    });
+    
+    v();
+    s();
+    if(deletedCount > 0){
+        alert(`✨ 隠し文字を計 ${deletedCount} 箇所一括削除しました！`);
+    } else {
+        alert('隠し文字は見つかりませんでした。');
+    }
+}
+
+/* 検出と変換メニューの項目並び替え（ドラッグ＆ドロップ） */
+const DEFAULT_DETECT_MENU_ORDER = [
+    'detect_item_hidden',
+    'detect_item_hidden_del',
+    'detect_item_homo',
+    'detect_item_num',
+    'detect_item_half',
+    'detect_item_half_zen'
+];
+
+function getDetectMenuOrder(){
+    let saved = localStorage.getItem('n_detect_menu_order_v1');
+    if(!saved) return [...DEFAULT_DETECT_MENU_ORDER];
+    try {
+        let arr = JSON.parse(saved);
+        if(Array.isArray(arr) && arr.length > 0) return arr;
+    } catch(err){}
+    return [...DEFAULT_DETECT_MENU_ORDER];
+}
+
+function saveDetectMenuOrder(order){
+    localStorage.setItem('n_detect_menu_order_v1', JSON.stringify(order));
+}
+
+function applyDetectMenuOrder(order){
+    const menu = document.getElementById('detectMenuDropdown');
+    if(!menu) return;
+    let items = Array.from(menu.querySelectorAll('.detect-menu-item'));
+    let itemMap = {};
+    items.forEach(it => {
+        if(it.id) itemMap[it.id] = it;
+    });
+    order.forEach(id => {
+        if(itemMap[id]){
+            menu.appendChild(itemMap[id]);
+            delete itemMap[id];
+        }
+    });
+    Object.values(itemMap).forEach(it => menu.appendChild(it));
+}
+
+function getOrCreateDetectGhost(){
+    let g = document.getElementById('detectMenuDragGhost');
+    if(!g){
+        g = document.createElement('div');
+        g.id = 'detectMenuDragGhost';
+        g.style.position = 'fixed';
+        g.style.pointerEvents = 'none';
+        g.style.zIndex = '100000';
+        g.style.padding = '6px 12px';
+        g.style.borderRadius = '6px';
+        g.style.fontSize = '12px';
+        g.style.fontWeight = 'bold';
+        g.style.background = '#2563eb';
+        g.style.color = '#ffffff';
+        g.style.boxShadow = '0 6px 16px rgba(0,0,0,0.25)';
+        g.style.display = 'none';
+        g.style.transform = 'translate(-50%, -50%)';
+        g.style.whiteSpace = 'nowrap';
+        document.body.appendChild(g);
+    }
+    return g;
+}
+
+function initDetectMenuDragAndDrop(){
+    const menu = document.getElementById('detectMenuDropdown');
+    if(!menu || menu.dataset.dragInitialized === 'true') return;
+    menu.dataset.dragInitialized = 'true';
+
+    let activePointerId = null;
+    let dragItem = null;
+    let isDragMode = false;
+    let startX = 0;
+    let startY = 0;
+    let suppressClickUntil = 0;
+    let longPressTimer = null;
+    let currentDropAction = null;
+
+    function clearPressTimer(){
+        if(longPressTimer){
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+    }
+
+    function clearIndicators(){
+        menu.querySelectorAll('.detect-drop-top, .detect-drop-bottom').forEach(el => {
+            el.classList.remove('detect-drop-top', 'detect-drop-bottom');
+        });
+    }
+
+    menu.addEventListener('click', (e) => {
+        if(Date.now() < suppressClickUntil){
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }, true);
+
+    function startDragMode(clientX, clientY){
+        if(!dragItem) return;
+        isDragMode = true;
+        dragItem.classList.add('detect-dragging');
+        let titleSpan = dragItem.querySelector('button span');
+        let itemName = titleSpan ? (titleSpan.textContent || 'アイテム') : 'アイテム';
+        let ghost = getOrCreateDetectGhost();
+        ghost.textContent = itemName;
+        ghost.style.left = clientX + 'px';
+        ghost.style.top = (clientY - 30) + 'px';
+        ghost.style.display = 'block';
+
+        if(typeof navigator !== 'undefined' && navigator.vibrate){
+            try { navigator.vibrate(28); } catch(err){}
+        }
+    }
+
+    menu.addEventListener('pointerdown', (e) => {
+        if(e.button !== 0 && e.pointerType === 'mouse') return;
+        if(e.target.closest('input, #halfZenSlotGrid')) return;
+
+        let item = e.target.closest('.detect-menu-item');
+        if(!item) return;
+
+        clearPressTimer();
+        activePointerId = e.pointerId;
+        dragItem = item;
+        startX = e.clientX;
+        startY = e.clientY;
+        isDragMode = false;
+        currentDropAction = null;
+
+        if(e.pointerType === 'touch'){
+            longPressTimer = setTimeout(() => {
+                if(dragItem && activePointerId !== null){
+                    try { dragItem.setPointerCapture(activePointerId); } catch(err){}
+                    startDragMode(startX, startY);
+                }
+            }, 150);
+        }
+    });
+
+    menu.addEventListener('pointermove', (e) => {
+        if(!dragItem || activePointerId !== e.pointerId) return;
+
+        let dy = e.clientY - startY;
+        let dx = e.clientX - startX;
+
+        if(!isDragMode){
+            if(Math.abs(dy) > 7 || Math.abs(dx) > 7){
+                clearPressTimer();
+                try { dragItem.setPointerCapture(activePointerId); } catch(err){}
+                startDragMode(e.clientX, e.clientY);
+            }
+            return;
+        }
+
+        e.preventDefault();
+        let ghost = getOrCreateDetectGhost();
+        ghost.style.left = e.clientX + 'px';
+        ghost.style.top = (e.clientY - 30) + 'px';
+
+        clearIndicators();
+        currentDropAction = null;
+
+        let items = Array.from(menu.querySelectorAll('.detect-menu-item')).filter(it => it !== dragItem);
+        for(let it of items){
+            let rect = it.getBoundingClientRect();
+            if(e.clientY >= rect.top && e.clientY <= rect.bottom){
+                let midY = rect.top + rect.height / 2;
+                let pos = (e.clientY < midY) ? 'before' : 'after';
+                currentDropAction = { targetItem: it, position: pos };
+                if(pos === 'before'){
+                    it.classList.add('detect-drop-top');
+                } else {
+                    it.classList.add('detect-drop-bottom');
+                }
+                break;
+            }
+        }
+    }, { passive: false });
+
+    function endDrag(e){
+        clearPressTimer();
+        if(activePointerId !== null && dragItem){
+            try { dragItem.releasePointerCapture(activePointerId); } catch(err){}
+        }
+
+        let ghost = getOrCreateDetectGhost();
+        ghost.style.display = 'none';
+
+        if(isDragMode){
+            suppressClickUntil = Date.now() + 350;
+            if(currentDropAction && currentDropAction.targetItem && dragItem){
+                if(currentDropAction.position === 'before'){
+                    currentDropAction.targetItem.before(dragItem);
+                } else {
+                    currentDropAction.targetItem.after(dragItem);
+                }
+                let newOrder = Array.from(menu.querySelectorAll('.detect-menu-item')).map(it => it.id);
+                saveDetectMenuOrder(newOrder);
+            }
+        }
+
+        clearIndicators();
+        if(dragItem){
+            dragItem.classList.remove('detect-dragging');
+        }
+        activePointerId = null;
+        dragItem = null;
+        isDragMode = false;
+        currentDropAction = null;
+    }
+
+    menu.addEventListener('pointerup', endDrag);
+    menu.addEventListener('pointercancel', endDrag);
 }
 
 function execDetectHomoglyphs(){
@@ -3425,7 +3782,7 @@ function tgHalfWidth(){
     
     if(count>0){
         halfActive=true;
-        alert(`🔍 半角文字（英数字・記号・半角カナ等）を計 ${count} 箇所検出しました！水色で強調表示しています。\n\n※ もう一度「検出」→「半角」を押すと強調表示を解除します。`);
+        alert(`🔍 半角文字（英数字・記号・半角カナ等）を計 ${count} 箇所検出しました！水色で強調表示しています。\n\n※ もう一度「検出と変換」→「半角」を押すと強調表示を解除します。`);
     }else{
         alert('✨ 半角文字（英数記号・半角カナ等）は検出されませんでした。すべて全角です！');
     }
@@ -3434,6 +3791,240 @@ function tgHalfWidth(){
 function execDetectHalfWidth(){
     closeDetectMenu();
     tgHalfWidth();
+}
+
+/* 半角→全角 変換機能（一括変換 ＆ 10マス指定変換） */
+const HANKAKU_KANA_MAP = {
+    '｡':'。','｢':'「','｣':'」','､':'、','･':'・',
+    'ｦ':'ヲ','ｧ':'ァ','ｨ':'ィ','ｩ':'ゥ','ｪ':'ェ','ｫ':'ォ',
+    'ｬ':'ャ','ｭ':'ュ','ｮ':'ョ','ｯ':'ッ','ｰ':'ー',
+    'ｱ':'ア','ｲ':'イ','ｳ':'ウ','ｴ':'エ','ｵ':'オ',
+    'ｶ':'カ','ｷ':'キ','ｸ':'ク','ｹ':'ケ','ｺ':'コ',
+    'ｻ':'サ','ｼ':'シ','ｽ':'ス','ｾ':'セ','ｿ':'ソ',
+    'ﾀ':'タ','ﾁ':'チ','ﾂ':'ツ','ﾃ':'テ','ﾄ':'ト',
+    'ﾅ':'ナ','ﾆ':'ニ','ﾇ':'ヌ','ﾈ':'ネ','ﾉ':'ノ',
+    'ﾊ':'ハ','ﾋ':'ヒ','ﾌ':'フ','ﾍ':'ヘ','ﾎ':'ホ',
+    'ﾏ':'マ','ﾐ':'ミ','ﾑ':'ム','ﾒ':'メ','ﾓ':'モ',
+    'ﾔ':'ヤ','ﾕ':'ユ','ﾖ':'ヨ',
+    'ﾗ':'ラ','ﾘ':'リ','ﾙ':'ル','ﾚ':'レ','ﾛ':'ロ',
+    'ﾜ':'ワ','ﾝ':'ン','ﾞ':'゛','ﾟ':'゜'
+};
+
+let halfZenSlotsInitialized = false;
+
+function initHalfZenSlots(){
+    let saved = localStorage.getItem('n_half_zen_slots_v1');
+    let values = [];
+    if(saved){
+        try { values = JSON.parse(saved); } catch(err){}
+    }
+    let slots = document.querySelectorAll('.half-zen-slot');
+    slots.forEach((slot, idx) => {
+        if(values[idx] !== undefined){
+            slot.value = values[idx];
+        }
+        if(!halfZenSlotsInitialized){
+            slot.addEventListener('input', () => {
+                saveHalfZenSlots();
+                if(slot.value && idx < slots.length - 1){
+                    slots[idx + 1].focus();
+                    slots[idx + 1].select();
+                }
+            });
+            slot.addEventListener('keydown', (e) => {
+                if(e.key === 'Backspace' && !slot.value && idx > 0){
+                    slots[idx - 1].focus();
+                }
+            });
+            slot.addEventListener('paste', (e) => {
+                e.preventDefault();
+                let pasteData = (e.clipboardData || window.clipboardData).getData('text') || '';
+                if(!pasteData) return;
+                let curIdx = idx;
+                for(let char of pasteData){
+                    if(curIdx < slots.length){
+                        slots[curIdx].value = char;
+                        curIdx++;
+                    } else {
+                        break;
+                    }
+                }
+                saveHalfZenSlots();
+                if(curIdx < slots.length){
+                    slots[curIdx].focus();
+                } else {
+                    slots[slots.length - 1].focus();
+                }
+            });
+        }
+    });
+    halfZenSlotsInitialized = true;
+}
+
+function saveHalfZenSlots(){
+    let slots = document.querySelectorAll('.half-zen-slot');
+    let values = Array.from(slots).map(s => s.value || '');
+    localStorage.setItem('n_half_zen_slots_v1', JSON.stringify(values));
+}
+
+function clearHalfZenSlots(){
+    let slots = document.querySelectorAll('.half-zen-slot');
+    slots.forEach(s => s.value = '');
+    localStorage.removeItem('n_half_zen_slots_v1');
+    let first = document.querySelector('.half-zen-slot');
+    if(first) first.focus();
+}
+
+function toggleHalfToZenSubmenu(ev){
+    if(ev) ev.stopPropagation();
+    let panel = document.getElementById('halfToZenPanel');
+    let arrow = document.getElementById('halfToZenArrow');
+    if(!panel) return;
+    let isHidden = (panel.style.display === 'none' || !panel.style.display);
+    panel.style.display = isHidden ? 'flex' : 'none';
+    if(arrow) arrow.textContent = isHidden ? '▴' : '▾';
+    if(isHidden){
+        initHalfZenSlots();
+    }
+}
+
+function convertHalfToZenCore(targetCharSet = null){
+    cleanExcessiveLeadingLines();
+    norm();
+    ensureGridLines();
+    let divs = e.querySelectorAll('#e>div');
+    if(divs.length === 0){
+        e.innerHTML = '<div><br></div>';
+        divs = e.querySelectorAll('#e>div');
+    }
+    
+    let convertedCount = 0;
+    
+    divs.forEach(d => {
+        let clone = d.cloneNode(true);
+        clone.querySelectorAll('.sp-nonzen').forEach(s => s.replaceWith(s.textContent || ' '));
+        clone.querySelectorAll('.char-box').forEach(s => {
+            let p = s.parentNode;
+            while(s.firstChild) p.insertBefore(s.firstChild, s);
+            p.removeChild(s);
+        });
+        clone.querySelectorAll('.hidden-char-badge').forEach(s => s.remove());
+        clone.querySelectorAll('.hm-mark').forEach(s => {
+            let p = s.parentNode;
+            while(s.firstChild) p.insertBefore(s.firstChild, s);
+            p.removeChild(s);
+        });
+        clone.querySelectorAll('.num-mark').forEach(s => {
+            if(!s.classList.contains('sub-sup')){
+                let p = s.parentNode;
+                if(p){ while(s.firstChild) p.insertBefore(s.firstChild, s); p.removeChild(s); }
+            }
+        });
+        clone.querySelectorAll('.half-mark').forEach(s => {
+            if(!s.classList.contains('sub-sup')){
+                let p = s.parentNode;
+                if(p){ while(s.firstChild) p.insertBefore(s.firstChild, s); p.removeChild(s); }
+            }
+        });
+        
+        let txt = clone.innerText;
+        if(txt === '\n' || txt === '') return;
+        
+        let h = '';
+        for(let i = 0; i < txt.length; i++){
+            let c = txt[i];
+            let shouldConvert = false;
+            if(targetCharSet === null){
+                if(/[^\S\u3000\r\n]/.test(c) || /[!-~]/.test(c) || /[\uFF61-\uFF9F]/.test(c)){
+                    shouldConvert = true;
+                }
+            } else {
+                if(targetCharSet.has(c)){
+                    shouldConvert = true;
+                } else if(/[^\S\u3000\r\n]/.test(c) && (targetCharSet.has(' ') || targetCharSet.has('　'))){
+                    shouldConvert = true;
+                }
+            }
+            
+            if(shouldConvert){
+                convertedCount++;
+                let zen = c;
+                if(/[^\S\u3000\r\n]/.test(c) || c === ' '){
+                    zen = '　';
+                } else if(c.charCodeAt(0) >= 0x21 && c.charCodeAt(0) <= 0x7E){
+                    zen = String.fromCharCode(c.charCodeAt(0) + 0xFEE0);
+                } else if(HANKAKU_KANA_MAP[c]){
+                    zen = HANKAKU_KANA_MAP[c];
+                }
+                
+                if(regSpecialChars.test(zen)){
+                    h += `<span class="sub-sup" contenteditable="false">${zen}</span>`;
+                } else {
+                    h += zen;
+                }
+            } else {
+                if(regSpecialChars.test(c)){
+                    h += `<span class="sub-sup" contenteditable="false">${c}</span>`;
+                } else {
+                    h += c;
+                }
+            }
+        }
+        d.innerHTML = h;
+    });
+    
+    if(halfActive){
+        let marks = e.querySelectorAll('.half-mark');
+        marks.forEach(m => {
+            if(m.classList.contains('sub-sup')) m.classList.remove('half-mark');
+            else {
+                let p = m.parentNode;
+                if(p){ while(m.firstChild) p.insertBefore(m.firstChild, m); p.removeChild(m); }
+            }
+        });
+        halfActive = false;
+    }
+    
+    v();
+    s();
+    return convertedCount;
+}
+
+function execConvertAllHalfToZen(ev){
+    if(ev) ev.stopPropagation();
+    let count = convertHalfToZenCore(null);
+    if(count > 0){
+        alert(`✨ 半角文字 計${count}箇所を一括で全角に変換しました！`);
+    } else {
+        alert('半角文字は見つかりませんでした。すべて全角です。');
+    }
+}
+
+function execConvertSpecifiedHalfToZen(ev){
+    if(ev) ev.stopPropagation();
+    let slots = document.querySelectorAll('.half-zen-slot');
+    let targetSet = new Set();
+    slots.forEach(slot => {
+        let val = slot.value;
+        if(val !== '' && val !== undefined && val !== null){
+            targetSet.add(val);
+        }
+    });
+    
+    if(targetSet.size === 0){
+        alert('指定変換を行う半角文字をマス目に入力してください。');
+        let firstSlot = document.querySelector('.half-zen-slot');
+        if(firstSlot) firstSlot.focus();
+        return;
+    }
+    
+    let count = convertHalfToZenCore(targetSet);
+    let charsStr = Array.from(targetSet).map(c => `「${c}」`).join(' ');
+    if(count > 0){
+        alert(`✨ 指定された半角文字 ${charsStr} 計${count}箇所を全角に変換しました！`);
+    } else {
+        alert(`指定された半角文字 ${charsStr} は見つかりませんでした。`);
+    }
 }
 
 /* 選択フォルダ内検索機能 */
@@ -4737,7 +5328,7 @@ function getLinenumItemInfo(el){
     }
     if(id === 'detectContainer' || id === 'detectBtn'){
         return {
-            name: '検出',
+            name: '検出と変換',
             icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`
         };
     }
@@ -7318,6 +7909,11 @@ window.addEventListener('click', (ev)=>{
             closeDetectMenu();
         }
     }
+});
+window.addEventListener('DOMContentLoaded', ()=>{
+    initHalfZenSlots();
+    applyDetectMenuOrder(getDetectMenuOrder());
+    initDetectMenuDragAndDrop();
 });
 </script>
 
