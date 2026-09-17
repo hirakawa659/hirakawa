@@ -1758,6 +1758,7 @@ function recordActiveSelection(){
 let isComposing = false;
 let composingText = '';
 let hasActiveCompositionInput = false;
+let hasUserTypedSinceCaretMove = false;
 let last229KeydownTime = 0;
 let last229WasAtLeftEdge = false;
 let isNormalizingSelection = false;
@@ -1847,9 +1848,11 @@ function normalizeEditorSelectionToTextNode(){
 }
 
 function handleSelectionEvent(){
+    hasUserTypedSinceCaretMove = false;
     hasActiveCompositionInput = false;
     isComposing = false;
     composingText = '';
+    if(typeof last229CandidateTimer !== 'undefined' && last229CandidateTimer){ clearTimeout(last229CandidateTimer); last229CandidateTimer = null; }
     if(typeof pending229Timer !== 'undefined' && pending229Timer){ clearTimeout(pending229Timer); pending229Timer = null; }
     normalizeEditorSelectionToTextNode();
     recordActiveSelection();
@@ -2232,24 +2235,24 @@ function updateLineNumbers(divs){
     let minLinesForScreen = Math.ceil(mHeight / cs) + 5;
     let visibleGridLines = Math.max(totalLines + 15, minLinesForScreen);
     
-    let lastActiveLine = 0;
+    let lastNonEmptyLineIndex = 0;
     for(let i = divs.length - 1; i >= 0; i--){
         let d = divs[i];
         let txt = d.textContent ? d.textContent.replace(/[\r\n]/g, '') : '';
         if(txt.length > 0 || d.querySelector?.('.sub-sup, .hidden-char-badge, .hm-mark, img')){
-            lastActiveLine = i + 1;
+            lastNonEmptyLineIndex = i + 1;
             break;
         }
     }
-    if(lastActiveLine === 0) lastActiveLine = 1;
+    if(lastNonEmptyLineIndex === 0) lastNonEmptyLineIndex = 1;
     
-    if(visibleGridLines !== lastRenderedVisibleLines || lastActiveLine !== lastRenderedActiveLine){
+    if(visibleGridLines !== lastRenderedVisibleLines || lastNonEmptyLineIndex !== lastRenderedActiveLine){
         lastRenderedVisibleLines = visibleGridLines;
-        lastRenderedActiveLine = lastActiveLine;
+        lastRenderedActiveLine = lastNonEmptyLineIndex;
         
         let h = '';
         for(let i = 1; i <= visibleGridLines; i++){
-            if(i <= lastActiveLine){
+            if(i <= lastNonEmptyLineIndex){
                 h += i + '<br>';
             }else{
                 h += `<span style="color:#cbd5e1;font-size:10px">${i}</span><br>`;
@@ -5249,7 +5252,7 @@ function scrollToLatestFix(){
     }
     let toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:10px 16px;border-radius:8px;font-size:12.5px;font-weight:bold;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s ease;pointer-events:none';
-    toast.textContent = '最新修正14: 設定文字数（30字など）の最後のマスまで改行せず打てるよう折り返し幅を修正完了';
+    toast.textContent = '最新修正15: タイピングなしで左端・任意位置から予測変換が出た状態での改行キー押下時に確実に1回で改行するよう修正完了';
     document.body.appendChild(toast);
     setTimeout(()=>{
         toast.style.opacity = '0';
@@ -5289,6 +5292,7 @@ e.addEventListener('compositionupdate',(ev)=>{
     isComposing = true;
     composingText = ev.data || '';
     if(ev.data && ev.data.length > 0){
+        hasUserTypedSinceCaretMove = true;
         hasActiveCompositionInput = true;
         if(last229CandidateTimer){
             clearTimeout(last229CandidateTimer);
@@ -5297,7 +5301,7 @@ e.addEventListener('compositionupdate',(ev)=>{
     }
 });
 e.addEventListener('compositionend',(ev)=>{
-    let wasTyping = (hasActiveCompositionInput && composingText && composingText.length > 0);
+    let wasTyping = (hasUserTypedSinceCaretMove || (hasActiveCompositionInput && composingText && composingText.length > 0));
     if(last229CandidateTimer){
         clearTimeout(last229CandidateTimer);
         last229CandidateTimer = null;
@@ -5313,7 +5317,7 @@ e.addEventListener('compositionend',(ev)=>{
     // 空の確定/Return（!wasTyping かつ 空文字確定）が押された場合、強制的に1回で改行を実行
     if(!wasTyping && (!ev.data || ev.data === '')){
         let now = Date.now();
-        if(now - lastEnterTimestamp >= 150){
+        if(now - lastEnterTimestamp >= 100){
             handleNewlineAction(ev);
         }
     }
@@ -5325,33 +5329,40 @@ e.addEventListener('compositionend',(ev)=>{
 // 現在選択されている行（#eの直下div）を正確に特定
 function getActiveEditorLineDiv(){
     let sel = window.getSelection();
-    if(!sel || sel.rangeCount === 0) return e.firstElementChild || null;
-    let range = sel.getRangeAt(0);
-    let node = range.startContainer;
-    
-    if(node === e){
-        let childNodes = Array.from(e.children);
-        let idx = Math.min(Math.max(0, range.startOffset), childNodes.length - 1);
-        if(idx >= 0 && childNodes[idx]) return childNodes[idx];
-        return e.firstElementChild || null;
-    }
-    
-    while(node && node.parentElement !== e && node !== document.body && node !== document.documentElement){
-        node = node.parentElement;
-    }
-    if(node && node.parentElement === e) return node;
-    
-    if(sel.anchorNode){
-        let an = sel.anchorNode;
-        if(an === e){
-            let childNodes = Array.from(e.children);
-            let idx = Math.min(Math.max(0, sel.anchorOffset), childNodes.length - 1);
+    if(sel && sel.rangeCount > 0){
+        let range = sel.getRangeAt(0);
+        let node = range.startContainer;
+        
+        if(node === e){
+            let childNodes = Array.from(e.children).filter(c => c.tagName === 'DIV');
+            let idx = Math.min(Math.max(0, range.startOffset), childNodes.length - 1);
             if(idx >= 0 && childNodes[idx]) return childNodes[idx];
+        } else {
+            let n = node;
+            while(n && n.parentElement !== e && n !== document.body && n !== document.documentElement){
+                n = n.parentElement;
+            }
+            if(n && n.parentElement === e) return n;
         }
-        while(an && an.parentElement !== e && an !== document.body){
-            an = an.parentElement;
+        
+        if(sel.anchorNode){
+            let an = sel.anchorNode;
+            if(an === e){
+                let childNodes = Array.from(e.children).filter(c => c.tagName === 'DIV');
+                let idx = Math.min(Math.max(0, sel.anchorOffset), childNodes.length - 1);
+                if(idx >= 0 && childNodes[idx]) return childNodes[idx];
+            } else {
+                while(an && an.parentElement !== e && an !== document.body){
+                    an = an.parentElement;
+                }
+                if(an && an.parentElement === e) return an;
+            }
         }
-        if(an && an.parentElement === e) return an;
+    }
+    
+    // フォールバック：直前にユーザーがカーソルを置いた行（1行目への誤爆を防止）
+    if(lastActiveLine && e.contains(lastActiveLine)){
+        return lastActiveLine;
     }
     return e.firstElementChild || null;
 }
@@ -5359,10 +5370,9 @@ function getActiveEditorLineDiv(){
 // 1回のEnter押下・改行キー押下で確実に1行改行（新div行生成・分割・キャレット配置）を実行
 function executeEditorNewline(){
     let sel = window.getSelection();
-    if(!sel) return;
     
     // 範囲選択があれば処理：誤選択（短い選択）なら削除せず先頭に折りたたんで改行
-    if(sel.rangeCount > 0){
+    if(sel && sel.rangeCount > 0){
         let r = sel.getRangeAt(0);
         if(!r.collapsed){
             if(r.toString().length <= 3){
@@ -5380,7 +5390,7 @@ function executeEditorNewline(){
         e.appendChild(curDiv);
     }
     
-    let range = (sel.rangeCount > 0) ? sel.getRangeAt(0) : null;
+    let range = (sel && sel.rangeCount > 0) ? sel.getRangeAt(0) : null;
     let tailFrag = null;
     let splitSuccess = false;
     
@@ -5434,11 +5444,14 @@ function executeEditorNewline(){
                     preRange.selectNodeContents(curDiv);
                     preRange.setEnd(range.startContainer, range.startOffset);
                     offset = preRange.toString().length;
-                } catch(e){
-                    offset = 0;
+                } catch(err){
+                    offset = (typeof lastActiveOffset === 'number' && lastActiveLine === curDiv) ? lastActiveOffset : 0;
                 }
             }
+        } else if(typeof lastActiveOffset === 'number' && lastActiveLine === curDiv){
+            offset = lastActiveOffset;
         }
+        
         let preText = fullText.slice(0, offset);
         let postText = fullText.slice(offset);
         if(preText) curDiv.textContent = preText;
@@ -5464,12 +5477,19 @@ function executeEditorNewline(){
         e.appendChild(newDiv);
     }
     
-    // カーソルを確実に新行の先頭へセット（iOSおよび全ブラウザで確実にテキストノード/brへアンカー）
+    // 状態を更新
+    lastActiveLine = newDiv;
+    lastActiveOffset = 0;
+    hasUserTypedSinceCaretMove = false;
+    
+    // カーソルを確実に新行の先頭へセット（iOSおよび全ブラウザで確実にキャレットの高さを維持して配置）
     function positionCaretInNewDiv(){
         try {
             setCaretCharOffset(newDiv, 0);
             normalizeEditorSelectionToTextNode();
         } catch(err){
+            let currentSel = window.getSelection();
+            if(!currentSel) return;
             let newRange = document.createRange();
             let br = newDiv.querySelector('br');
             if(newDiv.firstChild && newDiv.firstChild.nodeType === 3){
@@ -5480,21 +5500,25 @@ function executeEditorNewline(){
                 newRange.selectNodeContents(newDiv);
             }
             newRange.collapse(true);
-            sel.removeAllRanges();
-            sel.addRange(newRange);
+            currentSel.removeAllRanges();
+            currentSel.addRange(newRange);
         }
     }
+    
     positionCaretInNewDiv();
-    // iOS/WebKit等のフォーカス再計算に備えて次フレームでも再保証
+    // iOS Safari / WebKitの遅延キャレット縮小・リセットを打ち消すため複数回再保証
     requestAnimationFrame(()=>{
         positionCaretInNewDiv();
     });
     setTimeout(()=>{
         positionCaretInNewDiv();
-    }, 30);
+    }, 15);
     setTimeout(()=>{
         positionCaretInNewDiv();
-    }, 80);
+    }, 45);
+    setTimeout(()=>{
+        positionCaretInNewDiv();
+    }, 100);
     
     v();
     sc();
@@ -5505,15 +5529,18 @@ let lastEnterTimestamp = 0;
 
 function handleNewlineAction(ev){
     let now = Date.now();
-    if(now - lastEnterTimestamp < 220){
+    if(now - lastEnterTimestamp < 110){
         if(ev && ev.preventDefault) ev.preventDefault();
+        if(ev && ev.stopPropagation) ev.stopPropagation();
         return;
     }
     if(ev && ev.preventDefault) ev.preventDefault();
+    if(ev && ev.stopPropagation) ev.stopPropagation();
     lastEnterTimestamp = now;
     isComposing = false;
     composingText = '';
     hasActiveCompositionInput = false;
+    hasUserTypedSinceCaretMove = false;
     executeEditorNewline();
 }
 
@@ -5521,6 +5548,7 @@ function handleNewlineAction(ev){
 function onBeforeInputNewline(ev){
     if(ev.inputType === 'insertCompositionText' || ev.inputType === 'insertText'){
         if(ev.data && ev.data !== '\n' && ev.data !== '\r'){
+            hasUserTypedSinceCaretMove = true;
             hasActiveCompositionInput = true;
             composingText = ev.data;
             // 実際の文字入力が始まったので、未入力改行判定タイマーを即座にキャンセル
@@ -5568,10 +5596,10 @@ function onKeydownNewline(ev){
     let is229 = (ev.keyCode === 229 || ev.which === 229 || ev.key === 'Process' || ev.key === 'Unidentified' || (ev.keyCode === 0 && !ev.key));
     
     // 実際に未確定文字列を入力中（かな等の変換前タイピング中）か判定
-    let isTypingComposition = (hasActiveCompositionInput && composingText && composingText.length > 0);
+    let isTypingComposition = (hasUserTypedSinceCaretMove && composingText && composingText.length > 0);
     if(isTypingComposition) return;
     
-    // 1. Enterキー押下時は即座に改行
+    // 1. Enterキー押下時は即座に奪って改行を実行
     if(isEnterKey){
         if(last229CandidateTimer){
             clearTimeout(last229CandidateTimer);
@@ -5582,10 +5610,10 @@ function onKeydownNewline(ev){
     }
     
     // 2. iPad等のkeyCode 229 / Processキー（予測変換候補表示中の確定／↩キー押下）
-    // 文字未入力の状態で押された場合：
-    // もし文字キー（あ、か等）なら直後（20ミリ秒以内）にbeforeinput/inputが発火して文字が入る。
-    // もし30ミリ秒経っても文字入力が一切起きなければ、押されたのは文字キーではなく「確定／↩（改行）」であるため、
-    // 未入力確定処理完了として1回で確実に改行を実行する！
+    // 文字を一切タイピングしていない状態（カーソルを置いた直後など）：
+    // もし文字キー（あ、か等）なら直後（10〜15ミリ秒以内）にbeforeinput/compositionupdateが発火して文字が入る。
+    // もし15ミリ秒経っても文字入力が一切起きなければ、押されたのは文字キーではなく「確定／↩（改行）」であるため、
+    // iPadOSの予測候補キャンセル動作より先に確実に奪って1回で改行を実行する！
     if(is229){
         if(last229CandidateTimer){
             clearTimeout(last229CandidateTimer);
@@ -5594,15 +5622,15 @@ function onKeydownNewline(ev){
         let savedTextLength = e.textContent.length;
         last229CandidateTimer = setTimeout(()=>{
             last229CandidateTimer = null;
-            let currentTyping = (hasActiveCompositionInput && composingText && composingText.length > 0);
+            let currentTyping = (hasUserTypedSinceCaretMove && composingText && composingText.length > 0);
             let textLengthChanged = (e.textContent.length !== savedTextLength);
             if(!currentTyping && !textLengthChanged){
                 let now = Date.now();
-                if(now - lastEnterTimestamp >= 130){
+                if(now - lastEnterTimestamp >= 100){
                     handleNewlineAction(null);
                 }
             }
-        }, 30);
+        }, 15);
     }
 }
 
@@ -5623,7 +5651,7 @@ window.addEventListener('keyup', (ev)=>{
     
     let isEnterKey = (ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter');
     let is229 = (ev.keyCode === 229 || ev.which === 229 || ev.key === 'Process' || ev.key === 'Unidentified' || (ev.keyCode === 0 && !ev.key));
-    let isTypingComposition = (hasActiveCompositionInput && composingText && composingText.length > 0);
+    let isTypingComposition = (hasUserTypedSinceCaretMove && composingText && composingText.length > 0);
     if(isTypingComposition) return;
     
     if(isEnterKey){
@@ -5632,19 +5660,19 @@ window.addEventListener('keyup', (ev)=>{
             last229CandidateTimer = null;
         }
         let now = Date.now();
-        if(now - lastEnterTimestamp < 150) return;
+        if(now - lastEnterTimestamp < 100) return;
         handleNewlineAction(ev);
         return;
     }
     
     // iPad iOS: 予測変換表示中に文字未入力のまま「↩」キーを押して指を離した瞬間に確実に1回改行
-    if(is229){
+    if(is229 && !hasUserTypedSinceCaretMove){
         if(last229CandidateTimer){
             clearTimeout(last229CandidateTimer);
             last229CandidateTimer = null;
         }
         let now = Date.now();
-        if(now - lastEnterTimestamp >= 130){
+        if(now - lastEnterTimestamp >= 100){
             handleNewlineAction(ev);
         }
     }
