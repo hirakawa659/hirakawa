@@ -1553,6 +1553,7 @@ function tgLineNumbers(){
     applyLineNumbersVisibility(nextState);
     localStorage.setItem('n_show_line_numbers', nextState);
     if(nextState === 'on'){
+        invalidateLineNumbersCache();
         try { updateLineNumbers(); } catch(err){}
     }
 }
@@ -2026,46 +2027,72 @@ function ensureGridLines(){
     }
 }
 
-let lastRenderedVisibleLines = -1;
+let lastRenderedStartLine = -1;
+let lastRenderedEndLine = -1;
 let lastRenderedActiveLine = -1;
+let lastRenderedTotalLines = -1;
+let lineNumScrollRaf = null;
+
+function invalidateLineNumbersCache(){
+    lastRenderedStartLine = -1;
+    lastRenderedEndLine = -1;
+    lastRenderedActiveLine = -1;
+    lastRenderedTotalLines = -1;
+}
 
 function updateLineNumbers(divs){
     if(!n || n.style.display === 'none') return;
-    if(!divs){
-        divs=e.querySelectorAll('#e>div');
-        if(divs.length===0) divs=e.querySelectorAll('div');
+    let totalLines = e.children ? e.children.length : 0;
+    if(totalLines === 0){
+        let d = divs || e.querySelectorAll('#e>div');
+        if(!d || d.length === 0) d = e.querySelectorAll('div');
+        totalLines = Math.max(1, d ? d.length : 1);
     }
-    let totalLines=Math.max(1, divs.length);
-    let cs=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs'))||32;
-    let mCont=document.querySelector('.m');
-    let mHeight=mCont?mCont.clientHeight:(window.innerHeight||800);
-    let minLinesForScreen=Math.ceil(mHeight/cs)+5;
-    // 画面一杯分＋余白15行分を安定描画（スクロール量に依存しないため無限膨張・再描画カクつきが一切起きない）
-    let visibleGridLines=Math.max(totalLines+15, minLinesForScreen);
+    let cs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 32;
+    let mCont = document.querySelector('.m');
+    let mHeight = mCont ? mCont.clientHeight : (window.innerHeight || 800);
+    let minLinesForScreen = Math.ceil(mHeight / cs) + 5;
+    let visibleGridLines = Math.max(totalLines + 15, minLinesForScreen);
     
+    n.style.height = (visibleGridLines * cs) + 'px';
+    n.style.minHeight = (visibleGridLines * cs) + 'px';
+    n.style.position = 'relative';
+
+    let scrollTop = mCont ? mCont.scrollTop : 0;
+    let buffer = 25;
+    let startLine = Math.max(1, Math.floor(scrollTop / cs) - buffer);
+    let endLine = Math.min(visibleGridLines, Math.ceil((scrollTop + mHeight) / cs) + buffer);
+
     let lastActiveLine = 0;
-    for(let i=divs.length-1; i>=0; i--){
-        let d = divs[i];
-        let txt = d.textContent.replace(/[\r\n]/g,'');
-        if(txt.length > 0 || d.querySelector('.sub-sup, .hidden-char-badge, .hm-mark, img')){
-            lastActiveLine = i + 1;
-            break;
+    let children = e.children;
+    if(children && children.length > 0){
+        for(let i = children.length - 1; i >= 0; i--){
+            let d = children[i];
+            let txt = d.textContent ? d.textContent.replace(/[\r\n]/g, '') : '';
+            if(txt.length > 0 || d.querySelector?.('.sub-sup, .hidden-char-badge, .hm-mark, img')){
+                lastActiveLine = i + 1;
+                break;
+            }
         }
     }
     if(lastActiveLine === 0) lastActiveLine = 1;
     
-    if(visibleGridLines !== lastRenderedVisibleLines || lastActiveLine !== lastRenderedActiveLine){
-        lastRenderedVisibleLines = visibleGridLines;
+    if(startLine !== lastRenderedStartLine || endLine !== lastRenderedEndLine || lastActiveLine !== lastRenderedActiveLine || visibleGridLines !== lastRenderedTotalLines){
+        lastRenderedStartLine = startLine;
+        lastRenderedEndLine = endLine;
         lastRenderedActiveLine = lastActiveLine;
-        let h='';
-        for(let i=1;i<=visibleGridLines;i++){
-            if(i<=lastActiveLine){
-                h+=i+'<br>';
+        lastRenderedTotalLines = visibleGridLines;
+        
+        let h = `<div style="position:absolute;top:${(startLine - 1) * cs}px;left:0;right:0;padding-right:4px;line-height:${cs}px!important;text-align:right;box-sizing:border-box;pointer-events:none">`;
+        for(let i = startLine; i <= endLine; i++){
+            if(i <= lastActiveLine){
+                h += i + '<br>';
             }else{
-                h+=`<span style="color:#cbd5e1;font-size:10px">${i}</span><br>`;
+                h += `<span style="color:#cbd5e1;font-size:10px">${i}</span><br>`;
             }
         }
-        n.innerHTML=h;
+        h += `</div>`;
+        n.innerHTML = h;
     }
 }
 
@@ -2107,6 +2134,7 @@ function v(){
 }
 function o(id){
     let prevF = f;
+    invalidateLineNumbersCache();
     if(typeof flushPendingHeavyTask === 'function' && f && f !== id){
         flushPendingHeavyTask();
     }
@@ -6828,6 +6856,14 @@ function initScrollTracker(){
     if(!mCont) return;
     
     mCont.addEventListener('scroll', () => {
+        if(n && n.style.display !== 'none'){
+            if(!lineNumScrollRaf){
+                lineNumScrollRaf = requestAnimationFrame(() => {
+                    lineNumScrollRaf = null;
+                    updateLineNumbers();
+                });
+            }
+        }
         if(isRestoringAppScroll) return;
         if(document.hidden) return;
         
