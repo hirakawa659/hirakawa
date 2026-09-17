@@ -245,7 +245,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_search_folder" class="tool-item" onclick="toggleFolderSearchBar()" style="background:transparent;border:none;color:#0369a1;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="現在開いているフォルダ内やノート内の語句を検索">開フォルダ内<br>検索</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:transparent;border:none;color:#1e40af;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
 <button id="tool_area" class="tool-item" onclick="openToolbarColorModal(event)" style="background:transparent;border:none;color:#334155;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="領域の設定（各ツールの文字色設定）">領域</button>
-<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（1回での改行処理・カーソル位置）を確認">最新修正<br>3</button>
+<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（行頭・左端での1回での改行処理）を確認">最新修正<br>4</button>
 <select id="l" onchange="updateColsDisplay();z()" style="display:none"></select>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
@@ -1760,11 +1760,12 @@ function normalizeEditorSelectionToTextNode(){
     if(isNormalizingSelection || isComposing) return;
     let sel = window.getSelection();
     if(!sel || sel.rangeCount === 0 || !sel.isCollapsed) return;
-    if(document.activeElement !== e && !e.contains(document.activeElement)) return;
     let node = sel.anchorNode;
     if(!node) return;
+    // エディタ外の選択は対象外
+    if(node !== e && !e.contains(node)) return;
     
-    // 1. anchorNodeが #e そのものにある場合：適切な子行DIVを探してキャレットを内部に引き込む
+    // 1. anchorNodeが #e そのものにある場合：適切な子行DIVを探してキャレットを内部のテキストノード直下に引き込む
     if(node === e){
         isNormalizingSelection = true;
         try {
@@ -1772,7 +1773,17 @@ function normalizeEditorSelectionToTextNode(){
             if(childDivs.length > 0){
                 let idx = Math.min(Math.max(0, sel.anchorOffset), childDivs.length - 1);
                 let targetDiv = childDivs[idx] || childDivs[0];
-                setCaretCharOffset(targetDiv, 0);
+                let walker = document.createTreeWalker(targetDiv, NodeFilter.SHOW_TEXT, null, false);
+                let firstText = walker.nextNode();
+                if(firstText){
+                    let range = document.createRange();
+                    range.setStart(firstText, 0);
+                    range.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                } else {
+                    setCaretCharOffset(targetDiv, 0);
+                }
             }
         } finally {
             isNormalizingSelection = false;
@@ -1780,42 +1791,46 @@ function normalizeEditorSelectionToTextNode(){
         return;
     }
     
-    // 2. anchorNodeが #e > div（行コンテナ要素自身）にある場合：
-    // iOS/WebKitではDIV要素に直接キャレットが置かれるとカーソルが特大（マス目2行分やline-height全体）になり、
-    // キーボードの1回目の改行タップが「テキストノードへの潜り込み」として吸い取られて改行されなくなる。
-    // そのため、行にテキストがある場合は必ず即座にテキストノード（Text node）直下にアンカーし直す。
-    if(node.nodeType === 1 && node.parentElement === e && node.tagName === 'DIV'){
-        isNormalizingSelection = true;
-        try {
-            let offset = sel.anchorOffset;
-            let walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null, false);
-            let firstText = walker.nextNode();
-            if(firstText){
-                let range = document.createRange();
-                if(offset === 0){
-                    range.setStart(firstText, 0);
-                    range.collapse(true);
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                } else {
-                    setCaretCharOffset(node, node.textContent.replace(/[\r\n]/g, '').length);
-                }
-            } else {
-                let br = node.querySelector('br');
-                if(!br){
-                    node.innerHTML = '<br>';
-                    br = node.querySelector('br');
-                }
-                if(br){
+    // 2. anchorNodeが要素ノード（#e直下DIVやその子要素）にある場合：
+    // iOS/WebKitではDIV要素に直接キャレットが置かれるとカーソルが特大になったり、
+    // 左端でのキーボードの1回目の改行タップが「テキストノードへの潜り込み」として吸い取られて改行されなくなる。
+    // そのため、行頭・左端を含め、常にテキストノード（Text node）直下にアンカーする。
+    if(node.nodeType === 1){
+        let targetDiv = (node.parentElement === e) ? node : node.closest('#e>div');
+        if(!targetDiv && node === e) targetDiv = e.firstElementChild;
+        if(targetDiv){
+            isNormalizingSelection = true;
+            try {
+                let offset = sel.anchorOffset;
+                let walker = document.createTreeWalker(targetDiv, NodeFilter.SHOW_TEXT, null, false);
+                let firstText = walker.nextNode();
+                if(firstText){
                     let range = document.createRange();
-                    range.setStartBefore(br);
-                    range.collapse(true);
-                    sel.removeAllRanges();
-                    sel.addRange(range);
+                    if(offset === 0 || node === targetDiv || node === e){
+                        range.setStart(firstText, 0);
+                        range.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    } else {
+                        setCaretCharOffset(targetDiv, targetDiv.textContent.replace(/[\r\n]/g, '').length);
+                    }
+                } else {
+                    let br = targetDiv.querySelector('br');
+                    if(!br){
+                        targetDiv.innerHTML = '<br>';
+                        br = targetDiv.querySelector('br');
+                    }
+                    if(br){
+                        let range = document.createRange();
+                        range.setStartBefore(br);
+                        range.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }
                 }
+            } finally {
+                isNormalizingSelection = false;
             }
-        } finally {
-            isNormalizingSelection = false;
         }
     }
 }
@@ -1823,6 +1838,7 @@ function normalizeEditorSelectionToTextNode(){
 function handleSelectionEvent(){
     normalizeEditorSelectionToTextNode();
     recordActiveSelection();
+    setTimeout(normalizeEditorSelectionToTextNode, 20);
     if(selChangeDebounce) clearTimeout(selChangeDebounce);
     selChangeDebounce = setTimeout(checkAndDisplaySelectionCount, 120);
 }
@@ -1830,6 +1846,7 @@ function handleSelectionEvent(){
 document.addEventListener('selectionchange', handleSelectionEvent);
 window.addEventListener('mouseup', handleSelectionEvent);
 window.addEventListener('touchend', handleSelectionEvent);
+window.addEventListener('pointerup', handleSelectionEvent);
 e.addEventListener('keyup', (ev)=>{
     normalizeEditorSelectionToTextNode();
     recordActiveSelection();
@@ -1838,8 +1855,16 @@ e.addEventListener('pointerup', (ev)=>{
     normalizeEditorSelectionToTextNode();
     recordActiveSelection();
 });
-e.addEventListener('focus', ()=>{
+e.addEventListener('click', ()=>{
+    normalizeEditorSelectionToTextNode();
     setTimeout(normalizeEditorSelectionToTextNode, 10);
+    setTimeout(normalizeEditorSelectionToTextNode, 50);
+});
+e.addEventListener('focus', ()=>{
+    normalizeEditorSelectionToTextNode();
+    setTimeout(normalizeEditorSelectionToTextNode, 10);
+    setTimeout(normalizeEditorSelectionToTextNode, 50);
+    setTimeout(normalizeEditorSelectionToTextNode, 120);
 });
 
 function norm(){
@@ -5142,7 +5167,7 @@ function scrollToLatestFix(){
     }
     let toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:10px 16px;border-radius:8px;font-size:12.5px;font-weight:bold;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s ease;pointer-events:none';
-    toast.textContent = '最新修正3: 1回目のカーソルが大きくなる現象を解消し、1回の改行で確実に改行できるように修正完了';
+    toast.textContent = '最新修正4: 行頭・左端で1回の改行ボタン押下で確実に改行できるよう修正完了';
     document.body.appendChild(toast);
     setTimeout(()=>{
         toast.style.opacity = '0';
@@ -5219,6 +5244,12 @@ function executeEditorNewline(){
         let startContainer = range.startContainer;
         let startOffset = range.startOffset;
         
+        // startContainerが#eの場合、curDivの先頭（左端）にカーソルがある
+        if(startContainer === e){
+            startContainer = curDiv;
+            startOffset = 0;
+        }
+        
         // startContainerがcurDivの内側またはcurDiv自身である場合
         if(curDiv.contains(startContainer) || startContainer === curDiv){
             try {
@@ -5247,15 +5278,21 @@ function executeEditorNewline(){
     } else {
         // フォールバック：文字オフセットベースでの安全な分割
         let fullText = curDiv.textContent.replace(/[\r\n]/g, '');
-        let offset = fullText.length;
-        if(range && (curDiv.contains(range.startContainer) || range.startContainer === curDiv)){
-            try {
-                let preRange = document.createRange();
-                preRange.selectNodeContents(curDiv);
-                preRange.setEnd(range.startContainer, range.startOffset);
-                offset = preRange.toString().length;
-            } catch(e){
-                offset = fullText.length;
+        let offset = 0;
+        if(range){
+            if(range.startContainer === e){
+                offset = 0;
+            } else if(range.startContainer === curDiv){
+                offset = (range.startOffset === 0) ? 0 : fullText.length;
+            } else if(curDiv.contains(range.startContainer)){
+                try {
+                    let preRange = document.createRange();
+                    preRange.selectNodeContents(curDiv);
+                    preRange.setEnd(range.startContainer, range.startOffset);
+                    offset = preRange.toString().length;
+                } catch(e){
+                    offset = 0;
+                }
             }
         }
         let preText = fullText.slice(0, offset);
@@ -5310,7 +5347,10 @@ function executeEditorNewline(){
     });
     setTimeout(()=>{
         positionCaretInNewDiv();
-    }, 40);
+    }, 30);
+    setTimeout(()=>{
+        positionCaretInNewDiv();
+    }, 80);
     
     v();
     sc();
@@ -5319,40 +5359,51 @@ function executeEditorNewline(){
 
 let lastEnterTimestamp = 0;
 
-// beforeinputイベント：iOS Safari・iPad・Androidのソフトウェアキーボードにおける改行（insertParagraph/insertLineBreak/insertText改行）を1回で確実に捕捉
-e.addEventListener('beforeinput', (ev)=>{
-    if(ev.inputType === 'insertParagraph' || ev.inputType === 'insertLineBreak' || (ev.inputType === 'insertText' && (ev.data === '\n' || ev.data === '\r'))){
+function handleNewlineAction(ev){
+    let now = Date.now();
+    if(now - lastEnterTimestamp < 120){
         ev.preventDefault();
-        let now = Date.now();
-        if(now - lastEnterTimestamp < 120) return;
-        lastEnterTimestamp = now;
-        executeEditorNewline();
+        return;
     }
-});
+    ev.preventDefault();
+    lastEnterTimestamp = now;
+    executeEditorNewline();
+}
+
+// beforeinputイベント：iOS Safari・iPad・Androidのソフトウェアキーボードにおける改行（insertParagraph/insertLineBreak/insertText改行）を1回で確実に捕捉
+function onBeforeInputNewline(ev){
+    let isNewline = (ev.inputType === 'insertParagraph' || 
+                     ev.inputType === 'insertLineBreak' || 
+                     (ev.inputType === 'insertText' && (ev.data === '\n' || ev.data === '\r')) ||
+                     (ev.data && (ev.data.includes('\n') || ev.data.includes('\r'))));
+    if(isNewline){
+        handleNewlineAction(ev);
+    }
+}
+
+e.addEventListener('beforeinput', onBeforeInputNewline, true);
+document.addEventListener('beforeinput', (ev)=>{
+    if(ev.target === e || (ev.target && e.contains(ev.target))){
+        onBeforeInputNewline(ev);
+    }
+}, true);
 
 // keydownイベント：PCキーボード、ハードウェアキーボード等のEnterキー押下時の制御
-e.addEventListener('keydown', (ev)=>{
-    if(ev.key === 'Enter' || ev.keyCode === 13){
+function onKeydownNewline(ev){
+    if(ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter'){
         // 日本語IME等で未確定文字列を変換確定中の場合は変換確定に任せる
         if(isComposing) return;
-        
-        let now = Date.now();
-        // beforeinputと重複して2重改行になるのを防止
-        if(now - lastEnterTimestamp < 120){
-            ev.preventDefault();
-            return;
-        }
         
         // PCのIME変換中のkeyCode 229をスキップ
         if(ev.isComposing && ev.keyCode === 229){
             return;
         }
         
-        ev.preventDefault();
-        lastEnterTimestamp = now;
-        executeEditorNewline();
+        handleNewlineAction(ev);
     }
-});
+}
+
+e.addEventListener('keydown', onKeydownNewline, true);
 
 // 文字入力イベント
 // 文字の表示自体はネイティブの最高速のまま維持し、同期的には重い文字数カウントやDOMマス入れ・保存は行わない
@@ -6758,11 +6809,13 @@ function applyCaretToDiv(targetDiv, targetCol, maxCols){
         } else {
             // 文字の存在するマス目をクリック：その文字の位置へ
             setCaretCharOffset(targetDiv, targetCol);
+            normalizeEditorSelectionToTextNode();
             return;
         }
     }
     sel.removeAllRanges();
     sel.addRange(range);
+    normalizeEditorSelectionToTextNode();
     if(mCont && mCont.scrollTop !== savedScrollTop){
         mCont.scrollTop = savedScrollTop;
     }
@@ -6903,8 +6956,18 @@ function handleCellClick(ev){
             mCont.scrollTop = savedScrollTop;
         }
         applyCaretToDiv(targetDiv, targetCol, maxCols);
+        normalizeEditorSelectionToTextNode();
         v();
         s();
+        requestAnimationFrame(()=>{
+            normalizeEditorSelectionToTextNode();
+        });
+        setTimeout(()=>{
+            normalizeEditorSelectionToTextNode();
+        }, 30);
+        setTimeout(()=>{
+            normalizeEditorSelectionToTextNode();
+        }, 100);
         if(mCont && mCont.scrollTop !== savedScrollTop){
             mCont.scrollTop = savedScrollTop;
         }
@@ -6941,6 +7004,7 @@ e.addEventListener('mousedown',()=>{
     }
 });
 e.addEventListener('click',(ev)=>{
+    setTimeout(normalizeEditorSelectionToTextNode, 10);
     if(touchHandled && (Date.now() - (lastTouchPos?.time || 0) < 500)) return;
     const mCont = document.querySelector('.m');
     const savedScrollTop = mCont ? mCont.scrollTop : 0;
