@@ -32,9 +32,9 @@ button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;backgroun
 .editor-header-info{display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;padding:4px 12px 5px 8px;background:var(--paper-bg);color:var(--text-color);border-bottom:1px solid var(--sidebar-border);min-height:44px;flex-shrink:0;user-select:none;width:100%;z-index:90;gap:2px}
 .story-count-display{display:inline-flex;align-items:center;white-space:nowrap;font-size:11px;cursor:default;gap:4px}
 .l{width:70px;border-right:1px solid var(--grid-color);padding:0;text-align:right;font-size:12px;color:var(--linenum-text);padding-right:4px;-webkit-user-select:none;-moz-user-select:none;user-select:none;pointer-events:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:var(--paper-bg);position:relative}
-#e{flex-grow:1;height:auto;min-height:100%;padding:0;outline:0;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;display:block!important;box-sizing:border-box;font-size:calc(var(--cs)*0.78)!important;line-height:var(--cs)!important;letter-spacing:calc(var(--cs)*0.22)!important;text-align:left!important;caret-color:#2563eb;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","MS Gothic",monospace;font-feature-settings:"halt" 0,"palt" 0,"pkna" 0,"fwid" 1!important;font-variant-east-asian:full-width!important;font-kerning:none!important;background-color:var(--paper-bg)!important;color:var(--text-color)!important;background-image:linear-gradient(90deg,var(--grid-color) 1px,transparent 1px),linear-gradient(var(--grid-color) 1px,transparent 1px)!important;background-size:var(--cs) var(--cs)!important;background-repeat:repeat!important;background-position:0 0!important;cursor:text;contain:style;-webkit-touch-callout:none!important;overflow:visible!important}
+#e{flex-grow:1;height:auto;min-height:100%;padding:0;outline:0;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;display:block!important;box-sizing:border-box;font-size:calc(var(--cs)*0.78)!important;line-height:var(--cs)!important;letter-spacing:calc(var(--cs)*0.22)!important;text-align:left!important;caret-color:#2563eb;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","MS Gothic",monospace;font-feature-settings:"halt" 0,"palt" 0,"pkna" 0,"fwid" 1!important;font-variant-east-asian:full-width!important;font-kerning:none!important;background-color:var(--paper-bg)!important;color:var(--text-color)!important;background-image:linear-gradient(90deg,var(--grid-color) 1px,transparent 1px),linear-gradient(var(--grid-color) 1px,transparent 1px)!important;background-size:var(--cs) var(--cs)!important;background-repeat:repeat!important;background-position:0 0!important;cursor:text;contain:style}
 #e *{background-color:transparent}
-#e div,#e p{min-height:var(--cs)!important;display:block!important;box-sizing:border-box;text-align:left!important;line-height:var(--cs)!important;padding:0!important;padding-left:calc(var(--cs)*0.11)!important;margin:0!important;background:transparent!important;width:calc(100% + calc(var(--cs)*0.25))!important;max-width:calc(100% + calc(var(--cs)*0.25))!important;overflow:visible!important}
+#e div,#e p{min-height:var(--cs)!important;display:block!important;box-sizing:border-box;text-align:left!important;line-height:var(--cs)!important;padding:0!important;padding-left:calc(var(--cs)*0.11)!important;margin:0!important;background:transparent!important;width:100%!important;overflow:visible!important}
 #e span{display:inline;margin:0;padding:0;box-sizing:border-box}
 .sub-sup{display:inline-block!important;width:calc(var(--cs)*0.78)!important;height:calc(var(--cs)*0.78)!important;line-height:calc(var(--cs)*0.78)!important;letter-spacing:0!important;text-align:center!important;box-sizing:border-box!important;margin:0!important;margin-right:calc(var(--cs)*0.22)!important;padding:0!important;font-size:calc(var(--cs)*0.65)!important;vertical-align:middle!important;background:#e0e7ff!important;color:#1e3a8a!important;border-radius:2px!important;user-select:all}
 .sp-nonzen{display:inline!important;background:#fef08a!important;color:inherit!important;border-bottom:2px solid #f59e0b!important;border-radius:2px!important;white-space:pre!important;box-sizing:border-box;font-size:inherit!important;letter-spacing:inherit!important}
@@ -245,7 +245,6 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_search_folder" class="tool-item" onclick="toggleFolderSearchBar()" style="background:transparent;border:none;color:#0369a1;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="現在開いているフォルダ内やノート内の語句を検索">開フォルダ内<br>検索</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:transparent;border:none;color:#1e40af;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
 <button id="tool_area" class="tool-item" onclick="openToolbarColorModal(event)" style="background:transparent;border:none;color:#334155;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="領域の設定（各ツールの文字色設定）">領域</button>
-<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（横30字設定時に30文字目が正しく打てず改行してしまう問題を解消）を確認">最新修正<br>14</button>
 <select id="l" onchange="updateColsDisplay();z()" style="display:none"></select>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
@@ -416,7 +415,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   <div class="m" style="flex:1">
     <div id="w">
       <div class="l" id="n" style="pointer-events:none;-webkit-user-select:none;user-select:none">1</div>
-      <div id="e" contenteditable="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="enter"><div><br></div></div>
+      <div id="e" contenteditable="true"><div><br></div></div>
     </div>
   </div>
 </div>
@@ -1554,7 +1553,6 @@ function tgLineNumbers(){
     applyLineNumbersVisibility(nextState);
     localStorage.setItem('n_show_line_numbers', nextState);
     if(nextState === 'on'){
-        invalidateLineNumbersCache();
         try { updateLineNumbers(); } catch(err){}
     }
 }
@@ -1755,142 +1753,17 @@ function recordActiveSelection(){
     }
 }
 
-let isComposing = false;
-let composingText = '';
-let hasActiveCompositionInput = false;
-let hasUserTypedSinceCaretMove = false;
-let last229KeydownTime = 0;
-let last229WasAtLeftEdge = false;
-let isNormalizingSelection = false;
-function normalizeEditorSelectionToTextNode(){
-    if(isNormalizingSelection || (isComposing && composingText.length > 0)) return;
-    let sel = window.getSelection();
-    if(!sel || sel.rangeCount === 0 || !sel.isCollapsed) return;
-    let node = sel.anchorNode;
-    if(!node) return;
-    // エディタ外の選択は対象外
-    if(node !== e && !e.contains(node)) return;
-    
-    // 1. anchorNodeが #e そのものにある場合：適切な子行DIVを探してキャレットを内部のテキストノード直下に引き込む
-    if(node === e){
-        isNormalizingSelection = true;
-        try {
-            let childDivs = Array.from(e.children).filter(ch => ch.tagName === 'DIV');
-            if(childDivs.length > 0){
-                let idx = Math.min(Math.max(0, sel.anchorOffset), childDivs.length - 1);
-                let targetDiv = childDivs[idx] || childDivs[0];
-                let walker = document.createTreeWalker(targetDiv, NodeFilter.SHOW_TEXT, null, false);
-                let firstText = walker.nextNode();
-                if(firstText){
-                    let range = document.createRange();
-                    range.setStart(firstText, 0);
-                    range.collapse(true);
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                } else {
-                    setCaretCharOffset(targetDiv, 0);
-                }
-            }
-        } finally {
-            isNormalizingSelection = false;
-        }
-        return;
-    }
-    
-    // 2. anchorNodeが要素ノード（#e直下DIVやその子要素）にある場合：
-    // iOS/WebKitではDIV要素に直接キャレットが置かれるとカーソルが特大になったり、
-    // 左端でのキーボードの1回目の改行タップが「テキストノードへの潜り込み」として吸い取られて改行されなくなる。
-    // そのため、行頭・左端を含め、常にテキストノード（Text node）直下にアンカーする。
-    if(node.nodeType === 1){
-        let targetDiv = (node.parentElement === e) ? node : node.closest('#e>div');
-        if(!targetDiv && node === e) targetDiv = e.firstElementChild;
-        if(targetDiv){
-            isNormalizingSelection = true;
-            try {
-                let offset = sel.anchorOffset;
-                let walker = document.createTreeWalker(targetDiv, NodeFilter.SHOW_TEXT, null, false);
-                let firstText = walker.nextNode();
-                if(firstText){
-                    if(sel.anchorNode === firstText && sel.anchorOffset === 0 && (offset === 0 || node === targetDiv || node === e)){
-                        return;
-                    }
-                    let range = document.createRange();
-                    if(offset === 0 || node === targetDiv || node === e){
-                        range.setStart(firstText, 0);
-                        range.collapse(true);
-                        sel.removeAllRanges();
-                        sel.addRange(range);
-                    } else {
-                        setCaretCharOffset(targetDiv, targetDiv.textContent.replace(/[\r\n]/g, '').length);
-                    }
-                } else {
-                    let br = targetDiv.querySelector('br');
-                    if(!br){
-                        targetDiv.innerHTML = '<br>';
-                        br = targetDiv.querySelector('br');
-                    }
-                    if(br){
-                        if(sel.anchorNode === targetDiv && sel.anchorOffset === 0){
-                            return;
-                        }
-                        let range = document.createRange();
-                        range.setStartBefore(br);
-                        range.collapse(true);
-                        sel.removeAllRanges();
-                        sel.addRange(range);
-                    }
-                }
-            } finally {
-                isNormalizingSelection = false;
-            }
-        }
-    }
-}
-
 function handleSelectionEvent(){
-    hasUserTypedSinceCaretMove = false;
-    hasActiveCompositionInput = false;
-    isComposing = false;
-    composingText = '';
     recordActiveSelection();
     if(selChangeDebounce) clearTimeout(selChangeDebounce);
     selChangeDebounce = setTimeout(checkAndDisplaySelectionCount, 120);
 }
 
-// タップ時にiOS Safariが直近の文字を誤って選択（コールアウトメニュー「選択/自動入力」表示）するのを防止
-function collapseAccidentalSelectionOnTap(){
-    let sel = window.getSelection();
-    if(sel && !sel.isCollapsed && sel.rangeCount > 0){
-        let selectedStr = sel.toString();
-        // 1〜3文字の短い自動選択（誤爆）であれば即座にキャレットに解除
-        if(selectedStr && selectedStr.length <= 3){
-            sel.collapseToStart();
-        }
-    }
-}
-
 document.addEventListener('selectionchange', handleSelectionEvent);
 window.addEventListener('mouseup', handleSelectionEvent);
-window.addEventListener('touchend', ()=>{
-    handleSelectionEvent();
-    collapseAccidentalSelectionOnTap();
-});
-window.addEventListener('pointerup', handleSelectionEvent);
-e.addEventListener('keyup', (ev)=>{
-    if(ev.key && ev.key.startsWith('Arrow')){
-        handleSelectionEvent();
-    }
-});
-e.addEventListener('pointerdown', handleSelectionEvent);
-e.addEventListener('touchstart', handleSelectionEvent);
-e.addEventListener('click', ()=>{
-    handleSelectionEvent();
-    collapseAccidentalSelectionOnTap();
-});
-e.addEventListener('focus', ()=>{
-    handleSelectionEvent();
-    collapseAccidentalSelectionOnTap();
-});
+window.addEventListener('touchend', handleSelectionEvent);
+e.addEventListener('keyup', recordActiveSelection);
+e.addEventListener('pointerup', recordActiveSelection);
 
 function norm(){
     if(!e.innerHTML.trim()){e.innerHTML='<div><br></div>';return}
@@ -2156,48 +2029,42 @@ function ensureGridLines(){
 let lastRenderedVisibleLines = -1;
 let lastRenderedActiveLine = -1;
 
-function invalidateLineNumbersCache(){
-    lastRenderedVisibleLines = -1;
-    lastRenderedActiveLine = -1;
-}
-
 function updateLineNumbers(divs){
-    if(!n || n.style.display === 'none') return;
     if(!divs){
-        divs = e.querySelectorAll('#e>div');
-        if(divs.length === 0) divs = e.querySelectorAll('div');
+        divs=e.querySelectorAll('#e>div');
+        if(divs.length===0) divs=e.querySelectorAll('div');
     }
-    let totalLines = Math.max(1, divs.length);
-    let cs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 32;
-    let mCont = document.querySelector('.m');
-    let mHeight = mCont ? mCont.clientHeight : (window.innerHeight || 800);
-    let minLinesForScreen = Math.ceil(mHeight / cs) + 5;
-    let visibleGridLines = Math.max(totalLines + 15, minLinesForScreen);
+    let totalLines=Math.max(1, divs.length);
+    let cs=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs'))||32;
+    let mCont=document.querySelector('.m');
+    let mHeight=mCont?mCont.clientHeight:(window.innerHeight||800);
+    let minLinesForScreen=Math.ceil(mHeight/cs)+5;
+    // 画面一杯分＋余白15行分を安定描画（スクロール量に依存しないため無限膨張・再描画カクつきが一切起きない）
+    let visibleGridLines=Math.max(totalLines+15, minLinesForScreen);
     
-    let lastNonEmptyLineIndex = 0;
-    for(let i = divs.length - 1; i >= 0; i--){
+    let lastActiveLine = 0;
+    for(let i=divs.length-1; i>=0; i--){
         let d = divs[i];
-        let txt = d.textContent ? d.textContent.replace(/[\r\n]/g, '') : '';
-        if(txt.length > 0 || d.querySelector?.('.sub-sup, .hidden-char-badge, .hm-mark, img')){
-            lastNonEmptyLineIndex = i + 1;
+        let txt = d.textContent.replace(/[\r\n]/g,'');
+        if(txt.length > 0 || d.querySelector('.sub-sup, .hidden-char-badge, .hm-mark, img')){
+            lastActiveLine = i + 1;
             break;
         }
     }
-    if(lastNonEmptyLineIndex === 0) lastNonEmptyLineIndex = 1;
+    if(lastActiveLine === 0) lastActiveLine = 1;
     
-    if(visibleGridLines !== lastRenderedVisibleLines || lastNonEmptyLineIndex !== lastRenderedActiveLine){
+    if(visibleGridLines !== lastRenderedVisibleLines || lastActiveLine !== lastRenderedActiveLine){
         lastRenderedVisibleLines = visibleGridLines;
-        lastRenderedActiveLine = lastNonEmptyLineIndex;
-        
-        let h = '';
-        for(let i = 1; i <= visibleGridLines; i++){
-            if(i <= lastNonEmptyLineIndex){
-                h += i + '<br>';
+        lastRenderedActiveLine = lastActiveLine;
+        let h='';
+        for(let i=1;i<=visibleGridLines;i++){
+            if(i<=lastActiveLine){
+                h+=i+'<br>';
             }else{
-                h += `<span style="color:#cbd5e1;font-size:10px">${i}</span><br>`;
+                h+=`<span style="color:#cbd5e1;font-size:10px">${i}</span><br>`;
             }
         }
-        n.innerHTML = h;
+        n.innerHTML=h;
     }
 }
 
@@ -2239,7 +2106,6 @@ function v(){
 }
 function o(id){
     let prevF = f;
-    invalidateLineNumbersCache();
     if(typeof flushPendingHeavyTask === 'function' && f && f !== id){
         flushPendingHeavyTask();
     }
@@ -5114,12 +4980,15 @@ function sc(){
     },30);
 }
 
+let isComposing=false;
 let heavyTaskTimer=null;
 let pendingCleanLines=false;
 
 // 文字のマス入れ（空白ハイライト・添字1マス化・スパンクリーン）、文字数カウント、保存を一括実行
 function runHeavyTask(){
     if(isComposing) return;
+    const mCont = document.querySelector('.m');
+    const savedScrollTop = mCont ? mCont.scrollTop : 0;
     if(pendingCleanLines){
         cleanExcessiveLeadingLines();
         pendingCleanLines=false;
@@ -5132,7 +5001,17 @@ function runHeavyTask(){
     try{
         localStorage.setItem('n_r',e.innerHTML);
     }catch(err){}
-    sc();
+    if(mCont && mCont.scrollTop !== savedScrollTop){
+        mCont.scrollTop = savedScrollTop;
+    }
+    if(mCont && savedScrollTop > 0){
+        requestAnimationFrame(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        });
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        }, 50);
+    }
 }
 
 // 確定保存が必要なタイミング（タブ切り替え・保存・コピー・離脱等）で即時実行
@@ -5162,471 +5041,43 @@ function scheduleFormat(delay=300){
     scheduleHeavyTask(delay);
 }
 
-function scrollToLatestFix(){
-    showEditorView();
-    e.focus();
-    let sel = window.getSelection();
-    let activeDiv = null;
-    if(sel && sel.rangeCount > 0){
-        let n = sel.anchorNode;
-        while(n && n.parentElement !== e && n !== e){
-            n = n.parentElement;
-        }
-        if(n && n.parentElement === e) activeDiv = n;
-    }
-    if(!activeDiv){
-        let divs = e.querySelectorAll('#e>div');
-        if(divs.length === 0) divs = e.querySelectorAll('div');
-        activeDiv = divs.length > 0 ? divs[0] : null;
-    }
-    if(activeDiv){
-        activeDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        try { setCaretCharOffset(activeDiv, 0); } catch(err){}
-        let oldBg = activeDiv.style.backgroundColor;
-        activeDiv.style.transition = 'background-color 0.3s ease';
-        activeDiv.style.backgroundColor = '#fef08a';
-        setTimeout(()=>{
-            activeDiv.style.backgroundColor = oldBg;
-        }, 1200);
-    }
-    let toast = document.createElement('div');
-    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:10px 16px;border-radius:8px;font-size:12.5px;font-weight:bold;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s ease;pointer-events:none';
-    toast.textContent = '最新修正17: 別の場所から左端にカーソル移動後の過剰選択リセットを廃止し、1回目の改行キーで確実に1発改行するよう修正完了';
-    document.body.appendChild(toast);
-    setTimeout(()=>{
-        toast.style.opacity = '0';
-        setTimeout(()=> toast.remove(), 300);
-    }, 2800);
-}
-
-// キャレットが行の先頭（左端）にあるかを厳密に判定
-function isCaretAtLeftEdge(){
-    let sel = window.getSelection();
-    if(!sel || sel.rangeCount === 0) return true;
-    let range = sel.getRangeAt(0);
-    let node = range.startContainer;
-    let offset = range.startOffset;
-    if(node === e) return true;
-    let curDiv = getActiveEditorLineDiv();
-    if(!curDiv) return true;
-    if(node === curDiv && offset === 0) return true;
-    try {
-        let preRange = document.createRange();
-        preRange.selectNodeContents(curDiv);
-        preRange.setEnd(node, offset);
-        if(preRange.toString().length === 0) return true;
-    } catch(err){
-        if(offset === 0) return true;
-    }
-    return false;
-}
-
-let last229CandidateTimer = null;
-
-e.addEventListener('compositionstart',()=>{
-    isComposing = true;
-    composingText = '';
-});
-e.addEventListener('compositionupdate',(ev)=>{
-    isComposing = true;
-    composingText = ev.data || '';
-    if(ev.data && ev.data.length > 0){
-        hasUserTypedSinceCaretMove = true;
-        hasActiveCompositionInput = true;
-        if(last229CandidateTimer){
-            clearTimeout(last229CandidateTimer);
-            last229CandidateTimer = null;
-        }
-    }
-});
-e.addEventListener('compositionend',(ev)=>{
-    let wasTyping = (hasUserTypedSinceCaretMove && composingText && composingText.length > 0);
-    if(last229CandidateTimer){
-        clearTimeout(last229CandidateTimer);
-        last229CandidateTimer = null;
-    }
-    
-    isComposing = false;
-    composingText = '';
-    hasActiveCompositionInput = false;
-    last229WasAtLeftEdge = false;
-    
-    // iPad / iOS Safari:
-    // 文字を一切タイピングしていない状態（別の場所からカーソルを持ってきた直後など）で
-    // 空の確定/Return（!wasTyping かつ 空文字確定）が押された場合、強制的に1回で改行を実行
-    if(!wasTyping && (!ev.data || ev.data === '')){
-        let now = Date.now();
-        if(now - lastEnterTimestamp >= 60){
-            handleNewlineAction(ev);
-        }
-    }
-    
+e.addEventListener('compositionstart',()=>{isComposing=true;});
+e.addEventListener('compositionend',()=>{
+    isComposing=false;
     // 変換確定後、0.3秒後にマス入れ・文字数カウント・保存
     scheduleHeavyTask(300);
 });
 
-// 現在選択されている行（#eの直下div）を正確に特定
-function getActiveEditorLineDiv(){
-    let sel = window.getSelection();
-    if(sel && sel.rangeCount > 0){
-        let range = sel.getRangeAt(0);
-        let node = range.startContainer;
+// 半角スペース等の直後・内部でEnter改行した際、
+// ブラウザが新しい行に .sp-nonzen を複製して後続の文字まで黄色くしてしまう問題を完全に遮断する
+e.addEventListener('keydown', (ev)=>{
+    if(ev.key === 'Enter'){
+        if(isComposing) return;
         
-        if(node === e){
-            let childNodes = Array.from(e.children).filter(c => c.tagName === 'DIV');
-            let idx = Math.min(Math.max(0, range.startOffset), childNodes.length - 1);
-            if(idx >= 0 && childNodes[idx]) return childNodes[idx];
-        } else {
-            let n = node;
-            while(n && n.parentElement !== e && n !== document.body && n !== document.documentElement){
-                n = n.parentElement;
+        let sel = window.getSelection();
+        if(sel && sel.rangeCount > 0){
+            let r = sel.getRangeAt(0);
+            let n = r.startContainer;
+            let sp = (n.nodeType === 1) ? n.closest('.sp-nonzen') : n.parentElement?.closest('.sp-nonzen');
+            if(sp){
+                let range = document.createRange();
+                range.setStartAfter(sp);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
             }
-            if(n && n.parentElement === e) return n;
-        }
-        
-        if(sel.anchorNode){
-            let an = sel.anchorNode;
-            if(an === e){
-                let childNodes = Array.from(e.children).filter(c => c.tagName === 'DIV');
-                let idx = Math.min(Math.max(0, sel.anchorOffset), childNodes.length - 1);
-                if(idx >= 0 && childNodes[idx]) return childNodes[idx];
-            } else {
-                while(an && an.parentElement !== e && an !== document.body){
-                    an = an.parentElement;
-                }
-                if(an && an.parentElement === e) return an;
-            }
-        }
-    }
-    
-    // フォールバック：直前にユーザーがカーソルを置いた行（1行目への誤爆を防止）
-    if(lastActiveLine && e.contains(lastActiveLine)){
-        return lastActiveLine;
-    }
-    return e.firstElementChild || null;
-}
-
-// 1回のEnter押下・改行キー押下で確実に1行改行（新div行生成・分割・キャレット配置）を実行
-function executeEditorNewline(){
-    let sel = window.getSelection();
-    
-    // 範囲選択があれば処理：誤選択（短い選択）なら削除せず先頭に折りたたんで改行
-    if(sel && sel.rangeCount > 0){
-        let r = sel.getRangeAt(0);
-        if(!r.collapsed){
-            if(r.toString().length <= 3){
-                sel.collapseToStart();
-            } else {
-                r.deleteContents();
-            }
-        }
-    }
-    
-    let curDiv = getActiveEditorLineDiv();
-    if(!curDiv){
-        curDiv = document.createElement('div');
-        curDiv.innerHTML = '<br>';
-        e.appendChild(curDiv);
-    }
-    
-    let range = (sel && sel.rangeCount > 0) ? sel.getRangeAt(0) : null;
-    let tailFrag = null;
-    let splitSuccess = false;
-    
-    if(range){
-        let startContainer = range.startContainer;
-        let startOffset = range.startOffset;
-        
-        // startContainerが#eの場合、curDivの先頭（左端）にカーソルがある
-        if(startContainer === e){
-            startContainer = curDiv;
-            startOffset = 0;
         }
         
-        // startContainerがcurDivの内側またはcurDiv自身である場合
-        if(curDiv.contains(startContainer) || startContainer === curDiv){
-            try {
-                let tailRange = document.createRange();
-                tailRange.selectNodeContents(curDiv);
-                tailRange.setStart(startContainer, startOffset);
-                tailFrag = tailRange.extractContents();
-                splitSuccess = true;
-            } catch(err){
-                tailFrag = null;
-                splitSuccess = false;
-            }
-        }
+        // 改行時も即座の重い同期処理は走らせず、0.3秒後にマス入れ・文字数カウントを実行
+        scheduleHeavyTask(300);
     }
-    
-    let newDiv = document.createElement('div');
-    
-    if(splitSuccess && tailFrag){
-        let hasContent = (tailFrag.textContent && tailFrag.textContent.length > 0) || tailFrag.querySelector('img, svg, iframe');
-        if(hasContent){
-            newDiv.appendChild(tailFrag);
-            if(newDiv.innerHTML.trim() === '') newDiv.innerHTML = '<br>';
-        } else {
-            newDiv.innerHTML = '<br>';
-        }
-    } else {
-        // フォールバック：文字オフセットベースでの安全な分割
-        let fullText = curDiv.textContent.replace(/[\r\n]/g, '');
-        let offset = 0;
-        if(range){
-            if(range.startContainer === e){
-                offset = 0;
-            } else if(range.startContainer === curDiv){
-                offset = (range.startOffset === 0) ? 0 : fullText.length;
-            } else if(curDiv.contains(range.startContainer)){
-                try {
-                    let preRange = document.createRange();
-                    preRange.selectNodeContents(curDiv);
-                    preRange.setEnd(range.startContainer, range.startOffset);
-                    offset = preRange.toString().length;
-                } catch(err){
-                    offset = (typeof lastActiveOffset === 'number' && lastActiveLine === curDiv) ? lastActiveOffset : 0;
-                }
-            }
-        } else if(typeof lastActiveOffset === 'number' && lastActiveLine === curDiv){
-            offset = lastActiveOffset;
-        }
-        
-        let preText = fullText.slice(0, offset);
-        let postText = fullText.slice(offset);
-        if(preText) curDiv.textContent = preText;
-        else curDiv.innerHTML = '<br>';
-        if(postText) newDiv.textContent = postText;
-        else newDiv.innerHTML = '<br>';
-    }
-    
-    // curDivが空行になった場合は行の高さを保持するために<br>を補完
-    let curHasContent = (curDiv.textContent && curDiv.textContent.length > 0) || curDiv.querySelector('img, svg, iframe');
-    if(!curHasContent){
-        curDiv.innerHTML = '<br>';
-    }
-    
-    let sp = newDiv.querySelector('.sp-nonzen');
-    if(sp && sp.textContent === ''){
-        sp.remove();
-    }
-    
-    if(curDiv.nextSibling){
-        e.insertBefore(newDiv, curDiv.nextSibling);
-    } else {
-        e.appendChild(newDiv);
-    }
-    
-    // 状態を更新
-    lastActiveLine = newDiv;
-    lastActiveOffset = 0;
-    hasUserTypedSinceCaretMove = false;
-    
-    // カーソルを確実に新行の先頭へセット（iOSおよび全ブラウザで確実にキャレットの高さを維持して配置）
-    function positionCaretInNewDiv(){
-        try {
-            setCaretCharOffset(newDiv, 0);
-            normalizeEditorSelectionToTextNode();
-        } catch(err){
-            let currentSel = window.getSelection();
-            if(!currentSel) return;
-            let newRange = document.createRange();
-            let br = newDiv.querySelector('br');
-            if(newDiv.firstChild && newDiv.firstChild.nodeType === 3){
-                newRange.setStart(newDiv.firstChild, 0);
-            } else if(br){
-                newRange.setStartBefore(br);
-            } else {
-                newRange.selectNodeContents(newDiv);
-            }
-            newRange.collapse(true);
-            currentSel.removeAllRanges();
-            currentSel.addRange(newRange);
-        }
-    }
-    
-    positionCaretInNewDiv();
-    // iOS Safari / WebKitの遅延キャレット縮小・リセットを打ち消すため複数回再保証
-    requestAnimationFrame(()=>{
-        positionCaretInNewDiv();
-    });
-    setTimeout(()=>{
-        positionCaretInNewDiv();
-    }, 15);
-    setTimeout(()=>{
-        positionCaretInNewDiv();
-    }, 45);
-    setTimeout(()=>{
-        positionCaretInNewDiv();
-    }, 100);
-    
-    v();
-    sc();
-    scheduleHeavyTask(300, false);
-}
-
-let lastEnterTimestamp = 0;
-
-function handleNewlineAction(ev){
-    let now = Date.now();
-    if(now - lastEnterTimestamp < 60){
-        if(ev && ev.preventDefault) ev.preventDefault();
-        if(ev && ev.stopPropagation) ev.stopPropagation();
-        return;
-    }
-    if(ev && ev.preventDefault) ev.preventDefault();
-    if(ev && ev.stopPropagation) ev.stopPropagation();
-    lastEnterTimestamp = now;
-    isComposing = false;
-    composingText = '';
-    hasActiveCompositionInput = false;
-    hasUserTypedSinceCaretMove = false;
-    executeEditorNewline();
-}
-
-// beforeinputイベント：iOS Safari・iPad・Androidのソフトウェアキーボードにおける改行（insertParagraph/insertLineBreak/insertText改行）を1回で確実に捕捉
-function onBeforeInputNewline(ev){
-    if(ev.inputType === 'insertCompositionText' || ev.inputType === 'insertText'){
-        if(ev.data && ev.data !== '\n' && ev.data !== '\r'){
-            hasUserTypedSinceCaretMove = true;
-            hasActiveCompositionInput = true;
-            composingText = ev.data;
-            // 実際の文字入力が始まったので、未入力改行判定タイマーを即座にキャンセル
-            if(last229CandidateTimer){
-                clearTimeout(last229CandidateTimer);
-                last229CandidateTimer = null;
-            }
-        }
-    } else if(ev.inputType && ev.inputType.startsWith('delete')){
-        if(last229CandidateTimer){
-            clearTimeout(last229CandidateTimer);
-            last229CandidateTimer = null;
-        }
-    }
-    let isNewline = (ev.inputType === 'insertParagraph' || 
-                     ev.inputType === 'insertLineBreak' || 
-                     (ev.inputType === 'insertText' && (ev.data === '\n' || ev.data === '\r')) ||
-                     (ev.data && (ev.data.includes('\n') || ev.data.includes('\r'))));
-    if(isNewline){
-        if(last229CandidateTimer){
-            clearTimeout(last229CandidateTimer);
-            last229CandidateTimer = null;
-        }
-        handleNewlineAction(ev);
-    }
-}
-
-e.addEventListener('beforeinput', onBeforeInputNewline, true);
-document.addEventListener('beforeinput', (ev)=>{
-    if(ev.target === e || (ev.target && e.contains(ev.target))){
-        onBeforeInputNewline(ev);
-    }
-}, true);
-
-// 直近のキー入力診断ログ
-window._lastKeyEventLogs = [];
-function recordKeyLog(type, ev){
-    try {
-        let entry = `${type}: k=${ev.key || ''} c=${ev.keyCode || ev.which || 0} cd=${ev.code || ''}`;
-        window._lastKeyEventLogs.unshift(entry);
-        if(window._lastKeyEventLogs.length > 5) window._lastKeyEventLogs.pop();
-    } catch(err){}
-}
-
-// keydownイベント：PCキーボード、ハードウェアキーボード、iOSソフトウェアキーボードのEnterキー押下時の制御
-function onKeydownNewline(ev){
-    recordKeyLog('KD', ev);
-    let isEnterKey = (ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter');
-    // iOS Safariでは keyCode 229 だけでなく which 229, key 'Process', 'Unidentified', keyCode 0 等で届く
-    let is229 = (ev.keyCode === 229 || ev.which === 229 || ev.key === 'Process' || ev.key === 'Unidentified' || (ev.keyCode === 0 && !ev.key));
-    
-    // 実際に未確定文字列を入力中（かな等の変換前タイピング中）か判定
-    let isTypingComposition = (hasUserTypedSinceCaretMove && composingText && composingText.length > 0);
-    if(isTypingComposition) return;
-    
-    // 1. Enterキー押下時は即座に奪って改行を実行
-    if(isEnterKey){
-        if(last229CandidateTimer){
-            clearTimeout(last229CandidateTimer);
-            last229CandidateTimer = null;
-        }
-        handleNewlineAction(ev);
-        return;
-    }
-    
-    // 2. iPad等のkeyCode 229 / Processキー（予測変換候補表示中の確定／↩キー押下）
-    // 文字を一切タイピングしていない状態（カーソルを置いた直後など）：
-    // もし文字キー（あ、か等）なら直後（10〜15ミリ秒以内）にbeforeinput/compositionupdateが発火して文字が入る。
-    // もし20ミリ秒経っても文字入力が一切起きなければ、押されたのは文字キーではなく「確定／↩（改行）」であるため、
-    // iPadOSの予測候補キャンセル動作より先に確実に奪って1回で改行を実行する！
-    if(is229 && !hasUserTypedSinceCaretMove){
-        if(last229CandidateTimer){
-            clearTimeout(last229CandidateTimer);
-            last229CandidateTimer = null;
-        }
-        let savedTextLength = e.textContent.length;
-        last229CandidateTimer = setTimeout(()=>{
-            last229CandidateTimer = null;
-            let currentTyping = (hasUserTypedSinceCaretMove && composingText && composingText.length > 0);
-            let textLengthChanged = (e.textContent.length !== savedTextLength);
-            if(!currentTyping && !textLengthChanged){
-                let now = Date.now();
-                if(now - lastEnterTimestamp >= 60){
-                    handleNewlineAction(null);
-                }
-            }
-        }, 20);
-    }
-}
-
-e.addEventListener('keydown', onKeydownNewline, true);
-document.addEventListener('keydown', (ev)=>{
-    if(ev.target === e || (ev.target && e.contains(ev.target))){
-        onKeydownNewline(ev);
-    }
-}, true);
-window.addEventListener('keydown', onKeydownNewline, true);
-
-// keyupイベント：保険として、iOS Safariでキー押下がkeyupとして届いた場合も確実に改行
-window.addEventListener('keyup', (ev)=>{
-    recordKeyLog('KU', ev);
-    let sel = window.getSelection();
-    let isEditorActive = (document.activeElement === e || (document.activeElement && e.contains(document.activeElement)) || (sel && sel.anchorNode && (sel.anchorNode === e || e.contains(sel.anchorNode))));
-    if(!isEditorActive) return;
-    
-    let isEnterKey = (ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter');
-    let is229 = (ev.keyCode === 229 || ev.which === 229 || ev.key === 'Process' || ev.key === 'Unidentified' || (ev.keyCode === 0 && !ev.key));
-    let isTypingComposition = (hasUserTypedSinceCaretMove && composingText && composingText.length > 0);
-    if(isTypingComposition) return;
-    
-    if(isEnterKey){
-        if(last229CandidateTimer){
-            clearTimeout(last229CandidateTimer);
-            last229CandidateTimer = null;
-        }
-        let now = Date.now();
-        if(now - lastEnterTimestamp < 60) return;
-        handleNewlineAction(ev);
-        return;
-    }
-    
-    // iPad iOS: 予測変換表示中に文字未入力のまま「↩」キーを押して指を離した瞬間に確実に1回改行
-    if(is229 && !hasUserTypedSinceCaretMove){
-        if(last229CandidateTimer){
-            clearTimeout(last229CandidateTimer);
-            last229CandidateTimer = null;
-        }
-        let now = Date.now();
-        if(now - lastEnterTimestamp >= 60){
-            handleNewlineAction(ev);
-        }
-    }
-}, true);
+});
 
 // 文字入力イベント
 // 文字の表示自体はネイティブの最高速のまま維持し、同期的には重い文字数カウントやDOMマス入れ・保存は行わない
 e.oninput=()=>{
     sc();
-    v();
+    // 通常のタイピング・修正は0.3秒（300ms）後に実行
     scheduleHeavyTask(300);
 };
 
@@ -5671,8 +5122,7 @@ e.addEventListener('paste', (ev)=>{
             setCaretCharOffset(targetDiv, 0);
         }
         if(mCont && savedScrollTop > 0) mCont.scrollTop = savedScrollTop;
-        v();
-        scheduleHeavyTask(300, false);
+        scheduleHeavyTask(400, false);
         return;
     }
     
@@ -5804,9 +5254,24 @@ e.addEventListener('paste', (ev)=>{
         lastActiveOffset = lines[lines.length - 1].length;
     }
     
-    v();
-    sc();
-    scheduleHeavyTask(300, false);
+    if(mCont){
+        mCont.scrollTop = savedScrollTop;
+    }
+    if(mCont && savedScrollTop > 0){
+        requestAnimationFrame(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        });
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        }, 30);
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        }, 100);
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        }, 300);
+    }
+    scheduleHeavyTask(400, false);
 });
 
 e.addEventListener('cut', (ev)=>{
@@ -5854,7 +5319,21 @@ e.addEventListener('cut', (ev)=>{
     }
     if(!startDiv && !endDiv){
         range.deleteContents();
-        sc();
+        if(mCont) mCont.scrollTop = savedScrollTop;
+        if(mCont && savedScrollTop > 0){
+            requestAnimationFrame(()=>{
+                if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+            });
+            setTimeout(()=>{
+                if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+            }, 30);
+            setTimeout(()=>{
+                if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+            }, 100);
+            setTimeout(()=>{
+                if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+            }, 300);
+        }
         scheduleHeavyTask(300, false);
         return;
     }
@@ -5901,8 +5380,23 @@ e.addEventListener('cut', (ev)=>{
     lastActiveLine = startDiv;
     lastActiveOffset = preText.length;
     
-    v();
-    sc();
+    if(mCont){
+        mCont.scrollTop = savedScrollTop;
+    }
+    if(mCont && savedScrollTop > 0){
+        requestAnimationFrame(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        });
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        }, 30);
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        }, 100);
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        }, 300);
+    }
     scheduleHeavyTask(300, false);
 });
 
@@ -6974,9 +6468,6 @@ window.addEventListener('scroll',()=>{if(window.scrollY!==0||window.scrollX!==0)
 /* マス目やエディタ領域をクリック・タップした時のカーソル配置処理 */
 function applyCaretToDiv(targetDiv, targetCol, maxCols){
     if(!targetDiv) return;
-    isComposing = false;
-    composingText = '';
-    hasActiveCompositionInput = false;
     const mCont = document.querySelector('.m');
     const savedScrollTop = mCont ? mCont.scrollTop : 0;
     targetCol = Math.min(targetCol, maxCols);
@@ -7007,7 +6498,7 @@ function applyCaretToDiv(targetDiv, targetCol, maxCols){
             } else if(br){
                 range.setStartBefore(br);
             } else {
-                range.selectNodeContents(targetDiv);
+                range.setStart(targetDiv, 0);
             }
             range.collapse(true);
         }
@@ -7029,13 +6520,11 @@ function applyCaretToDiv(targetDiv, targetCol, maxCols){
         } else {
             // 文字の存在するマス目をクリック：その文字の位置へ
             setCaretCharOffset(targetDiv, targetCol);
-            normalizeEditorSelectionToTextNode();
             return;
         }
     }
     sel.removeAllRanges();
     sel.addRange(range);
-    normalizeEditorSelectionToTextNode();
     if(mCont && mCont.scrollTop !== savedScrollTop){
         mCont.scrollTop = savedScrollTop;
     }
@@ -7176,18 +6665,8 @@ function handleCellClick(ev){
             mCont.scrollTop = savedScrollTop;
         }
         applyCaretToDiv(targetDiv, targetCol, maxCols);
-        normalizeEditorSelectionToTextNode();
         v();
         s();
-        requestAnimationFrame(()=>{
-            normalizeEditorSelectionToTextNode();
-        });
-        setTimeout(()=>{
-            normalizeEditorSelectionToTextNode();
-        }, 30);
-        setTimeout(()=>{
-            normalizeEditorSelectionToTextNode();
-        }, 100);
         if(mCont && mCont.scrollTop !== savedScrollTop){
             mCont.scrollTop = savedScrollTop;
         }
@@ -7224,7 +6703,6 @@ e.addEventListener('mousedown',()=>{
     }
 });
 e.addEventListener('click',(ev)=>{
-    setTimeout(normalizeEditorSelectionToTextNode, 10);
     if(touchHandled && (Date.now() - (lastTouchPos?.time || 0) < 500)) return;
     const mCont = document.querySelector('.m');
     const savedScrollTop = mCont ? mCont.scrollTop : 0;
@@ -7236,8 +6714,6 @@ e.addEventListener('click',(ev)=>{
         let padLeft = cs * 0.11;
         let clickCol = Math.floor((ev.clientX - rect.left - padLeft) / cs);
         if(clickCol < lineText.length && ev.target !== e){
-            setCaretCharOffset(closestDiv, Math.max(0, clickCol));
-            normalizeEditorSelectionToTextNode();
             v();
             if(mCont && mCont.scrollTop !== savedScrollTop){
                 mCont.scrollTop = savedScrollTop;
@@ -7252,16 +6728,8 @@ e.addEventListener('click',(ev)=>{
             }
             return;
         }
-        // 空行（lineText.length === 0）の先頭マス（clickCol <= 0）をクリックした時も確実にキャレットを正規化
-        if(lineText.length === 0 && clickCol <= 0){
-            setCaretCharOffset(closestDiv, 0);
-            normalizeEditorSelectionToTextNode();
-            v();
-            return;
-        }
     }
     handleCellClick(ev);
-    normalizeEditorSelectionToTextNode();
 });
 w.addEventListener('click',(ev)=>{
     // 行番号（#n, .l）およびその左側・外側のクリックでエディタが反応・リセットしないようガード
