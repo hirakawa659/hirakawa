@@ -988,6 +988,12 @@ function cleanSpans(){
         while(s.firstChild)p.insertBefore(s.firstChild,s);
         p.removeChild(s);
     });
+    let fonts=e.querySelectorAll('font');
+    fonts.forEach(s=>{
+        let p=s.parentNode;
+        while(s.firstChild)p.insertBefore(s.firstChild,s);
+        p.removeChild(s);
+    });
 }
 const regSpecialChars=/[\u2070-\u209F\u00B2\u00B3\u00B9\u2150-\u215E\u00BC-\u00BE∓±×÷√∞]/;
 const regCombinedFilter=/([\u2070-\u209F\u00B2\u00B3\u00B9\u2150-\u215E\u00BC-\u00BE∓±×÷√∞])/g;
@@ -1314,9 +1320,10 @@ function tgNumericDigits(){
         return;
     }
     
+    ensureGridLines();
     let divs=e.querySelectorAll('#e>div');
     if(divs.length===0){
-        e.innerHTML='<div>'+e.innerHTML+'</div>';
+        e.innerHTML='<div><br></div>';
         divs=e.querySelectorAll('#e>div');
     }
     
@@ -1702,110 +1709,138 @@ function countCharsFromLines(lines){
 }
 
 function ensureGridLines(){
-    let hasNonDiv = false;
-    for(let i = 0; i < e.childNodes.length; i++){
-        let n = e.childNodes[i];
-        if(n.nodeType === 3 && n.nodeValue.length > 0){
-            hasNonDiv = true;
-            break;
-        }
-        if(n.nodeType === 1 && n.tagName !== 'DIV'){
-            hasNonDiv = true;
-            break;
+    let childNodes = Array.from(e.childNodes);
+    let needsFix = false;
+    if(childNodes.length === 0){
+        needsFix = true;
+    } else {
+        for(let n of childNodes){
+            if(n.nodeType !== 1 || n.tagName !== 'DIV'){
+                needsFix = true;
+                break;
+            }
+            if(n.querySelector('div, p, h1, h2, h3, h4, h5, h6, blockquote, section, article, li')){
+                needsFix = true;
+                break;
+            }
+            let brs = n.querySelectorAll('br');
+            if(brs.length > 1){
+                needsFix = true;
+                break;
+            } else if(brs.length === 1){
+                let txt = (n.textContent || '').replace(/[\r\n]/g, '');
+                if(txt.length > 0){
+                    needsFix = true;
+                    break;
+                }
+            }
+            let walker = document.createTreeWalker(n, NodeFilter.SHOW_TEXT, null, false);
+            while(walker.nextNode()){
+                if(/[\r\n]/.test(walker.currentNode.nodeValue)){
+                    needsFix = true;
+                    break;
+                }
+            }
+            if(needsFix) break;
         }
     }
     
-    if(hasNonDiv){
-        let sel = window.getSelection();
-        let savedRange = (sel && sel.rangeCount > 0 && e.contains(sel.anchorNode)) ? sel.getRangeAt(0) : null;
-        let preTextLen = 0;
-        if(savedRange){
-            try {
-                let r = savedRange.cloneRange();
-                r.selectNodeContents(e);
-                r.setEnd(savedRange.startContainer, savedRange.startOffset);
-                preTextLen = r.toString().length;
-            }catch(err){}
-        }
-        
-        let lines = [];
-        let curLine = [];
-        function flushLine(){
-            let div = document.createElement('div');
-            if(curLine.length === 0){
+    if(!needsFix) return;
+    
+    let sel = window.getSelection();
+    let savedRange = (sel && sel.rangeCount > 0 && e.contains(sel.anchorNode)) ? sel.getRangeAt(0) : null;
+    let preTextLen = 0;
+    if(savedRange){
+        try {
+            let r = savedRange.cloneRange();
+            r.selectNodeContents(e);
+            r.setEnd(savedRange.startContainer, savedRange.startOffset);
+            preTextLen = r.toString().length;
+        }catch(err){}
+    }
+    
+    let lines = [];
+    let curLineNodes = [];
+    
+    function flushLine(){
+        let div = document.createElement('div');
+        if(curLineNodes.length === 0){
+            div.innerHTML = '<br>';
+        }else{
+            curLineNodes.forEach(node => div.appendChild(node));
+            if(!div.hasChildNodes()){
                 div.innerHTML = '<br>';
-            }else{
-                curLine.forEach(node => div.appendChild(node));
             }
-            lines.push(div);
-            curLine = [];
         }
-        
-        Array.from(e.childNodes).forEach(node => {
-            if(node.nodeType === 1 && node.tagName === 'DIV'){
+        lines.push(div);
+        curLineNodes = [];
+    }
+    
+    function processNode(node){
+        if(node.nodeType === 3){
+            let text = node.nodeValue;
+            let parts = text.split(/\r?\n/);
+            for(let i = 0; i < parts.length; i++){
+                if(i > 0) flushLine();
+                if(parts[i].length > 0){
+                    curLineNodes.push(document.createTextNode(parts[i]));
+                }
+            }
+        } else if(node.nodeType === 1){
+            let tag = node.tagName;
+            if(tag === 'BR'){
                 flushLine();
-                lines.push(node);
-            } else if(node.nodeType === 1 && (node.tagName === 'P' || node.tagName === 'H1' || node.tagName === 'H2' || node.tagName === 'H3')){
-                flushLine();
-                let div = document.createElement('div');
-                while(node.firstChild) div.appendChild(node.firstChild);
-                if(!div.hasChildNodes()) div.innerHTML = '<br>';
-                lines.push(div);
-            } else if(node.nodeType === 1 && node.tagName === 'BR'){
-                flushLine();
-            } else if(node.nodeType === 3){
-                let textParts = node.nodeValue.split(/\r?\n/);
-                for(let i = 0; i < textParts.length; i++){
-                    if(i > 0) flushLine();
-                    if(textParts[i].length > 0){
-                        curLine.push(document.createTextNode(textParts[i]));
-                    }
+            } else if(tag === 'DIV' || tag === 'P' || /^H[1-6]$/.test(tag) || tag === 'LI' || tag === 'BLOCKQUOTE' || tag === 'SECTION' || tag === 'ARTICLE'){
+                if(curLineNodes.length > 0) flushLine();
+                if(node.childNodes.length === 0 || (node.childNodes.length === 1 && node.firstChild.tagName === 'BR')){
+                    flushLine();
+                } else {
+                    Array.from(node.childNodes).forEach(ch => processNode(ch));
+                    if(curLineNodes.length > 0) flushLine();
                 }
             } else {
-                curLine.push(node);
-            }
-        });
-        flushLine();
-        
-        lines = lines.filter((l, idx) => {
-            if(l.hasChildNodes() && (l.textContent.length > 0 || l.querySelector('br, .sub-sup, .hidden-char-badge, .hm-mark, img'))) return true;
-            return idx === 0;
-        });
-        if(lines.length === 0){
-            let d = document.createElement('div');
-            d.innerHTML = '<br>';
-            lines.push(d);
-        }
-        
-        e.innerHTML = '';
-        lines.forEach(div => e.appendChild(div));
-        
-        if(savedRange && lines.length > 0){
-            try {
-                let count = 0;
-                for(let div of lines){
-                    let len = div.textContent.length;
-                    if(count + len >= preTextLen){
-                        setCaretCharOffset(div, preTextLen - count);
+                let hasBlockOrBr = node.querySelector('div, p, h1, h2, h3, h4, h5, h6, br, li, blockquote, section, article');
+                let hasNewline = false;
+                let walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null, false);
+                while(walker.nextNode()){
+                    if(/[\r\n]/.test(walker.currentNode.nodeValue)){
+                        hasNewline = true;
                         break;
                     }
-                    count += len;
                 }
-            }catch(err){}
+                if(hasBlockOrBr || hasNewline){
+                    Array.from(node.childNodes).forEach(ch => processNode(ch));
+                } else {
+                    curLineNodes.push(node.cloneNode(true));
+                }
+            }
         }
     }
     
-    let divs = e.querySelectorAll('#e>div');
-    if(divs.length === 0){
-        let raw = e.textContent || '';
-        if(raw.replace(/[\r\n]/g, '').length > 0){
-            let d = document.createElement('div');
-            d.textContent = raw;
-            e.innerHTML = '';
-            e.appendChild(d);
-        } else {
-            e.innerHTML = '<div><br></div>';
-        }
+    Array.from(e.childNodes).forEach(ch => processNode(ch));
+    if(curLineNodes.length > 0) flushLine();
+    
+    if(lines.length === 0){
+        let d = document.createElement('div');
+        d.innerHTML = '<br>';
+        lines.push(d);
+    }
+    
+    e.innerHTML = '';
+    lines.forEach(div => e.appendChild(div));
+    
+    if(savedRange && lines.length > 0){
+        try {
+            let count = 0;
+            for(let div of lines){
+                let len = div.textContent.length;
+                if(count + len >= preTextLen){
+                    setCaretCharOffset(div, preTextLen - count);
+                    break;
+                }
+                count += len;
+            }
+        }catch(err){}
     }
 }
 
@@ -3271,9 +3306,10 @@ function tgHalfWidth(){
         return;
     }
     
+    ensureGridLines();
     let divs=e.querySelectorAll('#e>div');
     if(divs.length===0){
-        e.innerHTML='<div>'+e.innerHTML+'</div>';
+        e.innerHTML='<div><br></div>';
         divs=e.querySelectorAll('#e>div');
     }
     
@@ -3536,9 +3572,10 @@ function doRep(isAll){
     
     targetFiles.forEach(it => {
         if(it.id === f){
+            ensureGridLines();
             let divs = e.querySelectorAll('#e>div');
             if(divs.length === 0){
-                e.innerHTML = '<div>' + e.innerHTML + '</div>';
+                e.innerHTML = '<div><br></div>';
                 divs = e.querySelectorAll('#e>div');
             }
             let fileRepCount = 0;
@@ -3612,7 +3649,8 @@ function doRep(isAll){
 function fx(){
     cleanExcessiveLeadingLines();
     norm();
-    let divs=e.querySelectorAll('#e>div');if(divs.length===0){e.innerHTML='<div>'+e.innerHTML+'</div>';divs=e.querySelectorAll('#e>div')}
+    ensureGridLines();
+    let divs=e.querySelectorAll('#e>div');if(divs.length===0){e.innerHTML='<div><br></div>';divs=e.querySelectorAll('#e>div')}
     divs.forEach(d=>{
         let clone=d.cloneNode(true);
         clone.querySelectorAll('.sp-nonzen').forEach(s=>s.replaceWith(s.textContent||' '));
