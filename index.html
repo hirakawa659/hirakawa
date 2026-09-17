@@ -76,6 +76,28 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   background:rgba(37,99,235,0.12)!important;
   border-radius:5px!important;
 }
+#detectMenuDropdown {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+.detect-menu-item {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+.detect-menu-item * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+.detect-menu-item input {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+}
 .detect-menu-item.detect-drop-top{
   box-shadow:inset 0 3.5px 0 0 #2563eb!important;
   background:rgba(37,99,235,0.12)!important;
@@ -87,9 +109,11 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   border-radius:5px!important;
 }
 .detect-menu-item.detect-dragging{
-  opacity: 0.55!important;
-  background: #f1f5f9!important;
-  border-radius:5px!important;
+  opacity: 1!important;
+  background: #eff6ff!important;
+  border-radius: 5px!important;
+  outline: 2px dashed #2563eb!important;
+  outline-offset: -2px!important;
 }
 #t{overflow-y:auto;flex:1;font-size:12px;padding:0;border-top:1px solid var(--sidebar-border);background:var(--sidebar-tree-bg)}
 .tree-node{margin-bottom:0;user-select:none;width:100%}
@@ -337,52 +361,42 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
       <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="width:58px;padding:3.5px 1px;font-size:9.5px;font-weight:bold;line-height:1.15;letter-spacing:-0.4px;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:1px;touch-action:none" title="検出と変換メニュー">
         <span>検出と変換</span><span style="font-size:8px;line-height:1">▾</span>
       </button>
-      <div id="detectMenuDropdown" style="display:none;position:absolute;top:0;left:calc(100% + 4px);background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,0.15);padding:6px;flex-direction:column;gap:6px;width:246px;box-sizing:border-box;z-index:9999" onclick="event.stopPropagation()">
+      <div id="detectMenuDropdown" style="display:none;position:absolute;top:0;left:calc(100% + 4px);background:#ffffff!important;opacity:1!important;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,0.22);padding:6px;flex-direction:column;gap:6px;width:246px;box-sizing:border-box;z-index:99999;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important;touch-action:none" onclick="event.stopPropagation()" oncontextmenu="event.preventDefault()" onselectstart="return false">
         <!-- 隠し文字 -->
         <div id="detect_item_hidden" class="detect-menu-item" data-detect-id="detect_item_hidden" style="width:100%;touch-action:none;user-select:none;cursor:grab">
-          <button type="button" onclick="execDetectHiddenChars()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#1e3a8a;font-size:12px;font-weight:bold;padding:7px 9px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
+          <button type="button" onclick="execDetectHiddenChars()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#1e3a8a;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
             <span>隠し文字</span>
-            <span style="color:#94a3b8;font-size:12px;user-select:none;letter-spacing:-1px">⋮⋮</span>
           </button>
         </div>
         <!-- 隠し文字 一括削除 -->
         <div id="detect_item_hidden_del" class="detect-menu-item" data-detect-id="detect_item_hidden_del" style="width:100%;touch-action:none;user-select:none;cursor:grab">
-          <button type="button" onclick="execDeleteAllHiddenChars(event)" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#b91c1c;font-size:12px;font-weight:bold;padding:7px 9px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='#f8fafc'" title="エディタ内の隠し文字を一括削除">
-            <span style="display:inline-flex;align-items:center;gap:4px">
-              <span>隠し文字 一括削除</span>
-            </span>
-            <span style="color:#94a3b8;font-size:12px;user-select:none;letter-spacing:-1px">⋮⋮</span>
+          <button type="button" onclick="execDeleteAllHiddenChars(event)" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#b91c1c;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='#f8fafc'" title="エディタ内の隠し文字を一括削除">
+            <span>隠し文字 一括削除</span>
           </button>
         </div>
         <!-- ホモグラフ -->
         <div id="detect_item_homo" class="detect-menu-item" data-detect-id="detect_item_homo" style="width:100%;touch-action:none;user-select:none;cursor:grab">
-          <button type="button" onclick="execDetectHomoglyphs()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#9a3412;font-size:12px;font-weight:bold;padding:7px 9px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#fff7ed'" onmouseout="this.style.background='#f8fafc'">
+          <button type="button" onclick="execDetectHomoglyphs()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#9a3412;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#fff7ed'" onmouseout="this.style.background='#f8fafc'">
             <span>ホモグラフ</span>
-            <span style="color:#94a3b8;font-size:12px;user-select:none;letter-spacing:-1px">⋮⋮</span>
           </button>
         </div>
         <!-- 算用数字 -->
         <div id="detect_item_num" class="detect-menu-item" data-detect-id="detect_item_num" style="width:100%;touch-action:none;user-select:none;cursor:grab">
-          <button type="button" onclick="execDetectNumericDigits()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#854d0e;font-size:12px;font-weight:bold;padding:7px 9px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#fefce8'" onmouseout="this.style.background='#f8fafc'">
+          <button type="button" onclick="execDetectNumericDigits()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#854d0e;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#fefce8'" onmouseout="this.style.background='#f8fafc'">
             <span>算用数字</span>
-            <span style="color:#94a3b8;font-size:12px;user-select:none;letter-spacing:-1px">⋮⋮</span>
           </button>
         </div>
         <!-- 半角 -->
         <div id="detect_item_half" class="detect-menu-item" data-detect-id="detect_item_half" style="width:100%;touch-action:none;user-select:none;cursor:grab">
-          <button type="button" onclick="execDetectHalfWidth()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#0369a1;font-size:12px;font-weight:bold;padding:7px 9px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='#f8fafc'">
+          <button type="button" onclick="execDetectHalfWidth()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#0369a1;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='#f8fafc'">
             <span>半角</span>
-            <span style="color:#94a3b8;font-size:12px;user-select:none;letter-spacing:-1px">⋮⋮</span>
           </button>
         </div>
         <!-- 半角全角（トグルボタン ＆ 一括変換・指定変換10マス） -->
         <div id="detect_item_half_zen" class="detect-menu-item" data-detect-id="detect_item_half_zen" style="width:100%;touch-action:none;user-select:none;display:flex;flex-direction:column;gap:4px">
-          <button type="button" id="halfToZenToggleBtn" onclick="toggleHalfToZenSubmenu(event)" style="width:100%;text-align:left;background:#f8fafc;border:1px solid #cbd5e1;color:#2563eb;font-size:12px;font-weight:bold;padding:7px 9px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
+          <button type="button" id="halfToZenToggleBtn" onclick="toggleHalfToZenSubmenu(event)" style="width:100%;text-align:left;background:#f8fafc;border:1px solid #cbd5e1;color:#2563eb;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
             <span>半角全角</span>
-            <span style="display:inline-flex;align-items:center;gap:6px">
-              <span id="halfToZenArrow" style="font-size:10px;color:#64748b">▾</span>
-              <span style="color:#94a3b8;font-size:12px;user-select:none;letter-spacing:-1px">⋮⋮</span>
-            </span>
+            <span id="halfToZenArrow" style="font-size:10px;color:#64748b">▾</span>
           </button>
           <!-- 展開パネル：一括変換 適用 ＆ 指定変換 適用 ＆ 10個のマス目 -->
           <div id="halfToZenPanel" style="display:none;background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;padding:8px;flex-direction:column;gap:8px" onclick="event.stopPropagation()">
@@ -3429,12 +3443,14 @@ function closeDetectMenu(){
 }
 
 function execDetectHiddenChars(){
+    if(Date.now() - lastDetectDragEndTime < 350) return;
     closeDetectMenu();
     tgHiddenChars();
 }
 
 function execDeleteAllHiddenChars(ev){
     if(ev){ ev.stopPropagation(); }
+    if(Date.now() - lastDetectDragEndTime < 350) return;
     closeDetectMenu();
     ensureGridLines();
     const hiddenRegex = /[\u200B-\u200F\u2028\u2029\u202A-\u202E\u2060-\u206F\uFEFF\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g;
@@ -3518,6 +3534,10 @@ function applyDetectMenuOrder(order){
     Object.values(itemMap).forEach(it => menu.appendChild(it));
 }
 
+let detectActiveDrag = null;
+let lastDetectDragEndTime = 0;
+let currentDetectDropAction = null;
+
 function getOrCreateDetectGhost(){
     let g = document.getElementById('detectMenuDragGhost');
     if(!g){
@@ -3526,19 +3546,64 @@ function getOrCreateDetectGhost(){
         g.style.position = 'fixed';
         g.style.pointerEvents = 'none';
         g.style.zIndex = '100000';
-        g.style.padding = '6px 12px';
+        g.style.padding = '7px 14px';
         g.style.borderRadius = '6px';
         g.style.fontSize = '12px';
         g.style.fontWeight = 'bold';
-        g.style.background = '#2563eb';
-        g.style.color = '#ffffff';
-        g.style.boxShadow = '0 6px 16px rgba(0,0,0,0.25)';
+        g.style.background = '#ffffff';
+        g.style.color = '#1e3a8a';
+        g.style.border = '2px solid #2563eb';
+        g.style.boxShadow = '0 8px 24px rgba(0,0,0,0.25)';
         g.style.display = 'none';
         g.style.transform = 'translate(-50%, -50%)';
         g.style.whiteSpace = 'nowrap';
+        g.style.opacity = '1';
+        g.style.webkitUserSelect = 'none';
+        g.style.userSelect = 'none';
         document.body.appendChild(g);
     }
     return g;
+}
+
+function clearDetectDropIndicators(){
+    const menu = document.getElementById('detectMenuDropdown');
+    if(!menu) return;
+    menu.querySelectorAll('.detect-drop-top, .detect-drop-bottom').forEach(el => {
+        el.classList.remove('detect-drop-top', 'detect-drop-bottom');
+    });
+}
+
+function clearDetectSelectionSafely(){
+    try {
+        if(window.getSelection){
+            window.getSelection().removeAllRanges();
+        }
+    } catch(err){}
+}
+
+function triggerDetectDragStart(itemEl, clientX, clientY){
+    if(detectActiveDrag) return;
+    clearDetectSelectionSafely();
+    detectActiveDrag = {
+        id: itemEl.id,
+        itemEl: itemEl,
+        startX: clientX,
+        startY: clientY,
+        isDragging: true
+    };
+    itemEl.classList.add('detect-dragging');
+
+    let titleSpan = itemEl.querySelector('button span');
+    let itemName = titleSpan ? (titleSpan.textContent || 'アイテム') : 'アイテム';
+    let ghost = getOrCreateDetectGhost();
+    ghost.textContent = itemName;
+    ghost.style.left = clientX + 'px';
+    ghost.style.top = (clientY - 35) + 'px';
+    ghost.style.display = 'block';
+
+    if(typeof navigator !== 'undefined' && navigator.vibrate){
+        try { navigator.vibrate(28); } catch(err){}
+    }
 }
 
 function initDetectMenuDragAndDrop(){
@@ -3546,159 +3611,236 @@ function initDetectMenuDragAndDrop(){
     if(!menu || menu.dataset.dragInitialized === 'true') return;
     menu.dataset.dragInitialized = 'true';
 
-    let activePointerId = null;
-    let dragItem = null;
-    let isDragMode = false;
-    let startX = 0;
-    let startY = 0;
-    let suppressClickUntil = 0;
-    let longPressTimer = null;
-    let currentDropAction = null;
-
-    function clearPressTimer(){
-        if(longPressTimer){
-            clearTimeout(longPressTimer);
-            longPressTimer = null;
+    menu.addEventListener('selectstart', (e) => {
+        if(!e.target.closest('input')){
+            e.preventDefault();
         }
-    }
+    });
 
-    function clearIndicators(){
-        menu.querySelectorAll('.detect-drop-top, .detect-drop-bottom').forEach(el => {
-            el.classList.remove('detect-drop-top', 'detect-drop-bottom');
-        });
-    }
+    menu.addEventListener('contextmenu', (e) => {
+        if(!e.target.closest('input')){
+            e.preventDefault();
+        }
+    });
 
     menu.addEventListener('click', (e) => {
-        if(Date.now() < suppressClickUntil){
+        if(Date.now() - lastDetectDragEndTime < 350){
             e.preventDefault();
             e.stopPropagation();
         }
     }, true);
 
-    function startDragMode(clientX, clientY){
-        if(!dragItem) return;
-        isDragMode = true;
-        dragItem.classList.add('detect-dragging');
-        let titleSpan = dragItem.querySelector('button span');
-        let itemName = titleSpan ? (titleSpan.textContent || 'アイテム') : 'アイテム';
-        let ghost = getOrCreateDetectGhost();
-        ghost.textContent = itemName;
-        ghost.style.left = clientX + 'px';
-        ghost.style.top = (clientY - 30) + 'px';
-        ghost.style.display = 'block';
+    let items = Array.from(menu.querySelectorAll('.detect-menu-item'));
+    items.forEach(item => {
+        let longPressTimer = null;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isLongPressTriggered = false;
 
-        if(typeof navigator !== 'undefined' && navigator.vibrate){
-            try { navigator.vibrate(28); } catch(err){}
-        }
-    }
+        item.addEventListener('touchstart', (ev) => {
+            if(ev.target.closest('input, #halfZenSlotGrid')) return;
+            clearDetectSelectionSafely();
+            if(ev.touches.length !== 1) return;
+            let touch = ev.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            isLongPressTriggered = false;
 
-    menu.addEventListener('pointerdown', (e) => {
-        if(e.button !== 0 && e.pointerType === 'mouse') return;
-        if(e.target.closest('input, #halfZenSlotGrid')) return;
-
-        let item = e.target.closest('.detect-menu-item');
-        if(!item) return;
-
-        clearPressTimer();
-        activePointerId = e.pointerId;
-        dragItem = item;
-        startX = e.clientX;
-        startY = e.clientY;
-        isDragMode = false;
-        currentDropAction = null;
-
-        if(e.pointerType === 'touch'){
+            clearTimeout(longPressTimer);
             longPressTimer = setTimeout(() => {
-                if(dragItem && activePointerId !== null){
-                    try { dragItem.setPointerCapture(activePointerId); } catch(err){}
-                    startDragMode(startX, startY);
+                isLongPressTriggered = true;
+                triggerDetectDragStart(item, touchStartX, touchStartY);
+            }, 220);
+        }, { passive: true });
+
+        item.addEventListener('touchmove', (ev) => {
+            if(!isLongPressTriggered){
+                let touch = ev.touches && ev.touches[0];
+                if(touch){
+                    let dx = Math.abs(touch.clientX - touchStartX);
+                    let dy = Math.abs(touch.clientY - touchStartY);
+                    if(dx > 9 || dy > 9){
+                        clearTimeout(longPressTimer);
+                    }
                 }
-            }, 150);
-        }
+            }
+        }, { passive: true });
+
+        item.addEventListener('touchend', () => {
+            clearTimeout(longPressTimer);
+        }, { passive: true });
+
+        item.addEventListener('touchcancel', () => {
+            clearTimeout(longPressTimer);
+        }, { passive: true });
+
+        // マウス用
+        item.addEventListener('mousedown', (ev) => {
+            if(ev.button !== 0) return;
+            if(ev.target.closest('input, #halfZenSlotGrid')) return;
+            clearDetectSelectionSafely();
+            let startX = ev.clientX;
+            let startY = ev.clientY;
+            let mouseDragTriggered = false;
+
+            function onMouseMove(mEv){
+                let dx = Math.abs(mEv.clientX - startX);
+                let dy = Math.abs(mEv.clientY - startY);
+                if(!mouseDragTriggered && (dx > 6 || dy > 6)){
+                    mouseDragTriggered = true;
+                    triggerDetectDragStart(item, mEv.clientX, mEv.clientY);
+                }
+                if(mouseDragTriggered && detectActiveDrag){
+                    mEv.preventDefault();
+                    clearDetectSelectionSafely();
+                    let ghost = getOrCreateDetectGhost();
+                    ghost.style.left = mEv.clientX + 'px';
+                    ghost.style.top = (mEv.clientY - 35) + 'px';
+
+                    clearDetectDropIndicators();
+                    currentDetectDropAction = null;
+
+                    let pointEl = document.elementFromPoint(mEv.clientX, mEv.clientY);
+                    let targetItem = pointEl ? pointEl.closest('.detect-menu-item') : null;
+                    if(targetItem && targetItem !== detectActiveDrag.itemEl){
+                        let rect = targetItem.getBoundingClientRect();
+                        let midY = rect.top + rect.height / 2;
+                        let pos = (mEv.clientY < midY) ? 'before' : 'after';
+                        currentDetectDropAction = { targetItem, position: pos };
+                        if(pos === 'before'){
+                            targetItem.classList.add('detect-drop-top');
+                        } else {
+                            targetItem.classList.add('detect-drop-bottom');
+                        }
+                    }
+                }
+            }
+
+            function onMouseUp(){
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
+                if(mouseDragTriggered && detectActiveDrag){
+                    lastDetectDragEndTime = Date.now();
+                    let ghost = getOrCreateDetectGhost();
+                    ghost.style.display = 'none';
+                    if(detectActiveDrag.itemEl) detectActiveDrag.itemEl.classList.remove('detect-dragging');
+                    clearDetectDropIndicators();
+                    if(currentDetectDropAction && currentDetectDropAction.targetItem && detectActiveDrag.itemEl){
+                        if(currentDetectDropAction.position === 'before'){
+                            currentDetectDropAction.targetItem.before(detectActiveDrag.itemEl);
+                        } else {
+                            currentDetectDropAction.targetItem.after(detectActiveDrag.itemEl);
+                        }
+                        let newOrder = Array.from(menu.querySelectorAll('.detect-menu-item')).map(it => it.id);
+                        saveDetectMenuOrder(newOrder);
+                    }
+                    detectActiveDrag = null;
+                    currentDetectDropAction = null;
+                }
+            }
+
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+        });
     });
 
-    menu.addEventListener('pointermove', (e) => {
-        if(!dragItem || activePointerId !== e.pointerId) return;
+    // ウィンドウ全体のタッチ移動追従
+    window.addEventListener('touchmove', (ev) => {
+        if(!detectActiveDrag || !detectActiveDrag.isDragging) return;
+        let touch = ev.touches && ev.touches[0];
+        if(!touch) return;
 
-        let dy = e.clientY - startY;
-        let dx = e.clientX - startX;
+        ev.preventDefault();
+        clearDetectSelectionSafely();
 
-        if(!isDragMode){
-            if(Math.abs(dy) > 7 || Math.abs(dx) > 7){
-                clearPressTimer();
-                try { dragItem.setPointerCapture(activePointerId); } catch(err){}
-                startDragMode(e.clientX, e.clientY);
+        let ghost = getOrCreateDetectGhost();
+        ghost.style.left = touch.clientX + 'px';
+        ghost.style.top = (touch.clientY - 35) + 'px';
+
+        clearDetectDropIndicators();
+        currentDetectDropAction = null;
+
+        let pointEl = document.elementFromPoint(touch.clientX, touch.clientY);
+        let targetItem = pointEl ? pointEl.closest('.detect-menu-item') : null;
+
+        if(!targetItem && menu){
+            let items = Array.from(menu.querySelectorAll('.detect-menu-item')).filter(it => it !== detectActiveDrag.itemEl);
+            for(let it of items){
+                let rect = it.getBoundingClientRect();
+                if(touch.clientY >= rect.top && touch.clientY <= rect.bottom){
+                    targetItem = it;
+                    break;
+                }
             }
-            return;
         }
 
-        e.preventDefault();
-        let ghost = getOrCreateDetectGhost();
-        ghost.style.left = e.clientX + 'px';
-        ghost.style.top = (e.clientY - 30) + 'px';
-
-        clearIndicators();
-        currentDropAction = null;
-
-        let items = Array.from(menu.querySelectorAll('.detect-menu-item')).filter(it => it !== dragItem);
-        for(let it of items){
-            let rect = it.getBoundingClientRect();
-            if(e.clientY >= rect.top && e.clientY <= rect.bottom){
-                let midY = rect.top + rect.height / 2;
-                let pos = (e.clientY < midY) ? 'before' : 'after';
-                currentDropAction = { targetItem: it, position: pos };
-                if(pos === 'before'){
-                    it.classList.add('detect-drop-top');
-                } else {
-                    it.classList.add('detect-drop-bottom');
-                }
-                break;
+        if(targetItem && targetItem !== detectActiveDrag.itemEl){
+            let rect = targetItem.getBoundingClientRect();
+            let midY = rect.top + rect.height / 2;
+            let pos = (touch.clientY < midY) ? 'before' : 'after';
+            currentDetectDropAction = { targetItem: targetItem, position: pos };
+            if(pos === 'before'){
+                targetItem.classList.add('detect-drop-top');
+            } else {
+                targetItem.classList.add('detect-drop-bottom');
             }
         }
     }, { passive: false });
 
-    function endDrag(e){
-        clearPressTimer();
-        if(activePointerId !== null && dragItem){
-            try { dragItem.releasePointerCapture(activePointerId); } catch(err){}
-        }
-
+    // ウィンドウ全体のタッチ終了
+    window.addEventListener('touchend', () => {
+        if(!detectActiveDrag) return;
+        lastDetectDragEndTime = Date.now();
         let ghost = getOrCreateDetectGhost();
         ghost.style.display = 'none';
 
-        if(isDragMode){
-            suppressClickUntil = Date.now() + 350;
-            if(currentDropAction && currentDropAction.targetItem && dragItem){
-                if(currentDropAction.position === 'before'){
-                    currentDropAction.targetItem.before(dragItem);
-                } else {
-                    currentDropAction.targetItem.after(dragItem);
-                }
-                let newOrder = Array.from(menu.querySelectorAll('.detect-menu-item')).map(it => it.id);
-                saveDetectMenuOrder(newOrder);
+        if(detectActiveDrag.itemEl){
+            detectActiveDrag.itemEl.classList.remove('detect-dragging');
+        }
+
+        clearDetectDropIndicators();
+
+        if(currentDetectDropAction && currentDetectDropAction.targetItem && detectActiveDrag.itemEl){
+            if(currentDetectDropAction.position === 'before'){
+                currentDetectDropAction.targetItem.before(detectActiveDrag.itemEl);
+            } else {
+                currentDetectDropAction.targetItem.after(detectActiveDrag.itemEl);
+            }
+            let newOrder = Array.from(menu.querySelectorAll('.detect-menu-item')).map(it => it.id);
+            saveDetectMenuOrder(newOrder);
+            if(typeof navigator !== 'undefined' && navigator.vibrate){
+                try { navigator.vibrate(18); } catch(err){}
             }
         }
 
-        clearIndicators();
-        if(dragItem){
-            dragItem.classList.remove('detect-dragging');
-        }
-        activePointerId = null;
-        dragItem = null;
-        isDragMode = false;
-        currentDropAction = null;
-    }
+        detectActiveDrag = null;
+        currentDetectDropAction = null;
+        clearDetectSelectionSafely();
+    }, { passive: true });
 
-    menu.addEventListener('pointerup', endDrag);
-    menu.addEventListener('pointercancel', endDrag);
+    window.addEventListener('touchcancel', () => {
+        if(!detectActiveDrag) return;
+        lastDetectDragEndTime = Date.now();
+        let ghost = getOrCreateDetectGhost();
+        ghost.style.display = 'none';
+        if(detectActiveDrag.itemEl){
+            detectActiveDrag.itemEl.classList.remove('detect-dragging');
+        }
+        clearDetectDropIndicators();
+        detectActiveDrag = null;
+        currentDetectDropAction = null;
+        clearDetectSelectionSafely();
+    }, { passive: true });
 }
 
 function execDetectHomoglyphs(){
+    if(Date.now() - lastDetectDragEndTime < 350) return;
     closeDetectMenu();
     tgHomoglyphs();
 }
 
 function execDetectNumericDigits(){
+    if(Date.now() - lastDetectDragEndTime < 350) return;
     closeDetectMenu();
     tgNumericDigits();
 }
@@ -3789,6 +3931,7 @@ function tgHalfWidth(){
 }
 
 function execDetectHalfWidth(){
+    if(Date.now() - lastDetectDragEndTime < 350) return;
     closeDetectMenu();
     tgHalfWidth();
 }
@@ -3877,6 +4020,7 @@ function clearHalfZenSlots(){
 
 function toggleHalfToZenSubmenu(ev){
     if(ev) ev.stopPropagation();
+    if(Date.now() - lastDetectDragEndTime < 350) return;
     let panel = document.getElementById('halfToZenPanel');
     let arrow = document.getElementById('halfToZenArrow');
     if(!panel) return;
