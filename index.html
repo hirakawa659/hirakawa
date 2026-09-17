@@ -77,12 +77,20 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   border-radius:5px!important;
 }
 #detectMenuDropdown {
+  background: #ffffff !important;
+  opacity: 1 !important;
   -webkit-user-select: none !important;
   user-select: none !important;
   -webkit-touch-callout: none !important;
   -webkit-tap-highlight-color: transparent !important;
+  position: fixed !important;
+  z-index: 999999 !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25) !important;
 }
 .detect-menu-item {
+  position: relative !important;
+  background: #ffffff !important;
+  opacity: 1 !important;
   -webkit-user-select: none !important;
   user-select: none !important;
   -webkit-touch-callout: none !important;
@@ -99,21 +107,47 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   user-select: text !important;
 }
 .detect-menu-item.detect-drop-top{
-  box-shadow:inset 0 3.5px 0 0 #2563eb!important;
-  background:rgba(37,99,235,0.12)!important;
-  border-radius:5px!important;
+  position: relative !important;
+  box-shadow: inset 0 3.5px 0 0 #2563eb !important;
+  background: #eff6ff !important;
+  border-radius: 5px !important;
+}
+.detect-menu-item.detect-drop-top::before{
+  content: '' !important;
+  position: absolute !important;
+  top: -2.5px !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 4px !important;
+  background: #2563eb !important;
+  border-radius: 2px !important;
+  z-index: 9999 !important;
+  pointer-events: none !important;
 }
 .detect-menu-item.detect-drop-bottom{
-  box-shadow:inset 0 -3.5px 0 0 #2563eb!important;
-  background:rgba(37,99,235,0.12)!important;
-  border-radius:5px!important;
+  position: relative !important;
+  box-shadow: inset 0 -3.5px 0 0 #2563eb !important;
+  background: #eff6ff !important;
+  border-radius: 5px !important;
+}
+.detect-menu-item.detect-drop-bottom::after{
+  content: '' !important;
+  position: absolute !important;
+  bottom: -2.5px !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 4px !important;
+  background: #2563eb !important;
+  border-radius: 2px !important;
+  z-index: 9999 !important;
+  pointer-events: none !important;
 }
 .detect-menu-item.detect-dragging{
-  opacity: 1!important;
-  background: #eff6ff!important;
-  border-radius: 5px!important;
-  outline: 2px dashed #2563eb!important;
-  outline-offset: -2px!important;
+  opacity: 1 !important;
+  background: #ffffff !important;
+  border-radius: 5px !important;
+  outline: 2px solid #2563eb !important;
+  outline-offset: -1px !important;
 }
 #t{overflow-y:auto;flex:1;font-size:12px;padding:0;border-top:1px solid var(--sidebar-border);background:var(--sidebar-tree-bg)}
 .tree-node{margin-bottom:0;user-select:none;width:100%}
@@ -361,39 +395,39 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
       <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="width:58px;padding:3.5px 1px;font-size:9.5px;font-weight:bold;line-height:1.15;letter-spacing:-0.4px;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:1px;touch-action:none" title="検出と変換メニュー">
         <span>検出と変換</span><span style="font-size:8px;line-height:1">▾</span>
       </button>
-      <div id="detectMenuDropdown" style="display:none;position:absolute;top:0;left:calc(100% + 4px);background:#ffffff!important;opacity:1!important;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,0.22);padding:6px;flex-direction:column;gap:6px;width:246px;box-sizing:border-box;z-index:99999;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important;touch-action:none" onclick="event.stopPropagation()" oncontextmenu="event.preventDefault()" onselectstart="return false">
+      <div id="detectMenuDropdown" style="display:none;position:fixed;background:#ffffff!important;opacity:1!important;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,0.25);padding:6px;flex-direction:column;gap:6px;width:246px;box-sizing:border-box;z-index:999999;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important;touch-action:none" onclick="event.stopPropagation()" oncontextmenu="event.preventDefault()" onselectstart="return false">
         <!-- 隠し文字 -->
-        <div id="detect_item_hidden" class="detect-menu-item" data-detect-id="detect_item_hidden" style="width:100%;touch-action:none;user-select:none;cursor:grab">
+        <div id="detect_item_hidden" class="detect-menu-item" data-detect-id="detect_item_hidden" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;border-radius:5px">
           <button type="button" onclick="execDetectHiddenChars()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#1e3a8a;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
             <span>隠し文字</span>
           </button>
         </div>
         <!-- 隠し文字 一括削除 -->
-        <div id="detect_item_hidden_del" class="detect-menu-item" data-detect-id="detect_item_hidden_del" style="width:100%;touch-action:none;user-select:none;cursor:grab">
+        <div id="detect_item_hidden_del" class="detect-menu-item" data-detect-id="detect_item_hidden_del" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;border-radius:5px">
           <button type="button" onclick="execDeleteAllHiddenChars(event)" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#b91c1c;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='#f8fafc'" title="エディタ内の隠し文字を一括削除">
             <span>隠し文字 一括削除</span>
           </button>
         </div>
         <!-- ホモグラフ -->
-        <div id="detect_item_homo" class="detect-menu-item" data-detect-id="detect_item_homo" style="width:100%;touch-action:none;user-select:none;cursor:grab">
+        <div id="detect_item_homo" class="detect-menu-item" data-detect-id="detect_item_homo" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;border-radius:5px">
           <button type="button" onclick="execDetectHomoglyphs()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#9a3412;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#fff7ed'" onmouseout="this.style.background='#f8fafc'">
             <span>ホモグラフ</span>
           </button>
         </div>
         <!-- 算用数字 -->
-        <div id="detect_item_num" class="detect-menu-item" data-detect-id="detect_item_num" style="width:100%;touch-action:none;user-select:none;cursor:grab">
+        <div id="detect_item_num" class="detect-menu-item" data-detect-id="detect_item_num" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;border-radius:5px">
           <button type="button" onclick="execDetectNumericDigits()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#854d0e;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#fefce8'" onmouseout="this.style.background='#f8fafc'">
             <span>算用数字</span>
           </button>
         </div>
         <!-- 半角 -->
-        <div id="detect_item_half" class="detect-menu-item" data-detect-id="detect_item_half" style="width:100%;touch-action:none;user-select:none;cursor:grab">
+        <div id="detect_item_half" class="detect-menu-item" data-detect-id="detect_item_half" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;border-radius:5px">
           <button type="button" onclick="execDetectHalfWidth()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#0369a1;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='#f8fafc'">
             <span>半角</span>
           </button>
         </div>
         <!-- 半角全角（トグルボタン ＆ 一括変換・指定変換10マス） -->
-        <div id="detect_item_half_zen" class="detect-menu-item" data-detect-id="detect_item_half_zen" style="width:100%;touch-action:none;user-select:none;display:flex;flex-direction:column;gap:4px">
+        <div id="detect_item_half_zen" class="detect-menu-item" data-detect-id="detect_item_half_zen" style="width:100%;touch-action:none;user-select:none;display:flex;flex-direction:column;gap:4px;background:#ffffff;border-radius:5px">
           <button type="button" id="halfToZenToggleBtn" onclick="toggleHalfToZenSubmenu(event)" style="width:100%;text-align:left;background:#f8fafc;border:1px solid #cbd5e1;color:#2563eb;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
             <span>半角全角</span>
             <span id="halfToZenArrow" style="font-size:10px;color:#64748b">▾</span>
@@ -3425,6 +3459,23 @@ function tgRep(){
         document.getElementById('repMsg').textContent='';
     }
 }
+function positionDetectMenu(){
+    const menu = document.getElementById('detectMenuDropdown');
+    const btn = document.getElementById('detectBtn');
+    if(!menu || !btn) return;
+    const rect = btn.getBoundingClientRect();
+    menu.style.position = 'fixed';
+    menu.style.left = (rect.right + 4) + 'px';
+    let top = rect.top;
+    const winH = window.innerHeight || document.documentElement.clientHeight;
+    const menuH = menu.offsetHeight || 320;
+    if(top + menuH > winH - 8){
+        top = Math.max(8, winH - menuH - 8);
+    }
+    menu.style.top = top + 'px';
+    menu.style.zIndex = '999999';
+}
+
 function toggleDetectMenu(ev){
     if(ev){ ev.stopPropagation(); }
     const menu = document.getElementById('detectMenuDropdown');
@@ -3433,8 +3484,11 @@ function toggleDetectMenu(ev){
     if(isHidden){
         applyDetectMenuOrder(getDetectMenuOrder());
         initDetectMenuDragAndDrop();
+        menu.style.display = 'flex';
+        positionDetectMenu();
+    } else {
+        menu.style.display = 'none';
     }
-    menu.style.display = isHidden ? 'flex' : 'none';
 }
 
 function closeDetectMenu(){
@@ -3702,6 +3756,16 @@ function initDetectMenuDragAndDrop(){
 
                     let pointEl = document.elementFromPoint(mEv.clientX, mEv.clientY);
                     let targetItem = pointEl ? pointEl.closest('.detect-menu-item') : null;
+                    if(!targetItem && menu){
+                        let items = Array.from(menu.querySelectorAll('.detect-menu-item')).filter(it => it !== detectActiveDrag.itemEl);
+                        for(let it of items){
+                            let rect = it.getBoundingClientRect();
+                            if(mEv.clientY >= rect.top && mEv.clientY <= rect.bottom){
+                                targetItem = it;
+                                break;
+                            }
+                        }
+                    }
                     if(targetItem && targetItem !== detectActiveDrag.itemEl){
                         let rect = targetItem.getBoundingClientRect();
                         let midY = rect.top + rect.height / 2;
@@ -8052,6 +8116,12 @@ window.addEventListener('click', (ev)=>{
         if(btn && !btn.contains(ev.target) && !menu.contains(ev.target)){
             closeDetectMenu();
         }
+    }
+});
+window.addEventListener('resize', ()=>{
+    let menu = document.getElementById('detectMenuDropdown');
+    if(menu && menu.style.display !== 'none'){
+        positionDetectMenu();
     }
 });
 window.addEventListener('DOMContentLoaded', ()=>{
