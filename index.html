@@ -1634,6 +1634,9 @@ function applyLineNumbersVisibility(state){
         btn.textContent = isOff ? '行数:OFF' : '行数:ON';
         btn.style.fontWeight = 'bold';
     }
+    setTimeout(() => {
+        try { z(); } catch(err){}
+    }, 10);
 }
 
 /* 選択文字数表示機能（マス数・空白込文字数を5秒間ポップアップ表示） */
@@ -1853,7 +1856,12 @@ function z(){
     if(l) l.value = String(num);
     const m=document.querySelector('.m');
     const mWidth=m?m.clientWidth:(window.innerWidth-200);
-    const pad=0,lw=70;
+    const nEl = document.getElementById('n');
+    const isLineNumOff = (nEl && nEl.style.display === 'none') || (localStorage.getItem('n_show_line_numbers') === 'off');
+    
+    // 行数表示がOFFの時は左余白(lw)を詰める（安全マージンとして8pxだけ残す）
+    const lw = isLineNumOff ? 8 : 70;
+    const pad=0;
     let avail=mWidth-pad-lw-16;
     if(avail<100)avail=100;
     let oldCs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 0;
