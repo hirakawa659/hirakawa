@@ -4185,6 +4185,14 @@ function runHeavyTask(){
     if(mCont && mCont.scrollTop !== savedScrollTop){
         mCont.scrollTop = savedScrollTop;
     }
+    if(mCont && savedScrollTop > 0){
+        requestAnimationFrame(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        });
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        }, 50);
+    }
 }
 
 // 確定保存が必要なタイミング（タブ切り替え・保存・コピー・離脱等）で即時実行
@@ -4294,7 +4302,7 @@ e.addEventListener('paste', (ev)=>{
         if(targetDiv){
             setCaretCharOffset(targetDiv, 0);
         }
-        if(mCont) mCont.scrollTop = 0;
+        if(mCont && savedScrollTop > 0) mCont.scrollTop = savedScrollTop;
         scheduleHeavyTask(400, false);
         return;
     }
@@ -4332,7 +4340,20 @@ e.addEventListener('paste', (ev)=>{
     }
     
     if(!startDiv){
-        startDiv = lastActiveLine || e.firstElementChild;
+        if(lastActiveLine && e.contains(lastActiveLine)){
+            startDiv = lastActiveLine;
+        } else {
+            let divs = e.querySelectorAll('#e>div');
+            if(divs.length === 0) divs = e.querySelectorAll('div');
+            let cs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 32;
+            let approxRow = Math.floor(savedScrollTop / cs);
+            if(divs.length > 0){
+                approxRow = Math.min(Math.max(0, approxRow), divs.length - 1);
+                startDiv = divs[approxRow];
+            } else {
+                startDiv = e.firstElementChild;
+            }
+        }
     }
     if(!endDiv){
         endDiv = startDiv;
@@ -4417,7 +4438,20 @@ e.addEventListener('paste', (ev)=>{
     if(mCont){
         mCont.scrollTop = savedScrollTop;
     }
-    sc();
+    if(mCont && savedScrollTop > 0){
+        requestAnimationFrame(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        });
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        }, 30);
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        }, 100);
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        }, 300);
+    }
     scheduleHeavyTask(400, false);
 });
 
@@ -4467,6 +4501,20 @@ e.addEventListener('cut', (ev)=>{
     if(!startDiv && !endDiv){
         range.deleteContents();
         if(mCont) mCont.scrollTop = savedScrollTop;
+        if(mCont && savedScrollTop > 0){
+            requestAnimationFrame(()=>{
+                if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+            });
+            setTimeout(()=>{
+                if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+            }, 30);
+            setTimeout(()=>{
+                if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+            }, 100);
+            setTimeout(()=>{
+                if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+            }, 300);
+        }
         scheduleHeavyTask(300, false);
         return;
     }
@@ -4516,7 +4564,20 @@ e.addEventListener('cut', (ev)=>{
     if(mCont){
         mCont.scrollTop = savedScrollTop;
     }
-    sc();
+    if(mCont && savedScrollTop > 0){
+        requestAnimationFrame(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        });
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        }, 30);
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        }, 100);
+        setTimeout(()=>{
+            if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
+        }, 300);
+    }
     scheduleHeavyTask(300, false);
 });
 
@@ -5495,10 +5556,10 @@ function handleCellClick(ev){
         }
         if(mCont && savedScrollTop > 0){
             requestAnimationFrame(()=>{
-                if(mCont && mCont.scrollTop === 0) mCont.scrollTop = savedScrollTop;
+                if(mCont && Math.abs(mCont.scrollTop - savedScrollTop) > 3) mCont.scrollTop = savedScrollTop;
             });
             setTimeout(()=>{
-                if(mCont && mCont.scrollTop === 0) mCont.scrollTop = savedScrollTop;
+                if(mCont && Math.abs(mCont.scrollTop - savedScrollTop) > 3) mCont.scrollTop = savedScrollTop;
             }, 40);
         }
     }
@@ -5518,10 +5579,10 @@ e.addEventListener('mousedown',()=>{
     }
     if(mCont && savedScrollTop > 0){
         requestAnimationFrame(()=>{
-            if(mCont && mCont.scrollTop === 0) mCont.scrollTop = savedScrollTop;
+            if(mCont && Math.abs(mCont.scrollTop - savedScrollTop) > 3) mCont.scrollTop = savedScrollTop;
         });
         setTimeout(()=>{
-            if(mCont && mCont.scrollTop === 0) mCont.scrollTop = savedScrollTop;
+            if(mCont && Math.abs(mCont.scrollTop - savedScrollTop) > 3) mCont.scrollTop = savedScrollTop;
         }, 40);
     }
 });
@@ -5543,10 +5604,10 @@ e.addEventListener('click',(ev)=>{
             }
             if(mCont && savedScrollTop > 0){
                 requestAnimationFrame(()=>{
-                    if(mCont && mCont.scrollTop === 0) mCont.scrollTop = savedScrollTop;
+                    if(mCont && Math.abs(mCont.scrollTop - savedScrollTop) > 3) mCont.scrollTop = savedScrollTop;
                 });
                 setTimeout(()=>{
-                    if(mCont && mCont.scrollTop === 0) mCont.scrollTop = savedScrollTop;
+                    if(mCont && Math.abs(mCont.scrollTop - savedScrollTop) > 3) mCont.scrollTop = savedScrollTop;
                 }, 40);
             }
             return;
