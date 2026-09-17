@@ -245,7 +245,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_search_folder" class="tool-item" onclick="toggleFolderSearchBar()" style="background:transparent;border:none;color:#0369a1;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="現在開いているフォルダ内やノート内の語句を検索">開フォルダ内<br>検索</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:transparent;border:none;color:#1e40af;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
 <button id="tool_area" class="tool-item" onclick="openToolbarColorModal(event)" style="background:transparent;border:none;color:#334155;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="領域の設定（各ツールの文字色設定）">領域</button>
-<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（予測変換残留解消・1回での改行）を確認">最新修正<br>5</button>
+<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（左端予測変換時の1回改行）を確認">最新修正<br>6</button>
 <select id="l" onchange="updateColsDisplay();z()" style="display:none"></select>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
@@ -1757,6 +1757,9 @@ function recordActiveSelection(){
 
 let isComposing = false;
 let composingText = '';
+let hasActiveCompositionInput = false;
+let last229KeydownTime = 0;
+let last229WasAtLeftEdge = false;
 let isNormalizingSelection = false;
 function normalizeEditorSelectionToTextNode(){
     if(isNormalizingSelection || (isComposing && composingText.length > 0)) return;
@@ -1807,6 +1810,9 @@ function normalizeEditorSelectionToTextNode(){
                 let walker = document.createTreeWalker(targetDiv, NodeFilter.SHOW_TEXT, null, false);
                 let firstText = walker.nextNode();
                 if(firstText){
+                    if(sel.anchorNode === firstText && sel.anchorOffset === 0 && (offset === 0 || node === targetDiv || node === e)){
+                        return;
+                    }
                     let range = document.createRange();
                     if(offset === 0 || node === targetDiv || node === e){
                         range.setStart(firstText, 0);
@@ -1823,6 +1829,9 @@ function normalizeEditorSelectionToTextNode(){
                         br = targetDiv.querySelector('br');
                     }
                     if(br){
+                        if(sel.anchorNode === targetDiv && sel.anchorOffset === 0){
+                            return;
+                        }
                         let range = document.createRange();
                         range.setStartBefore(br);
                         range.collapse(true);
@@ -1838,6 +1847,7 @@ function normalizeEditorSelectionToTextNode(){
 }
 
 function handleSelectionEvent(){
+    hasActiveCompositionInput = false;
     normalizeEditorSelectionToTextNode();
     recordActiveSelection();
     setTimeout(normalizeEditorSelectionToTextNode, 20);
@@ -5168,7 +5178,7 @@ function scrollToLatestFix(){
     }
     let toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:10px 16px;border-radius:8px;font-size:12.5px;font-weight:bold;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s ease;pointer-events:none';
-    toast.textContent = '最新修正5: カーソル移動時の予測変換残留を抑止し、1回の改行ボタン押下で確実に改行できるよう修正完了';
+    toast.textContent = '最新修正6: 左端での予測変換表示状態でも、改行ボタン1回で確実に改行できるよう修正完了';
     document.body.appendChild(toast);
     setTimeout(()=>{
         toast.style.opacity = '0';
@@ -5176,17 +5186,57 @@ function scrollToLatestFix(){
     }, 2800);
 }
 
+// キャレットが行の先頭（左端）にあるかを厳密に判定
+function isCaretAtLeftEdge(){
+    let sel = window.getSelection();
+    if(!sel || sel.rangeCount === 0) return true;
+    let range = sel.getRangeAt(0);
+    let node = range.startContainer;
+    let offset = range.startOffset;
+    if(node === e) return true;
+    let curDiv = getActiveEditorLineDiv();
+    if(!curDiv) return true;
+    if(node === curDiv && offset === 0) return true;
+    try {
+        let preRange = document.createRange();
+        preRange.selectNodeContents(curDiv);
+        preRange.setEnd(node, offset);
+        if(preRange.toString().length === 0) return true;
+    } catch(err){
+        if(offset === 0) return true;
+    }
+    return false;
+}
+
 e.addEventListener('compositionstart',()=>{
     isComposing = true;
     composingText = '';
+    hasActiveCompositionInput = false;
 });
 e.addEventListener('compositionupdate',(ev)=>{
     isComposing = true;
     composingText = ev.data || '';
 });
-e.addEventListener('compositionend',()=>{
+e.addEventListener('compositionend',(ev)=>{
+    let wasAtLeftEdge = last229WasAtLeftEdge;
+    let hadKeydown229 = (Date.now() - last229KeydownTime < 250);
+    let noTypedText = !hasActiveCompositionInput;
+    let emptyResult = (!ev.data || ev.data === '');
+    
     isComposing = false;
     composingText = '';
+    hasActiveCompositionInput = false;
+    last229WasAtLeftEdge = false;
+    
+    // iOS Safari / iPad: 左端等で予測変換候補が出ている時にReturnキーを押下した場合、
+    // keydown/beforeinputが候補閉じとして消費され、compositionend(空文字)のみが発火して改行がスキップされる現象を1回で確実に改行
+    if(hadKeydown229 && noTypedText && emptyResult && wasAtLeftEdge){
+        let now = Date.now();
+        if(now - lastEnterTimestamp >= 200){
+            handleNewlineAction(ev);
+        }
+    }
+    
     // 変換確定後、0.3秒後にマス入れ・文字数カウント・保存
     scheduleHeavyTask(300);
 });
@@ -5370,7 +5420,7 @@ let lastEnterTimestamp = 0;
 
 function handleNewlineAction(ev){
     let now = Date.now();
-    if(now - lastEnterTimestamp < 150){
+    if(now - lastEnterTimestamp < 220){
         if(ev && ev.preventDefault) ev.preventDefault();
         return;
     }
@@ -5378,11 +5428,15 @@ function handleNewlineAction(ev){
     lastEnterTimestamp = now;
     isComposing = false;
     composingText = '';
+    hasActiveCompositionInput = false;
     executeEditorNewline();
 }
 
 // beforeinputイベント：iOS Safari・iPad・Androidのソフトウェアキーボードにおける改行（insertParagraph/insertLineBreak/insertText改行）を1回で確実に捕捉
 function onBeforeInputNewline(ev){
+    if(ev.inputType === 'insertCompositionText'){
+        hasActiveCompositionInput = true;
+    }
     let isNewline = (ev.inputType === 'insertParagraph' || 
                      ev.inputType === 'insertLineBreak' || 
                      (ev.inputType === 'insertText' && (ev.data === '\n' || ev.data === '\r')) ||
@@ -5399,12 +5453,18 @@ document.addEventListener('beforeinput', (ev)=>{
     }
 }, true);
 
-// keydownイベント：PCキーボード、ハードウェアキーボード等のEnterキー押下時の制御
+// keydownイベント：PCキーボード、ハードウェアキーボード、iOSソフトウェアキーボードのEnterキー押下時の制御
 function onKeydownNewline(ev){
-    if(ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter'){
-        // 実際に未確定文字列を変換中の場合のみ変換確定を優先（composingTextに文字が存在する場合）
-        if(isComposing && composingText.length > 0) return;
-        if(ev.isComposing && ev.keyCode === 229 && composingText.length > 0) return;
+    let isEnterKey = (ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter');
+    
+    if(ev.keyCode === 229){
+        last229KeydownTime = Date.now();
+        last229WasAtLeftEdge = isCaretAtLeftEdge();
+    }
+    
+    if(isEnterKey){
+        // ユーザーが実際に未確定文字列を入力中の場合（未確定かな等の確定）のみ確定を優先して改行を保留
+        if(hasActiveCompositionInput) return;
         
         handleNewlineAction(ev);
     }
@@ -5414,11 +5474,13 @@ e.addEventListener('keydown', onKeydownNewline, true);
 
 // keyupイベント：iOS Safariで予測変換候補表示中にReturnキーが押され、keydown/beforeinputが候補閉じとして消費された場合でも、keyupで確実に1回で改行を実行
 window.addEventListener('keyup', (ev)=>{
-    if(document.activeElement !== e && !e.contains(document.activeElement)) return;
+    let sel = window.getSelection();
+    let isEditorActive = (document.activeElement === e || (document.activeElement && e.contains(document.activeElement)) || (sel && sel.anchorNode && (sel.anchorNode === e || e.contains(sel.anchorNode))));
+    if(!isEditorActive) return;
+    
     if(ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter'){
-        if(isComposing && composingText.length > 0) return;
+        if(hasActiveCompositionInput) return;
         let now = Date.now();
-        // 直近200ms以内にすでに改行が実行されていればスキップ（重複防止）
         if(now - lastEnterTimestamp < 200) return;
         handleNewlineAction(ev);
     }
@@ -6778,6 +6840,7 @@ function applyCaretToDiv(targetDiv, targetCol, maxCols){
     if(!targetDiv) return;
     isComposing = false;
     composingText = '';
+    hasActiveCompositionInput = false;
     const mCont = document.querySelector('.m');
     const savedScrollTop = mCont ? mCont.scrollTop : 0;
     targetCol = Math.min(targetCol, maxCols);
