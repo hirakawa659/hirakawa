@@ -2030,6 +2030,7 @@ let lastRenderedVisibleLines = -1;
 let lastRenderedActiveLine = -1;
 
 function updateLineNumbers(divs){
+    if(!n || n.style.display === 'none') return;
     if(!divs){
         divs=e.querySelectorAll('#e>div');
         if(divs.length===0) divs=e.querySelectorAll('div');
@@ -5122,7 +5123,7 @@ e.addEventListener('paste', (ev)=>{
             setCaretCharOffset(targetDiv, 0);
         }
         if(mCont && savedScrollTop > 0) mCont.scrollTop = savedScrollTop;
-        scheduleHeavyTask(400, false);
+        scheduleHeavyTask(300, false);
         return;
     }
     
@@ -5271,7 +5272,7 @@ e.addEventListener('paste', (ev)=>{
             if(mCont && mCont.scrollTop !== savedScrollTop) mCont.scrollTop = savedScrollTop;
         }, 300);
     }
-    scheduleHeavyTask(400, false);
+    scheduleHeavyTask(300, false);
 });
 
 e.addEventListener('cut', (ev)=>{
