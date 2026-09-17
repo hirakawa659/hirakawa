@@ -404,6 +404,10 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
     <button type="button" id="spColBtn" class="linenum-tool-item" onclick="tgSpColor()" style="width:58px;padding:5px 0;font-size:10px;font-weight:bold;line-height:1.15;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="全角以外の空白の色をON/OFF">
       空白色:OFF
     </button>
+    <!-- 管理者用 ()変換 -->
+    <button type="button" id="adminAutoConvertBtn" class="linenum-tool-item" onclick="tgAdminAutoConvert()" style="width:58px;padding:3.5px 0;font-size:9.5px;font-weight:bold;line-height:1.15;letter-spacing:-0.4px;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:normal;text-align:center;touch-action:none" title="管理者用: ( ) と半角スペースを自動的に全角に変換">
+      管理者用<br>()変換OFF
+    </button>
     <!-- △、ワープ、▽の順に並べたグループボタン -->
     <div id="linenumWarpGroup" class="linenum-tool-item" style="display:flex;flex-direction:column;width:58px;border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;overflow:hidden;background:var(--paper-bg,#ffffff);touch-action:none">
       <button type="button" id="warpPrevBtn" onclick="warpPrev()" style="width:100%;padding:4px 0;font-size:12px;font-weight:bold;background:transparent;color:var(--text-color,#000000);border:none;border-bottom:1px solid var(--sidebar-border,#cbd5e1);cursor:pointer;text-align:center;touch-action:none" title="前のマッチへワープ">△</button>
@@ -428,6 +432,7 @@ let d={r:[]},f=null,pId=null;
 let lastStableUserScrollTop=0, lastStableLineIndex=0, lastStableLineOffset=0, lastCsAtScroll=32, lastBlurTime=0, lastResumeTime=0, isRestoringAppScroll=false, userIsActivelyInteracting=false, isUserTouchingOrWheeling=false, userTouchEndTime=0, touchScrollTimeout=null;
 let currentViewMode='editor';
 let currentShelfFolderId=null;
+let adminParenthesisConvertMode = false;
 let treeActiveDrag=null;
 let currentTreeDropAction=null;
 let lastDragEndTime=0;
@@ -975,6 +980,26 @@ window.onload=()=>{
         if(btn){btn.textContent='空白色:OFF';btn.style.background='#f0f0f2';btn.style.color='#666';btn.style.fontWeight='normal'}
         if(spColBtn){spColBtn.textContent='空白色:OFF';spColBtn.style.color='#000000';spColBtn.style.fontWeight='bold'}
     }
+    
+    let adminAutoConvertSetting = localStorage.getItem('n_admin_auto_convert');
+    if (adminAutoConvertSetting === 'on') {
+        adminParenthesisConvertMode = true;
+        const btn = document.getElementById('adminAutoConvertBtn');
+        if (btn) {
+            btn.innerHTML = '管理者用<br>()変換ON';
+            btn.style.background = '#fef08a';
+            btn.style.color = '#854d0e';
+        }
+    } else {
+        adminParenthesisConvertMode = false;
+        const btn = document.getElementById('adminAutoConvertBtn');
+        if (btn) {
+            btn.innerHTML = '管理者用<br>()変換OFF';
+            btn.style.background = 'var(--paper-bg,#ffffff)';
+            btn.style.color = 'var(--text-color,#000000)';
+        }
+    }
+
     let lineNumSetting = localStorage.getItem('n_show_line_numbers') || 'on';
     applyLineNumbersVisibility(lineNumSetting);
     applyToolOrder(getToolOrder());
@@ -1544,6 +1569,47 @@ function tgSpColor(){
     if(!isOff){
         highlightSpaces();
     }
+}
+
+function tgAdminAutoConvert() {
+    adminParenthesisConvertMode = !adminParenthesisConvertMode;
+    const btn = document.getElementById('adminAutoConvertBtn');
+    if (adminParenthesisConvertMode) {
+        btn.innerHTML = '管理者用<br>()変換ON';
+        btn.style.background = '#fef08a';
+        btn.style.color = '#854d0e';
+    } else {
+        btn.innerHTML = '管理者用<br>()変換OFF';
+        btn.style.background = 'var(--paper-bg,#ffffff)';
+        btn.style.color = 'var(--text-color,#000000)';
+    }
+    localStorage.setItem('n_admin_auto_convert', adminParenthesisConvertMode ? 'on' : 'off');
+}
+
+function handleAdminAutoConvert() {
+    try {
+        let sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0) return;
+        let r = sel.getRangeAt(0);
+        if (!r.collapsed) return;
+
+        let node = r.startContainer;
+        if (node.nodeType === 3) {
+            let text = node.nodeValue;
+            if (text && /[\(\)\ ]/.test(text)) {
+                let offset = r.startOffset;
+                let replacedText = text.replace(/\(/g, '（').replace(/\)/g, '）').replace(/ /g, '　');
+                if (text !== replacedText) {
+                    node.nodeValue = replacedText;
+                    let newRange = document.createRange();
+                    newRange.setStart(node, Math.min(offset, replacedText.length));
+                    newRange.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(newRange);
+                }
+            }
+        }
+    } catch(err) {}
 }
 
 function tgLineNumbers(){
@@ -5044,6 +5110,9 @@ function scheduleFormat(delay=300){
 e.addEventListener('compositionstart',()=>{isComposing=true;});
 e.addEventListener('compositionend',()=>{
     isComposing=false;
+    if (adminParenthesisConvertMode) {
+        handleAdminAutoConvert();
+    }
     // 変換確定後、0.3秒後にマス入れ・文字数カウント・保存
     scheduleHeavyTask(300);
 });
@@ -5076,6 +5145,9 @@ e.addEventListener('keydown', (ev)=>{
 // 文字入力イベント
 // 文字の表示自体はネイティブの最高速のまま維持し、同期的には重い文字数カウントやDOMマス入れ・保存は行わない
 e.oninput=()=>{
+    if (adminParenthesisConvertMode && !isComposing) {
+        handleAdminAutoConvert();
+    }
     sc();
     // 通常のタイピング・修正は0.3秒（300ms）後に実行
     scheduleHeavyTask(300);
