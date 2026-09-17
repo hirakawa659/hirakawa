@@ -8433,19 +8433,17 @@ window.addEventListener('DOMContentLoaded', ()=>{
     <div class="modal-body" style="padding:14px;gap:14px">
       <!-- ここだけのワープ -->
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px">
-        <div style="font-size:12px;font-weight:bold;color:#1e293b">ここだけのワープ</div>
-        <div style="font-size:10.5px;color:#64748b;line-height:1.3">これはここだけのワープで他のノートとは関係ない。</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
-          <input id="localWarpInput" type="text" placeholder="検索ワード" style="flex:1;padding:6px 8px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px;outline:none;background:#fff" onkeydown="if(event.key==='Enter') applyLocalWarp()">
+        <div style="font-size:12px;font-weight:bold;color:#1e293b">ここだけのワープ基準</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+          <input id="localWarpInput" type="text" placeholder="基準ワード" style="flex:1;padding:6px 8px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px;outline:none;background:#fff" onkeydown="if(event.key==='Enter') applyLocalWarp()">
           <button type="button" onclick="applyLocalWarp()" style="background:#2563eb;color:#fff;border:none;padding:6px 12px;border-radius:4px;font-size:12px;font-weight:bold;cursor:pointer;white-space:nowrap">適用</button>
         </div>
       </div>
       <!-- デフォルトでのワープ -->
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px">
-        <div style="font-size:12px;font-weight:bold;color:#1e293b">デフォルトでのワープ</div>
-        <div style="font-size:10.5px;color:#64748b;line-height:1.3">これは他のノートにも通用して他のノートで、△などを押すと基準とする文字を毎回入れなくても機能する。</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
-          <input id="globalWarpInput" type="text" placeholder="共通検索ワード" style="flex:1;padding:6px 8px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px;outline:none;background:#fff" onkeydown="if(event.key==='Enter') applyGlobalWarp()">
+        <div style="font-size:12px;font-weight:bold;color:#1e293b">デフォルトでのワープ基準</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+          <input id="globalWarpInput" type="text" placeholder="共通基準ワード" style="flex:1;padding:6px 8px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px;outline:none;background:#fff" onkeydown="if(event.key==='Enter') applyGlobalWarp()">
           <button type="button" onclick="applyGlobalWarp()" style="background:#059669;color:#fff;border:none;padding:6px 12px;border-radius:4px;font-size:12px;font-weight:bold;cursor:pointer;white-space:nowrap">適用</button>
         </div>
       </div>
