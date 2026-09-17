@@ -245,7 +245,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_search_folder" class="tool-item" onclick="toggleFolderSearchBar()" style="background:transparent;border:none;color:#0369a1;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="現在開いているフォルダ内やノート内の語句を検索">開フォルダ内<br>検索</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:transparent;border:none;color:#1e40af;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
 <button id="tool_area" class="tool-item" onclick="openToolbarColorModal(event)" style="background:transparent;border:none;color:#334155;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="領域の設定（各ツールの文字色設定）">領域</button>
-<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（行頭・左端での1回での改行処理）を確認">最新修正<br>4</button>
+<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（予測変換残留解消・1回での改行）を確認">最新修正<br>5</button>
 <select id="l" onchange="updateColsDisplay();z()" style="display:none"></select>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
@@ -416,7 +416,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   <div class="m" style="flex:1">
     <div id="w">
       <div class="l" id="n" style="pointer-events:none;-webkit-user-select:none;user-select:none">1</div>
-      <div id="e" contenteditable="true"><div><br></div></div>
+      <div id="e" contenteditable="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="enter"><div><br></div></div>
     </div>
   </div>
 </div>
@@ -1755,9 +1755,11 @@ function recordActiveSelection(){
     }
 }
 
+let isComposing = false;
+let composingText = '';
 let isNormalizingSelection = false;
 function normalizeEditorSelectionToTextNode(){
-    if(isNormalizingSelection || isComposing) return;
+    if(isNormalizingSelection || (isComposing && composingText.length > 0)) return;
     let sel = window.getSelection();
     if(!sel || sel.rangeCount === 0 || !sel.isCollapsed) return;
     let node = sel.anchorNode;
@@ -5089,7 +5091,6 @@ function sc(){
     },30);
 }
 
-let isComposing=false;
 let heavyTaskTimer=null;
 let pendingCleanLines=false;
 
@@ -5167,7 +5168,7 @@ function scrollToLatestFix(){
     }
     let toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:10px 16px;border-radius:8px;font-size:12.5px;font-weight:bold;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s ease;pointer-events:none';
-    toast.textContent = '最新修正4: 行頭・左端で1回の改行ボタン押下で確実に改行できるよう修正完了';
+    toast.textContent = '最新修正5: カーソル移動時の予測変換残留を抑止し、1回の改行ボタン押下で確実に改行できるよう修正完了';
     document.body.appendChild(toast);
     setTimeout(()=>{
         toast.style.opacity = '0';
@@ -5175,9 +5176,17 @@ function scrollToLatestFix(){
     }, 2800);
 }
 
-e.addEventListener('compositionstart',()=>{isComposing=true;});
+e.addEventListener('compositionstart',()=>{
+    isComposing = true;
+    composingText = '';
+});
+e.addEventListener('compositionupdate',(ev)=>{
+    isComposing = true;
+    composingText = ev.data || '';
+});
 e.addEventListener('compositionend',()=>{
-    isComposing=false;
+    isComposing = false;
+    composingText = '';
     // 変換確定後、0.3秒後にマス入れ・文字数カウント・保存
     scheduleHeavyTask(300);
 });
@@ -5361,12 +5370,14 @@ let lastEnterTimestamp = 0;
 
 function handleNewlineAction(ev){
     let now = Date.now();
-    if(now - lastEnterTimestamp < 120){
-        ev.preventDefault();
+    if(now - lastEnterTimestamp < 150){
+        if(ev && ev.preventDefault) ev.preventDefault();
         return;
     }
-    ev.preventDefault();
+    if(ev && ev.preventDefault) ev.preventDefault();
     lastEnterTimestamp = now;
+    isComposing = false;
+    composingText = '';
     executeEditorNewline();
 }
 
@@ -5391,19 +5402,27 @@ document.addEventListener('beforeinput', (ev)=>{
 // keydownイベント：PCキーボード、ハードウェアキーボード等のEnterキー押下時の制御
 function onKeydownNewline(ev){
     if(ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter'){
-        // 日本語IME等で未確定文字列を変換確定中の場合は変換確定に任せる
-        if(isComposing) return;
-        
-        // PCのIME変換中のkeyCode 229をスキップ
-        if(ev.isComposing && ev.keyCode === 229){
-            return;
-        }
+        // 実際に未確定文字列を変換中の場合のみ変換確定を優先（composingTextに文字が存在する場合）
+        if(isComposing && composingText.length > 0) return;
+        if(ev.isComposing && ev.keyCode === 229 && composingText.length > 0) return;
         
         handleNewlineAction(ev);
     }
 }
 
 e.addEventListener('keydown', onKeydownNewline, true);
+
+// keyupイベント：iOS Safariで予測変換候補表示中にReturnキーが押され、keydown/beforeinputが候補閉じとして消費された場合でも、keyupで確実に1回で改行を実行
+window.addEventListener('keyup', (ev)=>{
+    if(document.activeElement !== e && !e.contains(document.activeElement)) return;
+    if(ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter'){
+        if(isComposing && composingText.length > 0) return;
+        let now = Date.now();
+        // 直近200ms以内にすでに改行が実行されていればスキップ（重複防止）
+        if(now - lastEnterTimestamp < 200) return;
+        handleNewlineAction(ev);
+    }
+}, true);
 
 // 文字入力イベント
 // 文字の表示自体はネイティブの最高速のまま維持し、同期的には重い文字数カウントやDOMマス入れ・保存は行わない
@@ -6757,6 +6776,8 @@ window.addEventListener('scroll',()=>{if(window.scrollY!==0||window.scrollX!==0)
 /* マス目やエディタ領域をクリック・タップした時のカーソル配置処理 */
 function applyCaretToDiv(targetDiv, targetCol, maxCols){
     if(!targetDiv) return;
+    isComposing = false;
+    composingText = '';
     const mCont = document.querySelector('.m');
     const savedScrollTop = mCont ? mCont.scrollTop : 0;
     targetCol = Math.min(targetCol, maxCols);
