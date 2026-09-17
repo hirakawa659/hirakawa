@@ -5085,7 +5085,7 @@ e.addEventListener('keydown', (ev)=>{
 // 文字の表示自体はネイティブの最高速のまま維持し、同期的には重い文字数カウントやDOMマス入れ・保存は行わない
 e.oninput=()=>{
     sc();
-    // 通常のタイピング・修正は0.3秒（300ms）後に実行
+    v();
     scheduleHeavyTask(300);
 };
 
@@ -5130,6 +5130,7 @@ e.addEventListener('paste', (ev)=>{
             setCaretCharOffset(targetDiv, 0);
         }
         if(mCont && savedScrollTop > 0) mCont.scrollTop = savedScrollTop;
+        v();
         scheduleHeavyTask(300, false);
         return;
     }
@@ -5262,6 +5263,8 @@ e.addEventListener('paste', (ev)=>{
         lastActiveOffset = lines[lines.length - 1].length;
     }
     
+    v();
+
     if(mCont){
         mCont.scrollTop = savedScrollTop;
     }
