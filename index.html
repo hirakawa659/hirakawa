@@ -5048,24 +5048,70 @@ e.addEventListener('compositionend',()=>{
 // ブラウザが新しい行に .sp-nonzen を複製して後続の文字まで黄色くしてしまう問題を完全に遮断する
 e.addEventListener('keydown', (ev)=>{
     if(ev.key === 'Enter'){
-        if(isComposing) return;
+        if(isComposing || ev.isComposing || ev.keyCode === 229) return;
+        
+        ev.preventDefault();
+        recordActiveSelection();
         
         let sel = window.getSelection();
-        if(sel && sel.rangeCount > 0){
-            let r = sel.getRangeAt(0);
-            let n = r.startContainer;
-            let sp = (n.nodeType === 1) ? n.closest('.sp-nonzen') : n.parentElement?.closest('.sp-nonzen');
-            if(sp){
-                let range = document.createRange();
-                range.setStartAfter(sp);
-                range.collapse(true);
-                sel.removeAllRanges();
-                sel.addRange(range);
-            }
+        if(!sel || sel.rangeCount === 0) return;
+        let range = sel.getRangeAt(0);
+        
+        if(!range.collapsed){
+            range.deleteContents();
         }
         
-        // 改行時も即座の重い同期処理は走らせず、0.3秒後にマス入れ・文字数カウントを実行
-        scheduleHeavyTask(300);
+        let startNode = range.startContainer;
+        while(startNode && startNode.parentElement !== e && startNode !== e){
+            startNode = startNode.parentElement;
+        }
+        let curDiv = (startNode && startNode.parentElement === e) ? startNode : lastActiveLine;
+        if(!curDiv || !e.contains(curDiv)){
+            let divs = e.querySelectorAll('#e>div');
+            if(divs.length === 0) divs = e.querySelectorAll('div');
+            curDiv = divs.length > 0 ? divs[0] : null;
+        }
+        if(!curDiv){
+            curDiv = document.createElement('div');
+            curDiv.innerHTML = '<br>';
+            e.appendChild(curDiv);
+        }
+        
+        let preText = '';
+        let postText = '';
+        try {
+            let preRange = range.cloneRange();
+            preRange.selectNodeContents(curDiv);
+            preRange.setEnd(range.startContainer, range.startOffset);
+            preText = preRange.toString();
+            
+            let postRange = range.cloneRange();
+            postRange.selectNodeContents(curDiv);
+            postRange.setStart(range.endContainer, range.endOffset);
+            postText = postRange.toString();
+        } catch(err) {
+            let full = (curDiv.textContent || '').replace(/[\r\n]/g, '');
+            let off = Math.min(lastActiveOffset || 0, full.length);
+            preText = full.substring(0, off);
+            postText = full.substring(off);
+        }
+        
+        if(preText) curDiv.textContent = preText;
+        else curDiv.innerHTML = '<br>';
+        
+        let newDiv = document.createElement('div');
+        if(postText) newDiv.textContent = postText;
+        else newDiv.innerHTML = '<br>';
+        
+        curDiv.after(newDiv);
+        
+        setCaretCharOffset(newDiv, 0);
+        lastActiveLine = newDiv;
+        lastActiveOffset = 0;
+        
+        v();
+        sc();
+        scheduleHeavyTask(300, false);
     }
 });
 
