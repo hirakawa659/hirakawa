@@ -1852,9 +1852,7 @@ function handleSelectionEvent(){
     hasActiveCompositionInput = false;
     isComposing = false;
     composingText = '';
-    normalizeEditorSelectionToTextNode();
     recordActiveSelection();
-    setTimeout(normalizeEditorSelectionToTextNode, 20);
     if(selChangeDebounce) clearTimeout(selChangeDebounce);
     selChangeDebounce = setTimeout(checkAndDisplaySelectionCount, 120);
 }
@@ -1867,88 +1865,31 @@ function collapseAccidentalSelectionOnTap(){
         // 1〜3文字の短い自動選択（誤爆）であれば即座にキャレットに解除
         if(selectedStr && selectedStr.length <= 3){
             sel.collapseToStart();
-            normalizeEditorSelectionToTextNode();
         }
-    }
-}
-
-// 行頭（左端）にキャレットがある場合、iOSが前の行の末尾の続きと誤認して前の文脈の予測変換を引きずるのを防止
-function refreshLeftEdgeCaretAnchor(){
-    let sel = window.getSelection();
-    if(!sel || sel.rangeCount === 0 || !sel.isCollapsed) return;
-    let curDiv = getActiveEditorLineDiv();
-    if(!curDiv) return;
-    let range = sel.getRangeAt(0);
-    let isAtStart = false;
-    if(range.startContainer === e){
-        isAtStart = true;
-    } else if(range.startContainer === curDiv && range.startOffset === 0){
-        isAtStart = true;
-    } else if(curDiv.firstChild && range.startContainer === curDiv.firstChild && range.startOffset === 0){
-        isAtStart = true;
-    } else {
-        try {
-            let preRange = document.createRange();
-            preRange.selectNodeContents(curDiv);
-            preRange.setEnd(range.startContainer, range.startOffset);
-            if(preRange.toString().length === 0) isAtStart = true;
-        } catch(err){}
-    }
-    if(isAtStart){
-        let targetNode = curDiv.firstChild;
-        if(!targetNode){
-            targetNode = document.createTextNode('');
-            curDiv.appendChild(targetNode);
-        }
-        let newRange = document.createRange();
-        newRange.setStart(targetNode, 0);
-        newRange.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(newRange);
     }
 }
 
 document.addEventListener('selectionchange', handleSelectionEvent);
 window.addEventListener('mouseup', handleSelectionEvent);
-window.addEventListener('touchend', (ev)=>{
+window.addEventListener('touchend', ()=>{
     handleSelectionEvent();
-    setTimeout(collapseAccidentalSelectionOnTap, 10);
-    setTimeout(refreshLeftEdgeCaretAnchor, 15);
-    setTimeout(collapseAccidentalSelectionOnTap, 40);
-    setTimeout(refreshLeftEdgeCaretAnchor, 45);
+    collapseAccidentalSelectionOnTap();
 });
 window.addEventListener('pointerup', handleSelectionEvent);
 e.addEventListener('keyup', (ev)=>{
     if(ev.key && ev.key.startsWith('Arrow')){
         handleSelectionEvent();
-        refreshLeftEdgeCaretAnchor();
     }
 });
 e.addEventListener('pointerdown', handleSelectionEvent);
 e.addEventListener('touchstart', handleSelectionEvent);
-e.addEventListener('pointerup', (ev)=>{
-    handleSelectionEvent();
-    setTimeout(collapseAccidentalSelectionOnTap, 10);
-    setTimeout(refreshLeftEdgeCaretAnchor, 15);
-    setTimeout(collapseAccidentalSelectionOnTap, 40);
-});
 e.addEventListener('click', ()=>{
     handleSelectionEvent();
     collapseAccidentalSelectionOnTap();
-    refreshLeftEdgeCaretAnchor();
-    setTimeout(collapseAccidentalSelectionOnTap, 10);
-    setTimeout(refreshLeftEdgeCaretAnchor, 15);
-    setTimeout(collapseAccidentalSelectionOnTap, 40);
-    setTimeout(normalizeEditorSelectionToTextNode, 10);
-    setTimeout(normalizeEditorSelectionToTextNode, 50);
 });
 e.addEventListener('focus', ()=>{
     handleSelectionEvent();
     collapseAccidentalSelectionOnTap();
-    refreshLeftEdgeCaretAnchor();
-    setTimeout(normalizeEditorSelectionToTextNode, 10);
-    setTimeout(normalizeEditorSelectionToTextNode, 50);
-    setTimeout(normalizeEditorSelectionToTextNode, 120);
 });
 
 function norm(){
@@ -5250,7 +5191,7 @@ function scrollToLatestFix(){
     }
     let toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:10px 16px;border-radius:8px;font-size:12.5px;font-weight:bold;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s ease;pointer-events:none';
-    toast.textContent = '最新修正16: 未タイピング時の予測変換表示中改行キー押下でiPadのキャンセル動作に阻まれず確実に1回改行するよう修正完了';
+    toast.textContent = '最新修正17: 別の場所から左端にカーソル移動後の過剰選択リセットを廃止し、1回目の改行キーで確実に1発改行するよう修正完了';
     document.body.appendChild(toast);
     setTimeout(()=>{
         toast.style.opacity = '0';
