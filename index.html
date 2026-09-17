@@ -899,6 +899,17 @@ function cleanExcessiveLeadingLines(root = e){
     let divs = root.querySelectorAll('#e>div');
     if(divs.length === 0) divs = root.querySelectorAll('div');
     if(divs.length <= 1) return;
+    
+    let sel = window.getSelection();
+    let activeDiv = null;
+    if(sel && sel.rangeCount > 0){
+        let n = sel.getRangeAt(0).startContainer;
+        while(n && n.parentElement !== e && n !== e){
+            n = n.parentElement;
+        }
+        if(n && n.parentElement === e) activeDiv = n;
+    }
+
     let firstContentIdx = -1;
     for(let i = 0; i < divs.length; i++){
         let t = divs[i].textContent.replace(/[\s\u3000\r\n]/g, '');
@@ -909,6 +920,7 @@ function cleanExcessiveLeadingLines(root = e){
     }
     if(firstContentIdx >= 2){
         for(let i = 0; i < firstContentIdx; i++){
+            if(divs[i] === activeDiv) break;
             divs[i].remove();
         }
     }
@@ -1746,17 +1758,29 @@ function ensureGridLines(){
     }
     
     if(!needsFix) return;
+
+    const mCont = document.querySelector('.m');
+    const savedScrollTop = mCont ? mCont.scrollTop : 0;
     
     let sel = window.getSelection();
     let savedRange = (sel && sel.rangeCount > 0 && e.contains(sel.anchorNode)) ? sel.getRangeAt(0) : null;
-    let preTextLen = 0;
+    let targetLineIdx = -1;
+    let targetLineOffset = 0;
     if(savedRange){
-        try {
-            let r = savedRange.cloneRange();
-            r.selectNodeContents(e);
-            r.setEnd(savedRange.startContainer, savedRange.startOffset);
-            preTextLen = r.toString().length;
-        }catch(err){}
+        let n = savedRange.startContainer;
+        while(n && n.parentElement !== e && n !== e){
+            n = n.parentElement;
+        }
+        if(n && n.parentElement === e){
+            let origDivs = Array.from(e.children);
+            targetLineIdx = origDivs.indexOf(n);
+            try {
+                let r = savedRange.cloneRange();
+                r.selectNodeContents(n);
+                r.setEnd(savedRange.startContainer, savedRange.startOffset);
+                targetLineOffset = r.toString().length;
+            }catch(err){}
+        }
     }
     
     let lines = [];
@@ -1829,18 +1853,20 @@ function ensureGridLines(){
     e.innerHTML = '';
     lines.forEach(div => e.appendChild(div));
     
-    if(savedRange && lines.length > 0){
+    if(mCont){
+        mCont.scrollTop = savedScrollTop;
+    }
+    
+    if(targetLineIdx !== -1 && lines.length > 0){
         try {
-            let count = 0;
-            for(let div of lines){
-                let len = div.textContent.length;
-                if(count + len >= preTextLen){
-                    setCaretCharOffset(div, preTextLen - count);
-                    break;
-                }
-                count += len;
-            }
+            let destIdx = Math.min(Math.max(0, targetLineIdx), lines.length - 1);
+            let destDiv = lines[destIdx];
+            setCaretCharOffset(destDiv, targetLineOffset);
         }catch(err){}
+    }
+    
+    if(mCont){
+        mCont.scrollTop = savedScrollTop;
     }
 }
 
@@ -4133,6 +4159,8 @@ let pendingCleanLines=false;
 // 文字のマス入れ（空白ハイライト・添字1マス化・スパンクリーン）、文字数カウント、保存を一括実行
 function runHeavyTask(){
     if(isComposing) return;
+    const mCont = document.querySelector('.m');
+    const savedScrollTop = mCont ? mCont.scrollTop : 0;
     if(pendingCleanLines){
         cleanExcessiveLeadingLines();
         pendingCleanLines=false;
@@ -4145,6 +4173,9 @@ function runHeavyTask(){
     try{
         localStorage.setItem('n_r',e.innerHTML);
     }catch(err){}
+    if(mCont && mCont.scrollTop !== savedScrollTop){
+        mCont.scrollTop = savedScrollTop;
+    }
 }
 
 // 確定保存が必要なタイミング（タブ切り替え・保存・コピー・離脱等）で即時実行
@@ -4229,22 +4260,21 @@ e.addEventListener('paste', (ev)=>{
     
     text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     
+    const mCont = document.querySelector('.m');
+    const savedScrollTop = mCont ? mCont.scrollTop : 0;
+    
     // 現在のエディタが実質空（空白のみ、または初期の空行のみ）か確認
     let currentPure = getEditorPureTextFromElement(e).join('').trim();
     let isDocEmpty = (currentPure.length === 0);
     
     if(isDocEmpty){
-        // 先頭の不要な連続改行をトリムして1行目から綺麗に配置
         text = text.replace(/^\n+/, '');
         let lines = text.split('\n');
         let frag = document.createDocumentFragment();
         lines.forEach(lineText => {
             let d = document.createElement('div');
-            if(lineText){
-                d.textContent = lineText;
-            } else {
-                d.innerHTML = '<br>';
-            }
+            if(lineText) d.textContent = lineText;
+            else d.innerHTML = '<br>';
             frag.appendChild(d);
         });
         e.innerHTML = '';
@@ -4252,108 +4282,223 @@ e.addEventListener('paste', (ev)=>{
         
         let lastDiv = e.lastElementChild;
         if(lastDiv){
-            let sel = window.getSelection();
-            if(sel){
-                let range = document.createRange();
-                range.selectNodeContents(lastDiv);
-                range.collapse(false);
-                sel.removeAllRanges();
-                sel.addRange(range);
-            }
+            setCaretCharOffset(lastDiv, lastDiv.textContent.length);
         }
-    } else {
-        let sel = window.getSelection();
-        if(!sel || sel.rangeCount === 0){
-            let lines = text.split('\n');
-            let frag = document.createDocumentFragment();
-            lines.forEach(lineText => {
-                let d = document.createElement('div');
-                if(lineText) d.textContent = lineText;
-                else d.innerHTML = '<br>';
-                frag.appendChild(d);
-            });
-            e.appendChild(frag);
-        } else {
-            let range = sel.getRangeAt(0);
-            range.deleteContents();
-            let lines = text.split('\n');
-            if(lines.length === 1){
-                let tn = document.createTextNode(lines[0]);
-                range.insertNode(tn);
-                range.setStartAfter(tn);
-                range.collapse(true);
-                sel.removeAllRanges();
-                sel.addRange(range);
-            } else {
-                let node = range.startContainer;
-                while(node && node.parentElement !== e && node !== e){
-                    node = node.parentElement;
-                }
-                let curDiv = (node && node.parentElement === e) ? node : e.firstElementChild;
-                let curText = curDiv ? curDiv.textContent.replace(/[\r\n]/g, '') : '';
-                if(!curText){
-                    curDiv.textContent = lines[0] || '';
-                    if(!lines[0]) curDiv.innerHTML = '<br>';
-                    let nextSibling = curDiv.nextSibling;
-                    let lastInserted = curDiv;
-                    for(let i = 1; i < lines.length; i++){
-                        let nd = document.createElement('div');
-                        if(lines[i]) nd.textContent = lines[i];
-                        else nd.innerHTML = '<br>';
-                        e.insertBefore(nd, nextSibling);
-                        lastInserted = nd;
-                    }
-                    let selRange = document.createRange();
-                    selRange.selectNodeContents(lastInserted);
-                    selRange.collapse(false);
-                    sel.removeAllRanges();
-                    sel.addRange(selRange);
-                } else {
-                    let preRange = range.cloneRange();
-                    preRange.selectNodeContents(curDiv);
-                    preRange.setEnd(range.startContainer, range.startOffset);
-                    let preText = preRange.toString();
-                    
-                    let postRange = range.cloneRange();
-                    postRange.selectNodeContents(curDiv);
-                    postRange.setStart(range.endContainer, range.endOffset);
-                    let postText = postRange.toString();
-                    
-                    curDiv.textContent = preText + lines[0];
-                    let nextSibling = curDiv.nextSibling;
-                    let lastInserted = curDiv;
-                    for(let i = 1; i < lines.length - 1; i++){
-                        let nd = document.createElement('div');
-                        if(lines[i]) nd.textContent = lines[i];
-                        else nd.innerHTML = '<br>';
-                        e.insertBefore(nd, nextSibling);
-                        lastInserted = nd;
-                    }
-                    let endDiv = document.createElement('div');
-                    let endText = lines[lines.length - 1] + postText;
-                    if(endText) endDiv.textContent = endText;
-                    else endDiv.innerHTML = '<br>';
-                    e.insertBefore(endDiv, nextSibling);
-                    lastInserted = endDiv;
-                    
-                    let selRange = document.createRange();
-                    if(endDiv.firstChild && endDiv.firstChild.nodeType === 3){
-                        selRange.setStart(endDiv.firstChild, lines[lines.length - 1].length);
-                    } else {
-                        selRange.selectNodeContents(endDiv);
-                        selRange.collapse(false);
-                    }
-                    sel.removeAllRanges();
-                    sel.addRange(selRange);
-                }
-            }
-        }
+        if(mCont) mCont.scrollTop = 0;
+        scheduleHeavyTask(400, false);
+        return;
     }
     
-    // 長文貼り付け時：テキストは即座に画面へ表示され、
-    // マス入れ・空行調整・文字数カウント・保存などの重い処理は急がず1秒後（1000ms）に実行
-    scheduleHeavyTask(1000, true);
+    let sel = window.getSelection();
+    let lines = text.split('\n');
+    let range = (sel && sel.rangeCount > 0 && e.contains(sel.anchorNode)) ? sel.getRangeAt(0) : null;
+    
+    if(!range){
+        let lastDiv = e.lastElementChild || e.firstElementChild;
+        if(!lastDiv){
+            lastDiv = document.createElement('div');
+            e.appendChild(lastDiv);
+        }
+        let preText = lastDiv.textContent.replace(/[\r\n]/g, '');
+        lastDiv.textContent = preText + lines[0];
+        if(!lastDiv.textContent) lastDiv.innerHTML = '<br>';
+        let nextSibling = lastDiv.nextSibling;
+        let lastInserted = lastDiv;
+        for(let i = 1; i < lines.length; i++){
+            let nd = document.createElement('div');
+            if(lines[i]) nd.textContent = lines[i];
+            else nd.innerHTML = '<br>';
+            e.insertBefore(nd, nextSibling);
+            lastInserted = nd;
+        }
+        setCaretCharOffset(lastInserted, lastInserted.textContent.length);
+        if(mCont) mCont.scrollTop = savedScrollTop;
+        scheduleHeavyTask(400, false);
+        return;
+    }
+    
+    // 選択範囲がある場合、事前に開始行・終了行と行内オフセットを安全に特定
+    let startNode = range.startContainer;
+    while(startNode && startNode.parentElement !== e && startNode !== e){
+        startNode = startNode.parentElement;
+    }
+    let startDiv = (startNode && startNode.parentElement === e) ? startNode : null;
+    
+    let endNode = range.endContainer;
+    while(endNode && endNode.parentElement !== e && endNode !== e){
+        endNode = endNode.parentElement;
+    }
+    let endDiv = (endNode && endNode.parentElement === e) ? endNode : null;
+    
+    if(!startDiv && startNode === e){
+        let idx = Math.min(range.startOffset, e.children.length - 1);
+        if(idx >= 0) startDiv = e.children[idx];
+    }
+    if(!endDiv && endNode === e){
+        let idx = Math.min(range.endOffset, e.children.length - 1);
+        if(idx >= 0) endDiv = e.children[idx];
+    }
+    if(!startDiv) startDiv = endDiv || e.firstElementChild;
+    if(!endDiv) endDiv = startDiv;
+    
+    let preText = '';
+    let postText = '';
+    try {
+        let preRange = range.cloneRange();
+        preRange.selectNodeContents(startDiv);
+        preRange.setEnd(range.startContainer, range.startOffset);
+        preText = preRange.toString();
+    }catch(err){
+        preText = '';
+    }
+    try {
+        let postRange = range.cloneRange();
+        postRange.selectNodeContents(endDiv);
+        postRange.setStart(range.endContainer, range.endOffset);
+        postText = postRange.toString();
+    }catch(err){
+        postText = '';
+    }
+    
+    // 複数行にまたがる選択範囲の削除（中間の行を削除し、endDiv も統合するため削除）
+    if(startDiv !== endDiv){
+        let cur = startDiv.nextElementSibling;
+        while(cur && cur !== endDiv){
+            let nxt = cur.nextElementSibling;
+            cur.remove();
+            cur = nxt;
+        }
+        endDiv.remove();
+    }
+    
+    // 貼り付けデータの展開
+    if(lines.length === 1){
+        let combined = preText + lines[0] + postText;
+        if(combined){
+            startDiv.textContent = combined;
+        }else{
+            startDiv.innerHTML = '<br>';
+        }
+        setCaretCharOffset(startDiv, (preText + lines[0]).length);
+    } else {
+        startDiv.textContent = preText + lines[0];
+        if(!startDiv.textContent) startDiv.innerHTML = '<br>';
+        let nextSibling = startDiv.nextSibling;
+        let lastInserted = startDiv;
+        for(let i = 1; i < lines.length - 1; i++){
+            let nd = document.createElement('div');
+            if(lines[i]) nd.textContent = lines[i];
+            else nd.innerHTML = '<br>';
+            e.insertBefore(nd, nextSibling);
+            lastInserted = nd;
+        }
+        let lastDiv = document.createElement('div');
+        let endCombined = lines[lines.length - 1] + postText;
+        if(endCombined) lastDiv.textContent = endCombined;
+        else lastDiv.innerHTML = '<br>';
+        e.insertBefore(lastDiv, nextSibling);
+        lastInserted = lastDiv;
+        
+        setCaretCharOffset(lastDiv, lines[lines.length - 1].length);
+    }
+    
+    if(mCont){
+        mCont.scrollTop = savedScrollTop;
+    }
     sc();
+    scheduleHeavyTask(400, false);
+});
+
+e.addEventListener('cut', (ev)=>{
+    let sel = window.getSelection();
+    if(!sel || sel.rangeCount === 0 || !e.contains(sel.anchorNode)) return;
+    let range = sel.getRangeAt(0);
+    if(range.collapsed) return;
+    
+    let selectedText = sel.toString();
+    if(!selectedText) return;
+    
+    if(ev.clipboardData){
+        ev.clipboardData.setData('text/plain', selectedText);
+    } else if(window.clipboardData){
+        window.clipboardData.setData('Text', selectedText);
+    }
+    ev.preventDefault();
+    
+    const mCont = document.querySelector('.m');
+    const savedScrollTop = mCont ? mCont.scrollTop : 0;
+    
+    let startNode = range.startContainer;
+    while(startNode && startNode.parentElement !== e && startNode !== e){
+        startNode = startNode.parentElement;
+    }
+    let startDiv = (startNode && startNode.parentElement === e) ? startNode : null;
+    
+    let endNode = range.endContainer;
+    while(endNode && endNode.parentElement !== e && endNode !== e){
+        endNode = endNode.parentElement;
+    }
+    let endDiv = (endNode && endNode.parentElement === e) ? endNode : null;
+    
+    if(!startDiv && startNode === e){
+        let idx = Math.min(range.startOffset, e.children.length - 1);
+        if(idx >= 0) startDiv = e.children[idx];
+    }
+    if(!endDiv && endNode === e){
+        let idx = Math.min(range.endOffset, e.children.length - 1);
+        if(idx >= 0) endDiv = e.children[idx];
+    }
+    if(!startDiv && !endDiv){
+        range.deleteContents();
+        scheduleHeavyTask(300, false);
+        return;
+    }
+    if(!startDiv) startDiv = endDiv;
+    if(!endDiv) endDiv = startDiv;
+    
+    let preText = '';
+    let postText = '';
+    try {
+        let preRange = range.cloneRange();
+        preRange.selectNodeContents(startDiv);
+        preRange.setEnd(range.startContainer, range.startOffset);
+        preText = preRange.toString();
+    }catch(err){
+        preText = '';
+    }
+    try {
+        let postRange = range.cloneRange();
+        postRange.selectNodeContents(endDiv);
+        postRange.setStart(range.endContainer, range.endOffset);
+        postText = postRange.toString();
+    }catch(err){
+        postText = '';
+    }
+    
+    if(startDiv !== endDiv){
+        let cur = startDiv.nextElementSibling;
+        while(cur && cur !== endDiv){
+            let nxt = cur.nextElementSibling;
+            cur.remove();
+            cur = nxt;
+        }
+        endDiv.remove();
+    }
+    
+    let combined = preText + postText;
+    if(combined.length > 0){
+        startDiv.textContent = combined;
+    } else {
+        startDiv.innerHTML = '<br>';
+    }
+    
+    setCaretCharOffset(startDiv, preText.length);
+    
+    if(mCont){
+        mCont.scrollTop = savedScrollTop;
+    }
+    sc();
+    scheduleHeavyTask(300, false);
 });
 
 /* ツールバーの並び替え機能 */
