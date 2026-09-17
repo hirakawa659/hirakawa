@@ -245,7 +245,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_search_folder" class="tool-item" onclick="toggleFolderSearchBar()" style="background:transparent;border:none;color:#0369a1;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="現在開いているフォルダ内やノート内の語句を検索">開フォルダ内<br>検索</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:transparent;border:none;color:#1e40af;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
 <button id="tool_area" class="tool-item" onclick="openToolbarColorModal(event)" style="background:transparent;border:none;color:#334155;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="領域の設定（各ツールの文字色設定）">領域</button>
-<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（カーソル移動後の確定/改行1回押しで即改行）を確認">最新修正<br>7</button>
+<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（文字入力時の誤改行防止・文字未入力時の1回改行）を確認">最新修正<br>9</button>
 <select id="l" onchange="updateColsDisplay();z()" style="display:none"></select>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
@@ -1863,7 +1863,9 @@ window.addEventListener('mouseup', handleSelectionEvent);
 window.addEventListener('touchend', handleSelectionEvent);
 window.addEventListener('pointerup', handleSelectionEvent);
 e.addEventListener('keyup', (ev)=>{
-    handleSelectionEvent();
+    if(ev.key && ev.key.startsWith('Arrow')){
+        handleSelectionEvent();
+    }
 });
 e.addEventListener('pointerdown', handleSelectionEvent);
 e.addEventListener('touchstart', handleSelectionEvent);
@@ -5179,7 +5181,7 @@ function scrollToLatestFix(){
     }
     let toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:10px 16px;border-radius:8px;font-size:12.5px;font-weight:bold;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s ease;pointer-events:none';
-    toast.textContent = '最新修正7: 別の場所からカーソル移動後、確定・改行を1回押せば即座に改行されるよう修正完了';
+    toast.textContent = '最新修正9: 文字入力時の意図せぬ改行を防止し、文字未入力時のみ1回押しで改行されるよう修正完了';
     document.body.appendChild(toast);
     setTimeout(()=>{
         toast.style.opacity = '0';
@@ -5218,19 +5220,10 @@ e.addEventListener('compositionupdate',(ev)=>{
     composingText = ev.data || '';
     if(ev.data && ev.data.length > 0){
         hasActiveCompositionInput = true;
-        if(typeof pending229Timer !== 'undefined' && pending229Timer){
-            clearTimeout(pending229Timer);
-            pending229Timer = null;
-        }
     }
 });
 e.addEventListener('compositionend',(ev)=>{
-    let wasTyping = hasActiveCompositionInput;
-    let hadKeydown229 = (Date.now() - last229KeydownTime < 350);
-    if(typeof pending229Timer !== 'undefined' && pending229Timer){
-        clearTimeout(pending229Timer);
-        pending229Timer = null;
-    }
+    let wasTyping = (hasActiveCompositionInput && composingText && composingText.length > 0);
     
     isComposing = false;
     composingText = '';
@@ -5238,10 +5231,9 @@ e.addEventListener('compositionend',(ev)=>{
     last229WasAtLeftEdge = false;
     
     // iPad / iOS Safari:
-    // 別の場所からカーソルを持ってきた直後など、ユーザー自身が文字を入力していない（!wasTyping）状態で
-    // キーボード右下の青い「確定/改行」キーを押下した場合、確定すべき未確定入力文字は存在しないため、
-    // ユーザーの意図通り1回押しで即座に改行を実行する
-    if(!wasTyping || (hadKeydown229 && (!ev.data || ev.data === ''))){
+    // 文字を一切タイピングしていない状態（別の場所からカーソルを持ってきた直後など）で
+    // 空の確定/Return（!wasTyping かつ 空文字確定）が押された場合のみ改行を実行
+    if(!wasTyping && (!ev.data || ev.data === '')){
         let now = Date.now();
         if(now - lastEnterTimestamp >= 180){
             handleNewlineAction(ev);
@@ -5443,17 +5435,12 @@ function handleNewlineAction(ev){
     executeEditorNewline();
 }
 
-let pending229Timer = null;
-
 // beforeinputイベント：iOS Safari・iPad・Androidのソフトウェアキーボードにおける改行（insertParagraph/insertLineBreak/insertText改行）を1回で確実に捕捉
 function onBeforeInputNewline(ev){
     if(ev.inputType === 'insertCompositionText' || ev.inputType === 'insertText'){
         if(ev.data && ev.data !== '\n' && ev.data !== '\r'){
             hasActiveCompositionInput = true;
-            if(pending229Timer){
-                clearTimeout(pending229Timer);
-                pending229Timer = null;
-            }
+            composingText = ev.data;
         }
     }
     let isNewline = (ev.inputType === 'insertParagraph' || 
@@ -5461,10 +5448,6 @@ function onBeforeInputNewline(ev){
                      (ev.inputType === 'insertText' && (ev.data === '\n' || ev.data === '\r')) ||
                      (ev.data && (ev.data.includes('\n') || ev.data.includes('\r'))));
     if(isNewline){
-        if(pending229Timer){
-            clearTimeout(pending229Timer);
-            pending229Timer = null;
-        }
         handleNewlineAction(ev);
     }
 }
@@ -5480,49 +5463,35 @@ document.addEventListener('beforeinput', (ev)=>{
 function onKeydownNewline(ev){
     let isEnterKey = (ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter');
     
-    if(ev.keyCode === 229){
-        last229KeydownTime = Date.now();
-        last229WasAtLeftEdge = isCaretAtLeftEdge();
-        
-        // 別の場所からカーソルを持ってきた後など、文字を打っていない状態で 229（Return/確定）が押された場合
-        if(!hasActiveCompositionInput && !isComposing){
-            if(pending229Timer) clearTimeout(pending229Timer);
-            pending229Timer = setTimeout(()=>{
-                if(!hasActiveCompositionInput && !isComposing){
-                    let now = Date.now();
-                    if(now - lastEnterTimestamp >= 180){
-                        handleNewlineAction(null);
-                    }
-                }
-            }, 75);
-        }
-    }
+    // 実際に未確定文字列を入力中（かな等の変換前タイピング中）か判定
+    let isTypingComposition = (hasActiveCompositionInput && composingText && composingText.length > 0);
+    if(isTypingComposition) return;
     
+    // Enterキー（改行キー）押下時のみ改行を実行
+    // ※文字キーもkeyCode 229を持つため、229での無条件改行は行わない
     if(isEnterKey){
-        // ユーザーが実際に未確定文字列を入力中の場合（未確定かな等の確定）のみ確定を優先して改行を保留
-        if(hasActiveCompositionInput) return;
-        if(pending229Timer){
-            clearTimeout(pending229Timer);
-            pending229Timer = null;
-        }
         handleNewlineAction(ev);
     }
 }
 
 e.addEventListener('keydown', onKeydownNewline, true);
+document.addEventListener('keydown', (ev)=>{
+    if(ev.target === e || (ev.target && e.contains(ev.target))){
+        onKeydownNewline(ev);
+    }
+}, true);
 
-// keyupイベント：iOS Safariで予測変換候補表示中にReturnキーが押され、keydown/beforeinputが候補閉じとして消費された場合でも、keyupで確実に1回で改行を実行
+// keyupイベント：保険として、iOS Safariでキー押下がkeyupとして届いた場合も確実に改行
 window.addEventListener('keyup', (ev)=>{
     let sel = window.getSelection();
     let isEditorActive = (document.activeElement === e || (document.activeElement && e.contains(document.activeElement)) || (sel && sel.anchorNode && (sel.anchorNode === e || e.contains(sel.anchorNode))));
     if(!isEditorActive) return;
     
-    if(ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter'){
-        if(hasActiveCompositionInput) return;
-        if(pending229Timer){
-            clearTimeout(pending229Timer);
-            pending229Timer = null;
-        }
+    let isEnterKey = (ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter');
+    let isTypingComposition = (hasActiveCompositionInput && composingText && composingText.length > 0);
+    if(isTypingComposition) return;
+    
+    if(isEnterKey){
         let now = Date.now();
         if(now - lastEnterTimestamp < 180) return;
         handleNewlineAction(ev);
