@@ -1852,8 +1852,6 @@ function handleSelectionEvent(){
     hasActiveCompositionInput = false;
     isComposing = false;
     composingText = '';
-    if(typeof last229CandidateTimer !== 'undefined' && last229CandidateTimer){ clearTimeout(last229CandidateTimer); last229CandidateTimer = null; }
-    if(typeof pending229Timer !== 'undefined' && pending229Timer){ clearTimeout(pending229Timer); pending229Timer = null; }
     normalizeEditorSelectionToTextNode();
     recordActiveSelection();
     setTimeout(normalizeEditorSelectionToTextNode, 20);
@@ -5252,7 +5250,7 @@ function scrollToLatestFix(){
     }
     let toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:10px 16px;border-radius:8px;font-size:12.5px;font-weight:bold;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s ease;pointer-events:none';
-    toast.textContent = '最新修正15: タイピングなしで左端・任意位置から予測変換が出た状態での改行キー押下時に確実に1回で改行するよう修正完了';
+    toast.textContent = '最新修正16: 未タイピング時の予測変換表示中改行キー押下でiPadのキャンセル動作に阻まれず確実に1回改行するよう修正完了';
     document.body.appendChild(toast);
     setTimeout(()=>{
         toast.style.opacity = '0';
@@ -5301,7 +5299,7 @@ e.addEventListener('compositionupdate',(ev)=>{
     }
 });
 e.addEventListener('compositionend',(ev)=>{
-    let wasTyping = (hasUserTypedSinceCaretMove || (hasActiveCompositionInput && composingText && composingText.length > 0));
+    let wasTyping = (hasUserTypedSinceCaretMove && composingText && composingText.length > 0);
     if(last229CandidateTimer){
         clearTimeout(last229CandidateTimer);
         last229CandidateTimer = null;
@@ -5317,7 +5315,7 @@ e.addEventListener('compositionend',(ev)=>{
     // 空の確定/Return（!wasTyping かつ 空文字確定）が押された場合、強制的に1回で改行を実行
     if(!wasTyping && (!ev.data || ev.data === '')){
         let now = Date.now();
-        if(now - lastEnterTimestamp >= 100){
+        if(now - lastEnterTimestamp >= 60){
             handleNewlineAction(ev);
         }
     }
@@ -5529,7 +5527,7 @@ let lastEnterTimestamp = 0;
 
 function handleNewlineAction(ev){
     let now = Date.now();
-    if(now - lastEnterTimestamp < 110){
+    if(now - lastEnterTimestamp < 60){
         if(ev && ev.preventDefault) ev.preventDefault();
         if(ev && ev.stopPropagation) ev.stopPropagation();
         return;
@@ -5556,6 +5554,11 @@ function onBeforeInputNewline(ev){
                 clearTimeout(last229CandidateTimer);
                 last229CandidateTimer = null;
             }
+        }
+    } else if(ev.inputType && ev.inputType.startsWith('delete')){
+        if(last229CandidateTimer){
+            clearTimeout(last229CandidateTimer);
+            last229CandidateTimer = null;
         }
     }
     let isNewline = (ev.inputType === 'insertParagraph' || 
@@ -5612,9 +5615,9 @@ function onKeydownNewline(ev){
     // 2. iPad等のkeyCode 229 / Processキー（予測変換候補表示中の確定／↩キー押下）
     // 文字を一切タイピングしていない状態（カーソルを置いた直後など）：
     // もし文字キー（あ、か等）なら直後（10〜15ミリ秒以内）にbeforeinput/compositionupdateが発火して文字が入る。
-    // もし15ミリ秒経っても文字入力が一切起きなければ、押されたのは文字キーではなく「確定／↩（改行）」であるため、
+    // もし20ミリ秒経っても文字入力が一切起きなければ、押されたのは文字キーではなく「確定／↩（改行）」であるため、
     // iPadOSの予測候補キャンセル動作より先に確実に奪って1回で改行を実行する！
-    if(is229){
+    if(is229 && !hasUserTypedSinceCaretMove){
         if(last229CandidateTimer){
             clearTimeout(last229CandidateTimer);
             last229CandidateTimer = null;
@@ -5626,11 +5629,11 @@ function onKeydownNewline(ev){
             let textLengthChanged = (e.textContent.length !== savedTextLength);
             if(!currentTyping && !textLengthChanged){
                 let now = Date.now();
-                if(now - lastEnterTimestamp >= 100){
+                if(now - lastEnterTimestamp >= 60){
                     handleNewlineAction(null);
                 }
             }
-        }, 15);
+        }, 20);
     }
 }
 
@@ -5660,7 +5663,7 @@ window.addEventListener('keyup', (ev)=>{
             last229CandidateTimer = null;
         }
         let now = Date.now();
-        if(now - lastEnterTimestamp < 100) return;
+        if(now - lastEnterTimestamp < 60) return;
         handleNewlineAction(ev);
         return;
     }
@@ -5672,7 +5675,7 @@ window.addEventListener('keyup', (ev)=>{
             last229CandidateTimer = null;
         }
         let now = Date.now();
-        if(now - lastEnterTimestamp >= 100){
+        if(now - lastEnterTimestamp >= 60){
             handleNewlineAction(ev);
         }
     }
