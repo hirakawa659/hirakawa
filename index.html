@@ -245,7 +245,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_search_folder" class="tool-item" onclick="toggleFolderSearchBar()" style="background:transparent;border:none;color:#0369a1;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="現在開いているフォルダ内やノート内の語句を検索">開フォルダ内<br>検索</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:transparent;border:none;color:#1e40af;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
 <button id="tool_area" class="tool-item" onclick="openToolbarColorModal(event)" style="background:transparent;border:none;color:#334155;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="領域の設定（各ツールの文字色設定）">領域</button>
-<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（1回での改行処理・カーソル位置）を確認">最新修正<br>1</button>
+<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（1回での改行処理・カーソル位置）を確認">最新修正<br>2</button>
 <select id="l" onchange="updateColsDisplay();z()" style="display:none"></select>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
@@ -5067,7 +5067,7 @@ function scrollToLatestFix(){
     }
     let toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:10px 16px;border-radius:8px;font-size:12.5px;font-weight:bold;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s ease;pointer-events:none';
-    toast.textContent = '最新修正1: 1回の改行（Enter/Return）押下で確実に改行できるように修正完了';
+    toast.textContent = '最新修正2: 1回の改行（Enter/Return）押下で確実に改行できるように修正完了';
     document.body.appendChild(toast);
     setTimeout(()=>{
         toast.style.opacity = '0';
@@ -5209,22 +5209,29 @@ function executeEditorNewline(){
     }
     
     // カーソルを確実に新行の先頭へセット（iOSおよび全ブラウザで確実にテキストノード/brへアンカー）
-    try {
-        setCaretCharOffset(newDiv, 0);
-    } catch(err){
-        let newRange = document.createRange();
-        let br = newDiv.querySelector('br');
-        if(newDiv.firstChild && newDiv.firstChild.nodeType === 3){
-            newRange.setStart(newDiv.firstChild, 0);
-        } else if(br){
-            newRange.setStartBefore(br);
-        } else {
-            newRange.selectNodeContents(newDiv);
+    function positionCaretInNewDiv(){
+        try {
+            setCaretCharOffset(newDiv, 0);
+        } catch(err){
+            let newRange = document.createRange();
+            let br = newDiv.querySelector('br');
+            if(newDiv.firstChild && newDiv.firstChild.nodeType === 3){
+                newRange.setStart(newDiv.firstChild, 0);
+            } else if(br){
+                newRange.setStartBefore(br);
+            } else {
+                newRange.selectNodeContents(newDiv);
+            }
+            newRange.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(newRange);
         }
-        newRange.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(newRange);
     }
+    positionCaretInNewDiv();
+    // iOS/WebKit等のフォーカス再計算に備えて次フレームでも再保証
+    requestAnimationFrame(()=>{
+        positionCaretInNewDiv();
+    });
     
     v();
     sc();
@@ -6650,7 +6657,7 @@ function applyCaretToDiv(targetDiv, targetCol, maxCols){
             } else if(br){
                 range.setStartBefore(br);
             } else {
-                range.setStart(targetDiv, 0);
+                range.selectNodeContents(targetDiv);
             }
             range.collapse(true);
         }
@@ -6878,6 +6885,11 @@ e.addEventListener('click',(ev)=>{
                     if(mCont && Math.abs(mCont.scrollTop - savedScrollTop) > 3) mCont.scrollTop = savedScrollTop;
                 }, 40);
             }
+            return;
+        }
+        // 空行（lineText.length === 0）の先頭マス（clickCol <= 0）をクリックした時もブラウザネイティブのキャレット配置をそのまま尊重
+        if(lineText.length === 0 && clickCol <= 0){
+            v();
             return;
         }
     }
