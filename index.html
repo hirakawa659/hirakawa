@@ -395,86 +395,6 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
       <button type="button" id="detectBtn" onclick="toggleDetectMenu(event)" style="width:58px;padding:3.5px 1px;font-size:9.5px;font-weight:bold;line-height:1.15;letter-spacing:-0.4px;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:1px;touch-action:none" title="検出と変換メニュー">
         <span>検出と変換</span><span style="font-size:8px;line-height:1">▾</span>
       </button>
-      <div id="detectMenuDropdown" style="display:none;position:fixed;background:#ffffff!important;opacity:1!important;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,0.25);padding:6px;flex-direction:column;gap:6px;width:246px;box-sizing:border-box;z-index:999999;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important;touch-action:none" onclick="event.stopPropagation()" oncontextmenu="event.preventDefault()" onselectstart="return false">
-        <!-- 隠し文字 -->
-        <div id="detect_item_hidden" class="detect-menu-item" data-detect-id="detect_item_hidden" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;border-radius:5px">
-          <button type="button" onclick="execDetectHiddenChars()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#1e3a8a;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
-            <span>隠し文字</span>
-          </button>
-        </div>
-        <!-- 隠し文字 一括削除 -->
-        <div id="detect_item_hidden_del" class="detect-menu-item" data-detect-id="detect_item_hidden_del" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;border-radius:5px">
-          <button type="button" onclick="execDeleteAllHiddenChars(event)" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#b91c1c;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='#f8fafc'" title="エディタ内の隠し文字を一括削除">
-            <span>隠し文字 一括削除</span>
-          </button>
-        </div>
-        <!-- ホモグラフ -->
-        <div id="detect_item_homo" class="detect-menu-item" data-detect-id="detect_item_homo" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;border-radius:5px">
-          <button type="button" onclick="execDetectHomoglyphs()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#9a3412;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#fff7ed'" onmouseout="this.style.background='#f8fafc'">
-            <span>ホモグラフ</span>
-          </button>
-        </div>
-        <!-- 算用数字 -->
-        <div id="detect_item_num" class="detect-menu-item" data-detect-id="detect_item_num" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;border-radius:5px">
-          <button type="button" onclick="execDetectNumericDigits()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#854d0e;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#fefce8'" onmouseout="this.style.background='#f8fafc'">
-            <span>算用数字</span>
-          </button>
-        </div>
-        <!-- 半角 -->
-        <div id="detect_item_half" class="detect-menu-item" data-detect-id="detect_item_half" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;border-radius:5px">
-          <button type="button" onclick="execDetectHalfWidth()" style="width:100%;text-align:left;background:#f8fafc;border:1px solid transparent;color:#0369a1;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='#f8fafc'">
-            <span>半角</span>
-          </button>
-        </div>
-        <!-- 半角全角（トグルボタン ＆ 一括変換・指定変換10マス） -->
-        <div id="detect_item_half_zen" class="detect-menu-item" data-detect-id="detect_item_half_zen" style="width:100%;touch-action:none;user-select:none;display:flex;flex-direction:column;gap:4px;background:#ffffff;border-radius:5px">
-          <button type="button" id="halfToZenToggleBtn" onclick="toggleHalfToZenSubmenu(event)" style="width:100%;text-align:left;background:#f8fafc;border:1px solid #cbd5e1;color:#2563eb;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
-            <span>半角全角</span>
-            <span id="halfToZenArrow" style="font-size:10px;color:#64748b">▾</span>
-          </button>
-          <!-- 展開パネル：一括変換 適用 ＆ 指定変換 適用 ＆ 10個のマス目 -->
-          <div id="halfToZenPanel" style="display:none;background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;padding:8px;flex-direction:column;gap:8px" onclick="event.stopPropagation()">
-            <!-- 一括変換 -->
-            <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:5px;padding:6px 8px;display:flex;align-items:center;justify-content:space-between;gap:6px">
-              <div>
-                <div style="font-size:11.5px;font-weight:bold;color:#1e293b">一括変換</div>
-                <div style="font-size:9px;color:#64748b">すべての半角を全角に変換</div>
-              </div>
-              <button type="button" onclick="execConvertAllHalfToZen(event)" style="padding:4px 10px;font-size:11px;font-weight:bold;background:#2563eb;color:#ffffff;border:none;border-radius:4px;cursor:pointer;white-space:nowrap" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
-                適用
-              </button>
-            </div>
-            <!-- 指定変換 -->
-            <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:5px;padding:6px 8px;display:flex;flex-direction:column;gap:6px">
-              <div style="display:flex;align-items:center;justify-content:space-between">
-                <div>
-                  <div style="font-size:11.5px;font-weight:bold;color:#1e293b">指定変換</div>
-                  <div style="font-size:9px;color:#64748b">下のマス目の文字のみ変換</div>
-                </div>
-                <button type="button" onclick="execConvertSpecifiedHalfToZen(event)" style="padding:4px 10px;font-size:11px;font-weight:bold;background:#2563eb;color:#ffffff;border:none;border-radius:4px;cursor:pointer;white-space:nowrap" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
-                  適用
-                </button>
-              </div>
-              <!-- マス目 10個 (5×2) -->
-              <div id="halfZenSlotGrid" style="display:grid;grid-template-columns:repeat(5, 1fr);gap:4px;margin-top:2px">
-                <input type="text" maxlength="1" class="half-zen-slot" data-idx="0" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
-                <input type="text" maxlength="1" class="half-zen-slot" data-idx="1" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
-                <input type="text" maxlength="1" class="half-zen-slot" data-idx="2" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
-                <input type="text" maxlength="1" class="half-zen-slot" data-idx="3" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
-                <input type="text" maxlength="1" class="half-zen-slot" data-idx="4" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
-                <input type="text" maxlength="1" class="half-zen-slot" data-idx="5" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
-                <input type="text" maxlength="1" class="half-zen-slot" data-idx="6" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
-                <input type="text" maxlength="1" class="half-zen-slot" data-idx="7" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
-                <input type="text" maxlength="1" class="half-zen-slot" data-idx="8" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
-                <input type="text" maxlength="1" class="half-zen-slot" data-idx="9" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
-              </div>
-              <div style="display:flex;justify-content:flex-end">
-                <button type="button" onclick="clearHalfZenSlots()" style="background:transparent;border:none;color:#64748b;font-size:9.5px;cursor:pointer;text-decoration:underline">マス目をクリア</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
     <!-- 空白色 -->
     <button type="button" id="spColBtn" class="linenum-tool-item" onclick="tgSpColor()" style="width:58px;padding:5px 0;font-size:10px;font-weight:bold;line-height:1.15;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="全角以外の空白の色をON/OFF">
@@ -5931,6 +5851,7 @@ function initLinenumToolDragAndDrop(){
 
     toolbar.addEventListener('pointerdown', (e) => {
         if(e.button !== 0 && e.pointerType === 'mouse') return;
+        if(e.target.closest('#detectMenuDropdown')) return;
         let item = e.target.closest('.linenum-tool-item');
         if(!item) return;
 
@@ -8526,6 +8447,87 @@ window.addEventListener('DOMContentLoaded', ()=>{
         <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
           <input id="globalWarpInput" type="text" placeholder="共通検索ワード" style="flex:1;padding:6px 8px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px;outline:none;background:#fff" onkeydown="if(event.key==='Enter') applyGlobalWarp()">
           <button type="button" onclick="applyGlobalWarp()" style="background:#059669;color:#fff;border:none;padding:6px 12px;border-radius:4px;font-size:12px;font-weight:bold;cursor:pointer;white-space:nowrap">適用</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 検出と変換ドロップダウンメニュー -->
+<div id="detectMenuDropdown" style="display:none;position:fixed;background:#ffffff!important;background-color:#ffffff!important;opacity:1!important;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,0.25);padding:6px;flex-direction:column;gap:6px;width:246px;box-sizing:border-box;z-index:999999;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important;touch-action:none" onclick="event.stopPropagation()" oncontextmenu="event.preventDefault()" onselectstart="return false">
+  <!-- 隠し文字 -->
+  <div id="detect_item_hidden" class="detect-menu-item" data-detect-id="detect_item_hidden" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;background-color:#ffffff;opacity:1;border-radius:5px">
+    <button type="button" onclick="execDetectHiddenChars()" style="width:100%;text-align:left;background:#f8fafc;background-color:#f8fafc;opacity:1;border:1px solid transparent;color:#1e3a8a;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
+      <span>隠し文字</span>
+    </button>
+  </div>
+  <!-- 隠し文字 一括削除 -->
+  <div id="detect_item_hidden_del" class="detect-menu-item" data-detect-id="detect_item_hidden_del" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;background-color:#ffffff;opacity:1;border-radius:5px">
+    <button type="button" onclick="execDeleteAllHiddenChars(event)" style="width:100%;text-align:left;background:#f8fafc;background-color:#f8fafc;opacity:1;border:1px solid transparent;color:#b91c1c;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='#f8fafc'" title="エディタ内の隠し文字を一括削除">
+      <span>隠し文字 一括削除</span>
+    </button>
+  </div>
+  <!-- ホモグラフ -->
+  <div id="detect_item_homo" class="detect-menu-item" data-detect-id="detect_item_homo" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;background-color:#ffffff;opacity:1;border-radius:5px">
+    <button type="button" onclick="execDetectHomoglyphs()" style="width:100%;text-align:left;background:#f8fafc;background-color:#f8fafc;opacity:1;border:1px solid transparent;color:#9a3412;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#fff7ed'" onmouseout="this.style.background='#f8fafc'">
+      <span>ホモグラフ</span>
+    </button>
+  </div>
+  <!-- 算用数字 -->
+  <div id="detect_item_num" class="detect-menu-item" data-detect-id="detect_item_num" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;background-color:#ffffff;opacity:1;border-radius:5px">
+    <button type="button" onclick="execDetectNumericDigits()" style="width:100%;text-align:left;background:#f8fafc;background-color:#f8fafc;opacity:1;border:1px solid transparent;color:#854d0e;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#fefce8'" onmouseout="this.style.background='#f8fafc'">
+      <span>算用数字</span>
+    </button>
+  </div>
+  <!-- 半角 -->
+  <div id="detect_item_half" class="detect-menu-item" data-detect-id="detect_item_half" style="width:100%;touch-action:none;user-select:none;cursor:grab;background:#ffffff;background-color:#ffffff;opacity:1;border-radius:5px">
+    <button type="button" onclick="execDetectHalfWidth()" style="width:100%;text-align:left;background:#f8fafc;background-color:#f8fafc;opacity:1;border:1px solid transparent;color:#0369a1;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;gap:6px" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='#f8fafc'">
+      <span>半角</span>
+    </button>
+  </div>
+  <!-- 半角→全角（トグルボタン ＆ 一括変換・指定変換10マス） -->
+  <div id="detect_item_half_zen" class="detect-menu-item" data-detect-id="detect_item_half_zen" style="width:100%;touch-action:none;user-select:none;display:flex;flex-direction:column;gap:4px;background:#ffffff;background-color:#ffffff;opacity:1;border-radius:5px">
+    <button type="button" id="halfToZenToggleBtn" onclick="toggleHalfToZenSubmenu(event)" style="width:100%;text-align:left;background:#f8fafc;background-color:#f8fafc;opacity:1;border:1px solid #cbd5e1;color:#2563eb;font-size:12px;font-weight:bold;padding:7px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
+      <span>半角→全角</span>
+      <span id="halfToZenArrow" style="font-size:10px;color:#64748b">▾</span>
+    </button>
+    <!-- 展開パネル：一括変換 適用 ＆ 指定変換 適用 ＆ 10個のマス目 -->
+    <div id="halfToZenPanel" style="display:none;background:#f8fafc;background-color:#f8fafc;opacity:1;border:1px solid #cbd5e1;border-radius:6px;padding:8px;flex-direction:column;gap:8px" onclick="event.stopPropagation()">
+      <!-- 一括変換 -->
+      <div style="background:#ffffff;background-color:#ffffff;border:1px solid #e2e8f0;border-radius:5px;padding:6px 8px;display:flex;align-items:center;justify-content:space-between;gap:6px">
+        <div>
+          <div style="font-size:11.5px;font-weight:bold;color:#1e293b">一括変換</div>
+          <div style="font-size:9px;color:#64748b">すべての半角を全角に変換</div>
+        </div>
+        <button type="button" onclick="execConvertAllHalfToZen(event)" style="padding:4px 10px;font-size:11px;font-weight:bold;background:#2563eb;color:#ffffff;border:none;border-radius:4px;cursor:pointer;white-space:nowrap" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+          適用
+        </button>
+      </div>
+      <!-- 指定変換 -->
+      <div style="background:#ffffff;background-color:#ffffff;border:1px solid #e2e8f0;border-radius:5px;padding:6px 8px;display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:11.5px;font-weight:bold;color:#1e293b">指定変換</div>
+            <div style="font-size:9px;color:#64748b">下のマス目の文字のみ変換</div>
+          </div>
+          <button type="button" onclick="execConvertSpecifiedHalfToZen(event)" style="padding:4px 10px;font-size:11px;font-weight:bold;background:#2563eb;color:#ffffff;border:none;border-radius:4px;cursor:pointer;white-space:nowrap" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+            適用
+          </button>
+        </div>
+        <!-- マス目 10個 (5×2) -->
+        <div id="halfZenSlotGrid" style="display:grid;grid-template-columns:repeat(5, 1fr);gap:4px;margin-top:2px">
+          <input type="text" maxlength="1" class="half-zen-slot" data-idx="0" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;background-color:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+          <input type="text" maxlength="1" class="half-zen-slot" data-idx="1" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;background-color:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+          <input type="text" maxlength="1" class="half-zen-slot" data-idx="2" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;background-color:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+          <input type="text" maxlength="1" class="half-zen-slot" data-idx="3" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;background-color:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+          <input type="text" maxlength="1" class="half-zen-slot" data-idx="4" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;background-color:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+          <input type="text" maxlength="1" class="half-zen-slot" data-idx="5" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;background-color:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+          <input type="text" maxlength="1" class="half-zen-slot" data-idx="6" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;background-color:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+          <input type="text" maxlength="1" class="half-zen-slot" data-idx="7" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;background-color:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+          <input type="text" maxlength="1" class="half-zen-slot" data-idx="8" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;background-color:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+          <input type="text" maxlength="1" class="half-zen-slot" data-idx="9" style="width:100%;height:30px;text-align:center;font-size:13px;font-weight:bold;border:1px solid #cbd5e1;border-radius:4px;background:#ffffff;background-color:#ffffff;color:#1e293b;padding:0;box-sizing:border-box" />
+        </div>
+        <div style="display:flex;justify-content:flex-end">
+          <button type="button" onclick="clearHalfZenSlots()" style="background:transparent;border:none;color:#64748b;font-size:9.5px;cursor:pointer;text-decoration:underline">マス目をクリア</button>
         </div>
       </div>
     </div>
