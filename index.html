@@ -382,6 +382,10 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
     <button type="button" id="linenumPaperColorBtn" class="linenum-tool-item" onclick="if(f)openPaperColorModal(f, event)" style="width:58px;padding:5px 0;font-size:11.5px;font-weight:bold;line-height:1.2;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="この紙の色を設定（デフォルト／個別）">
       紙の色
     </button>
+    <!-- 行数表示 -->
+    <button type="button" id="linenumToggleBtn" class="linenum-tool-item" onclick="tgLineNumbers()" style="width:58px;padding:5px 0;font-size:10px;font-weight:bold;line-height:1.15;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="行数（行番号）の表示切替（ON/OFF）">
+      行数:ON
+    </button>
     <!-- 横の数 -->
     <button type="button" id="colsBtn" class="linenum-tool-item" onclick="openColsModal(f, event)" style="width:58px;padding:4px 0;font-size:10.5px;font-weight:bold;line-height:1.15;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:normal;text-align:center;touch-action:none" title="横の文字数を設定">
       横の数<br><span style="font-size:11.5px;font-weight:bold;color:inherit">30字</span><span style="font-size:9px;line-height:1;margin-left:1px">▾</span>
@@ -971,6 +975,8 @@ window.onload=()=>{
         if(btn){btn.textContent='空白色:OFF';btn.style.background='#f0f0f2';btn.style.color='#666';btn.style.fontWeight='normal'}
         if(spColBtn){spColBtn.textContent='空白色:OFF';spColBtn.style.color='#000000';spColBtn.style.fontWeight='bold'}
     }
+    let lineNumSetting = localStorage.getItem('n_show_line_numbers') || 'on';
+    applyLineNumbersVisibility(lineNumSetting);
     applyToolOrder(getToolOrder());
     initToolDragAndDrop();
     applyLinenumToolOrder(getLinenumToolOrder());
@@ -1537,6 +1543,30 @@ function tgSpColor(){
     localStorage.setItem('n_sp_color',isOff?'off':'on');
     if(!isOff){
         highlightSpaces();
+    }
+}
+
+function tgLineNumbers(){
+    const nEl = document.getElementById('n');
+    let isCurrentlyOff = (nEl && nEl.style.display === 'none') || (localStorage.getItem('n_show_line_numbers') === 'off');
+    let nextState = isCurrentlyOff ? 'on' : 'off';
+    applyLineNumbersVisibility(nextState);
+    localStorage.setItem('n_show_line_numbers', nextState);
+    if(nextState === 'on'){
+        try { updateLineNumbers(); } catch(err){}
+    }
+}
+
+function applyLineNumbersVisibility(state){
+    const nEl = document.getElementById('n');
+    const btn = document.getElementById('linenumToggleBtn');
+    const isOff = (state === 'off');
+    if(nEl){
+        nEl.style.display = isOff ? 'none' : '';
+    }
+    if(btn){
+        btn.textContent = isOff ? '行数:OFF' : '行数:ON';
+        btn.style.fontWeight = 'bold';
     }
 }
 
@@ -5486,6 +5516,13 @@ function getLinenumItemInfo(el){
             icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`
         };
     }
+    if(id === 'linenumToggleBtn'){
+        let txt = el.textContent ? el.textContent.trim().split(/\s+/)[0] : '行数';
+        return {
+            name: txt || '行数',
+            icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="18" y2="18"/></svg>`
+        };
+    }
     if(id === 'colsBtn'){
         return {
             name: '横の数',
@@ -5797,7 +5834,7 @@ function initToolDragAndDrop(){
 }
 
 /* 行番号左ツールバー（ワープ・紙の色・横の数・特殊コピー・検出・空白色）の並び替え・指なぞりドラッグ＆ドロップ機能 */
-const defaultLinenumToolOrder = ['linenumWarpGroup', 'linenumPaperColorBtn', 'colsBtn', 'linenumCopyBtn', 'detectContainer', 'spColBtn'];
+const defaultLinenumToolOrder = ['linenumWarpGroup', 'linenumPaperColorBtn', 'linenumToggleBtn', 'colsBtn', 'linenumCopyBtn', 'detectContainer', 'spColBtn'];
 
 function getLinenumToolOrder(){
     let saved = localStorage.getItem('n_linenum_tool_order_v2') || localStorage.getItem('n_linenum_tool_order_v1');
@@ -5808,7 +5845,18 @@ function getLinenumToolOrder(){
                 let set = new Set(arr);
                 let full = [...arr];
                 defaultLinenumToolOrder.forEach(id => {
-                    if(!set.has(id)) full.push(id);
+                    if(!set.has(id)){
+                        if(id === 'linenumToggleBtn'){
+                            let pIdx = full.indexOf('linenumPaperColorBtn');
+                            if(pIdx !== -1){
+                                full.splice(pIdx + 1, 0, id);
+                            } else {
+                                full.push(id);
+                            }
+                        } else {
+                            full.push(id);
+                        }
+                    }
                 });
                 return full;
             }
