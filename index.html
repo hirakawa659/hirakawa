@@ -245,7 +245,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_search_folder" class="tool-item" onclick="toggleFolderSearchBar()" style="background:transparent;border:none;color:#0369a1;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="現在開いているフォルダ内やノート内の語句を検索">開フォルダ内<br>検索</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:transparent;border:none;color:#1e40af;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
 <button id="tool_area" class="tool-item" onclick="openToolbarColorModal(event)" style="background:transparent;border:none;color:#334155;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="領域の設定（各ツールの文字色設定）">領域</button>
-<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（タップ時の誤選択吹き出し防止＆確定キーでの確実な改行）を確認">最新修正<br>12</button>
+<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（左端タップ時の前行予測セッション引きずり解消＆全キーイベントでの1回改行保証）を確認">最新修正<br>13</button>
 <select id="l" onchange="updateColsDisplay();z()" style="display:none"></select>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
@@ -1871,17 +1871,56 @@ function collapseAccidentalSelectionOnTap(){
     }
 }
 
+// 行頭（左端）にキャレットがある場合、iOSが前の行の末尾の続きと誤認して前の文脈の予測変換を引きずるのを防止
+function refreshLeftEdgeCaretAnchor(){
+    let sel = window.getSelection();
+    if(!sel || sel.rangeCount === 0 || !sel.isCollapsed) return;
+    let curDiv = getActiveEditorLineDiv();
+    if(!curDiv) return;
+    let range = sel.getRangeAt(0);
+    let isAtStart = false;
+    if(range.startContainer === e){
+        isAtStart = true;
+    } else if(range.startContainer === curDiv && range.startOffset === 0){
+        isAtStart = true;
+    } else if(curDiv.firstChild && range.startContainer === curDiv.firstChild && range.startOffset === 0){
+        isAtStart = true;
+    } else {
+        try {
+            let preRange = document.createRange();
+            preRange.selectNodeContents(curDiv);
+            preRange.setEnd(range.startContainer, range.startOffset);
+            if(preRange.toString().length === 0) isAtStart = true;
+        } catch(err){}
+    }
+    if(isAtStart){
+        let targetNode = curDiv.firstChild;
+        if(!targetNode){
+            targetNode = document.createTextNode('');
+            curDiv.appendChild(targetNode);
+        }
+        let newRange = document.createRange();
+        newRange.setStart(targetNode, 0);
+        newRange.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
+    }
+}
+
 document.addEventListener('selectionchange', handleSelectionEvent);
 window.addEventListener('mouseup', handleSelectionEvent);
 window.addEventListener('touchend', (ev)=>{
     handleSelectionEvent();
     setTimeout(collapseAccidentalSelectionOnTap, 10);
+    setTimeout(refreshLeftEdgeCaretAnchor, 15);
     setTimeout(collapseAccidentalSelectionOnTap, 40);
+    setTimeout(refreshLeftEdgeCaretAnchor, 45);
 });
 window.addEventListener('pointerup', handleSelectionEvent);
 e.addEventListener('keyup', (ev)=>{
     if(ev.key && ev.key.startsWith('Arrow')){
         handleSelectionEvent();
+        refreshLeftEdgeCaretAnchor();
     }
 });
 e.addEventListener('pointerdown', handleSelectionEvent);
@@ -1889,12 +1928,15 @@ e.addEventListener('touchstart', handleSelectionEvent);
 e.addEventListener('pointerup', (ev)=>{
     handleSelectionEvent();
     setTimeout(collapseAccidentalSelectionOnTap, 10);
+    setTimeout(refreshLeftEdgeCaretAnchor, 15);
     setTimeout(collapseAccidentalSelectionOnTap, 40);
 });
 e.addEventListener('click', ()=>{
     handleSelectionEvent();
     collapseAccidentalSelectionOnTap();
+    refreshLeftEdgeCaretAnchor();
     setTimeout(collapseAccidentalSelectionOnTap, 10);
+    setTimeout(refreshLeftEdgeCaretAnchor, 15);
     setTimeout(collapseAccidentalSelectionOnTap, 40);
     setTimeout(normalizeEditorSelectionToTextNode, 10);
     setTimeout(normalizeEditorSelectionToTextNode, 50);
@@ -1902,6 +1944,7 @@ e.addEventListener('click', ()=>{
 e.addEventListener('focus', ()=>{
     handleSelectionEvent();
     collapseAccidentalSelectionOnTap();
+    refreshLeftEdgeCaretAnchor();
     setTimeout(normalizeEditorSelectionToTextNode, 10);
     setTimeout(normalizeEditorSelectionToTextNode, 50);
     setTimeout(normalizeEditorSelectionToTextNode, 120);
@@ -5206,7 +5249,7 @@ function scrollToLatestFix(){
     }
     let toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:10px 16px;border-radius:8px;font-size:12.5px;font-weight:bold;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s ease;pointer-events:none';
-    toast.textContent = '最新修正12: タップ時の文字誤選択と吹き出しメニューを抑止し、1回で確実に改行できるよう修正完了';
+    toast.textContent = '最新修正13: 左端タップ時の前行予測引きずりを解消＆全キーイベントでの1回改行を保証';
     document.body.appendChild(toast);
     setTimeout(()=>{
         toast.style.opacity = '0';
@@ -5507,10 +5550,22 @@ document.addEventListener('beforeinput', (ev)=>{
     }
 }, true);
 
+// 直近のキー入力診断ログ
+window._lastKeyEventLogs = [];
+function recordKeyLog(type, ev){
+    try {
+        let entry = `${type}: k=${ev.key || ''} c=${ev.keyCode || ev.which || 0} cd=${ev.code || ''}`;
+        window._lastKeyEventLogs.unshift(entry);
+        if(window._lastKeyEventLogs.length > 5) window._lastKeyEventLogs.pop();
+    } catch(err){}
+}
+
 // keydownイベント：PCキーボード、ハードウェアキーボード、iOSソフトウェアキーボードのEnterキー押下時の制御
 function onKeydownNewline(ev){
+    recordKeyLog('KD', ev);
     let isEnterKey = (ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter');
-    let is229 = (ev.keyCode === 229);
+    // iOS Safariでは keyCode 229 だけでなく which 229, key 'Process', 'Unidentified', keyCode 0 等で届く
+    let is229 = (ev.keyCode === 229 || ev.which === 229 || ev.key === 'Process' || ev.key === 'Unidentified' || (ev.keyCode === 0 && !ev.key));
     
     // 実際に未確定文字列を入力中（かな等の変換前タイピング中）か判定
     let isTypingComposition = (hasActiveCompositionInput && composingText && composingText.length > 0);
@@ -5526,10 +5581,10 @@ function onKeydownNewline(ev){
         return;
     }
     
-    // 2. iPad等のkeyCode 229（予測変換候補表示中の確定／↩キー押下）
-    // 文字未入力の状態で229キーが押された場合：
-    // もし文字キー（あ、か等）なら直後（数ミリ秒〜20ミリ秒以内）にbeforeinput/inputが発火して文字が入る。
-    // もし40ミリ秒経っても文字入力が一切起きなければ、押されたのは文字キーではなく「確定／↩（改行）」であるため、
+    // 2. iPad等のkeyCode 229 / Processキー（予測変換候補表示中の確定／↩キー押下）
+    // 文字未入力の状態で押された場合：
+    // もし文字キー（あ、か等）なら直後（20ミリ秒以内）にbeforeinput/inputが発火して文字が入る。
+    // もし30ミリ秒経っても文字入力が一切起きなければ、押されたのは文字キーではなく「確定／↩（改行）」であるため、
     // 未入力確定処理完了として1回で確実に改行を実行する！
     if(is229){
         if(last229CandidateTimer){
@@ -5543,11 +5598,11 @@ function onKeydownNewline(ev){
             let textLengthChanged = (e.textContent.length !== savedTextLength);
             if(!currentTyping && !textLengthChanged){
                 let now = Date.now();
-                if(now - lastEnterTimestamp >= 150){
+                if(now - lastEnterTimestamp >= 130){
                     handleNewlineAction(null);
                 }
             }
-        }, 40);
+        }, 30);
     }
 }
 
@@ -5561,12 +5616,13 @@ window.addEventListener('keydown', onKeydownNewline, true);
 
 // keyupイベント：保険として、iOS Safariでキー押下がkeyupとして届いた場合も確実に改行
 window.addEventListener('keyup', (ev)=>{
+    recordKeyLog('KU', ev);
     let sel = window.getSelection();
     let isEditorActive = (document.activeElement === e || (document.activeElement && e.contains(document.activeElement)) || (sel && sel.anchorNode && (sel.anchorNode === e || e.contains(sel.anchorNode))));
     if(!isEditorActive) return;
     
     let isEnterKey = (ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter');
-    let is229 = (ev.keyCode === 229);
+    let is229 = (ev.keyCode === 229 || ev.which === 229 || ev.key === 'Process' || ev.key === 'Unidentified' || (ev.keyCode === 0 && !ev.key));
     let isTypingComposition = (hasActiveCompositionInput && composingText && composingText.length > 0);
     if(isTypingComposition) return;
     
@@ -5576,7 +5632,7 @@ window.addEventListener('keyup', (ev)=>{
             last229CandidateTimer = null;
         }
         let now = Date.now();
-        if(now - lastEnterTimestamp < 180) return;
+        if(now - lastEnterTimestamp < 150) return;
         handleNewlineAction(ev);
         return;
     }
@@ -5588,7 +5644,7 @@ window.addEventListener('keyup', (ev)=>{
             last229CandidateTimer = null;
         }
         let now = Date.now();
-        if(now - lastEnterTimestamp >= 150){
+        if(now - lastEnterTimestamp >= 130){
             handleNewlineAction(ev);
         }
     }
