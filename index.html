@@ -46,10 +46,36 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 .num-mark{background:#fef08a!important;border-bottom:2px solid #ca8a04!important;color:#854d0e!important;font-weight:bold!important;border-radius:2px}
 .half-mark{background:#e0f2fe!important;border-bottom:2px solid #0284c7!important;color:#0369a1!important;font-weight:bold!important;border-radius:2px}
 .er{background-color:#fce7f3!important;border-bottom:2px dotted #db2777!important}
-.tool-item{cursor:grab;user-select:none;flex-shrink:0;touch-action:pan-x;transition:transform 0.12s ease,opacity 0.12s ease}
+.tool-item{cursor:grab;user-select:none;flex-shrink:0;touch-action:pan-x}
 .tool-item:active{cursor:grabbing}
-.tool-item.tool-dragging,.tool-item.dragging{opacity:0.6;transform:scale(1.08);outline:2px solid #2563eb;outline-offset:1px;box-shadow:0 4px 12px rgba(37,99,235,0.28);z-index:1001;position:relative}
-.tool-item.drag-over{transform:scale(1.05)}
+.tool-item.tool-item-dragging,
+.linenum-tool-item.linenum-tool-item-dragging{
+  opacity:0.38!important;
+  background:#eff6ff!important;
+  outline:2px dashed #2563eb!important;
+  outline-offset:-2px!important;
+  border-radius:4px!important;
+}
+.tool-item.tool-drop-left{
+  box-shadow:inset 3.5px 0 0 0 #2563eb!important;
+  background:rgba(37,99,235,0.12)!important;
+  border-radius:4px!important;
+}
+.tool-item.tool-drop-right{
+  box-shadow:inset -3.5px 0 0 0 #2563eb!important;
+  background:rgba(37,99,235,0.12)!important;
+  border-radius:4px!important;
+}
+.linenum-tool-item.linenum-drop-top{
+  box-shadow:inset 0 3.5px 0 0 #2563eb!important;
+  background:rgba(37,99,235,0.12)!important;
+  border-radius:5px!important;
+}
+.linenum-tool-item.linenum-drop-bottom{
+  box-shadow:inset 0 -3.5px 0 0 #2563eb!important;
+  background:rgba(37,99,235,0.12)!important;
+  border-radius:5px!important;
+}
 #t{overflow-y:auto;flex:1;font-size:12px;padding:0;border-top:1px solid var(--sidebar-border);background:var(--sidebar-tree-bg)}
 .tree-node{margin-bottom:0;user-select:none;width:100%}
 .tree-row{display:flex;align-items:center;padding-top:7px;padding-bottom:7px;padding-right:8px;padding-left:calc(8px + var(--tree-level, 0) * 14px);border-radius:0;background:var(--sidebar-tree-bg);border:none;transition:background 0.1s ease;gap:4px;position:relative;cursor:pointer;touch-action:manipulation;user-select:none;width:100%;box-sizing:border-box;min-height:32px;color:var(--sidebar-text)}
@@ -316,7 +342,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
       空白色:OFF
     </button>
     <!-- △、ワープ、▽の順に並べたグループボタン -->
-    <div style="display:flex;flex-direction:column;width:58px;border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;overflow:hidden;background:var(--paper-bg,#ffffff)">
+    <div id="linenumWarpGroup" class="linenum-tool-item" style="display:flex;flex-direction:column;width:58px;border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;overflow:hidden;background:var(--paper-bg,#ffffff);touch-action:none">
       <button type="button" id="warpPrevBtn" onclick="warpPrev()" style="width:100%;padding:4px 0;font-size:12px;font-weight:bold;background:transparent;color:var(--text-color,#000000);border:none;border-bottom:1px solid var(--sidebar-border,#cbd5e1);cursor:pointer;text-align:center;touch-action:none" title="前のマッチへワープ">△</button>
       <button type="button" id="warpBtn" onclick="openWarpModal(event)" style="width:100%;padding:4px 0;font-size:10px;font-weight:bold;background:transparent;color:var(--text-color,#000000);border:none;border-bottom:1px solid var(--sidebar-border,#cbd5e1);cursor:pointer;text-align:center;touch-action:none" title="文字検索ワープ設定">ワープ</button>
       <button type="button" id="warpNextBtn" onclick="warpNext()" style="width:100%;padding:4px 0;font-size:12px;font-weight:bold;background:transparent;color:var(--text-color,#000000);border:none;cursor:pointer;text-align:center;touch-action:none" title="次のマッチへワープ">▽</button>
@@ -4646,6 +4672,120 @@ function applyToolOrder(orderList){
     applyCustomToolLabels();
 }
 
+/* ツールバー並び替え用ヘルパー（動画仕様のバッジ＆ゴースト追従） */
+function getHeaderItemInfo(el){
+    if(!el) return { name: 'ツール', icon: '' };
+    let id = el.id;
+    let def = (typeof toolDefs !== 'undefined') ? toolDefs[id] : null;
+    let name = (def && def.name) ? def.name.replace(/\n/g, ' ') : '';
+    if(!name){
+        if(id === 'tool_sb') name = 'フォルダ/紙/注意';
+        else if(id === 'tool_shelf') name = '最上層';
+        else if(id === 'tool_undo') name = '元に戻す';
+        else if(id === 'tool_redo') name = 'やり直す';
+        else if(id === 'tool_save_txt') name = '.txt保存';
+        else if(id === 'tool_rep') name = '開フォルダ内置換';
+        else if(id === 'tool_search_folder') name = '開フォルダ内検索';
+        else if(id === 'tool_selcount') name = '選択文字数';
+        else if(id === 'tool_area') name = '領域';
+        else {
+            let t = el.innerText || el.textContent || '';
+            name = t.replace(/\s+/g, ' ').trim();
+        }
+    }
+    if(name.length > 12) name = name.substring(0, 11) + '…';
+
+    let icon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
+    if(id === 'tool_save_txt'){
+        icon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`;
+    } else if(id === 'tool_undo' || id === 'tool_redo'){
+        icon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><polyline points="9 14 4 9 9 4"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>`;
+    } else if(id === 'tool_rep' || id === 'tool_search_folder'){
+        icon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
+    } else if(id === 'tool_sb' || id === 'tool_shelf'){
+        icon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6b21a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M3 8V6.5A2 2 0 0 1 5 4.5H9.5A2 2 0 0 1 11.2 5.4L13 8H20A2 2 0 0 1 22 10V17A2 2 0 0 1 20 19H5A2 2 0 0 1 3 17Z"/></svg>`;
+    }
+    return { name, icon };
+}
+
+function getLinenumItemInfo(el){
+    if(!el) return { name: 'ツール', icon: '' };
+    let id = el.id;
+    if(id === 'linenumWarpGroup'){
+        return {
+            name: 'ワープ',
+            icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><polygon points="5 3 19 12 5 21 5 3"/></svg>`
+        };
+    }
+    if(id === 'linenumPaperColorBtn'){
+        return {
+            name: '紙の色',
+            icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`
+        };
+    }
+    if(id === 'colsBtn'){
+        return {
+            name: '横の数',
+            icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>`
+        };
+    }
+    if(id === 'linenumCopyBtn'){
+        return {
+            name: '特殊コピー',
+            icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`
+        };
+    }
+    if(id === 'detectContainer' || id === 'detectBtn'){
+        return {
+            name: '検出',
+            icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`
+        };
+    }
+    if(id === 'spColBtn'){
+        let txt = el.textContent ? el.textContent.trim().split(/\s+/)[0] : '空白色';
+        return {
+            name: txt || '空白色',
+            icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><circle cx="12" cy="12" r="10"/></svg>`
+        };
+    }
+    let text = el.innerText || el.textContent || '';
+    text = text.replace(/\s+/g, ' ').trim();
+    if(text.length > 10) text = text.substring(0, 9) + '…';
+    return {
+        name: text || 'ツール',
+        icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>`
+    };
+}
+
+function updateToolbarGhostContent(sourceInfo, action, isHorizontal){
+    let ghost = getOrCreateDragGhost();
+    if(!sourceInfo) return;
+    let html = `<div class="ghost-title-line"><span style="display:inline-flex;align-items:center">${sourceInfo.icon}</span><span>${escapeHtml(sourceInfo.name)}</span></div>`;
+    if(action && action.targetName){
+        let targetDisplayName = action.targetName.length > 10 ? action.targetName.substring(0, 9) + '…' : action.targetName;
+        if(isHorizontal){
+            if(action.position === 'before'){
+                html += `<span class="ghost-action-badge ghost-action-before">← 「${escapeHtml(targetDisplayName)}」の左に並べる</span>`;
+            } else if(action.position === 'after'){
+                html += `<span class="ghost-action-badge ghost-action-after">→ 「${escapeHtml(targetDisplayName)}」の右に並べる</span>`;
+            } else if(action.position === 'end'){
+                html += `<span class="ghost-action-badge ghost-action-root">➡ 右端に並べる</span>`;
+            }
+        } else {
+            if(action.position === 'before'){
+                html += `<span class="ghost-action-badge ghost-action-before">↑ 「${escapeHtml(targetDisplayName)}」の上に並べる</span>`;
+            } else if(action.position === 'after'){
+                html += `<span class="ghost-action-badge ghost-action-after">↓ 「${escapeHtml(targetDisplayName)}」の下に並べる</span>`;
+            } else if(action.position === 'end'){
+                html += `<span class="ghost-action-badge ghost-action-root">⬇ リストの末尾に並べる</span>`;
+            }
+        }
+    } else {
+        html += `<span class="ghost-action-badge" style="background:#64748b;color:#ffffff">移動先へドラッグ</span>`;
+    }
+    ghost.innerHTML = html;
+}
+
 function initToolDragAndDrop(){
     const header = document.querySelector('.h');
     if(!header || header.dataset.dragInitialized === 'true') return;
@@ -4653,6 +4793,7 @@ function initToolDragAndDrop(){
 
     let activePointerId = null;
     let dragItem = null;
+    let sourceInfo = null;
     let startX = 0;
     let startY = 0;
     let isDragMode = false;
@@ -4661,12 +4802,19 @@ function initToolDragAndDrop(){
     let autoScrollTimer = null;
     let scrollSpeed = 0;
     let longPressTimer = null;
+    let currentDropAction = null;
 
     function clearPressTimer(){
         if(longPressTimer){
             clearTimeout(longPressTimer);
             longPressTimer = null;
         }
+    }
+
+    function clearIndicators(){
+        header.querySelectorAll('.tool-drop-left, .tool-drop-right').forEach(el=>{
+            el.classList.remove('tool-drop-left', 'tool-drop-right');
+        });
     }
 
     function startAutoScroll(speed){
@@ -4687,7 +4835,6 @@ function initToolDragAndDrop(){
         }
     }
 
-    // マウスホイールでの横スクロール補助（スムーズな左右移動）
     header.addEventListener('wheel', (e)=>{
         if(e.deltaY !== 0 && e.deltaX === 0){
             header.scrollLeft += e.deltaY;
@@ -4695,7 +4842,6 @@ function initToolDragAndDrop(){
         }
     }, { passive: false });
 
-    // ドラッグ完了直後の誤タップ・クリックを抑制
     header.addEventListener('click', (e)=>{
         if(Date.now() < suppressClickUntil){
             e.preventDefault();
@@ -4703,11 +4849,31 @@ function initToolDragAndDrop(){
         }
     }, true);
 
+    function startDragMode(clientX, clientY){
+        if(!dragItem) return;
+        isDragMode = true;
+        hasDragged = true;
+        dragItem.classList.add('tool-item-dragging');
+        sourceInfo = getHeaderItemInfo(dragItem);
+        
+        let ghost = getOrCreateDragGhost();
+        updateToolbarGhostContent(sourceInfo, null, true);
+        let ghostY = Math.max(8, clientY - 60);
+        let ghostX = Math.max(8, Math.min(window.innerWidth - 220, clientX - 40));
+        ghost.style.left = ghostX + 'px';
+        ghost.style.top = ghostY + 'px';
+        ghost.style.display = 'flex';
+
+        if(typeof navigator !== 'undefined' && navigator.vibrate){
+            try { navigator.vibrate(28); } catch(err){}
+        }
+    }
+
     header.addEventListener('pointerdown', (e)=>{
         if(e.button !== 0 && e.pointerType === 'mouse') return;
         let item = e.target.closest('.tool-item');
         if(!item) return;
-        
+
         clearPressTimer();
         activePointerId = e.pointerId;
         dragItem = item;
@@ -4715,54 +4881,48 @@ function initToolDragAndDrop(){
         startY = e.clientY;
         isDragMode = false;
         hasDragged = false;
+        currentDropAction = null;
 
         if(e.pointerType === 'touch'){
-            // タッチ操作時は長押し（240ms）で並び替えモードへ。
-            // それまでは横スクロールを最優先で滑らかに行えるようにする
             longPressTimer = setTimeout(()=>{
                 if(dragItem && activePointerId !== null){
-                    isDragMode = true;
-                    hasDragged = true;
-                    dragItem.classList.add('tool-dragging');
                     try { dragItem.setPointerCapture(activePointerId); } catch(err){}
-                    if(navigator.vibrate) try { navigator.vibrate(35); } catch(err){}
+                    startDragMode(startX, startY);
                 }
-            }, 240);
-        } else {
-            // マウス操作時は移動距離で判定
+            }, 200);
         }
     });
 
     header.addEventListener('pointermove', (e)=>{
         if(!dragItem || activePointerId !== e.pointerId) return;
-        
+
         let dx = e.clientX - startX;
         let dy = e.clientY - startY;
 
         if(!isDragMode){
             if(e.pointerType === 'touch'){
-                // 指をスライドさせた場合（横スクロール操作）は長押しタイマーを即座に破棄して横スクロールを優先！
-                if(Math.abs(dx) > 8 || Math.abs(dy) > 8){
+                if(Math.abs(dx) > 7 || Math.abs(dy) > 7){
                     clearPressTimer();
                 }
                 return;
             } else {
-                // マウス操作時：8px以上動かしたらドラッグ並び替え開始
-                if(Math.abs(dx) > 7 || Math.abs(dy) > 7){
-                    isDragMode = true;
-                    hasDragged = true;
+                if(Math.abs(dx) > 6 || Math.abs(dy) > 6){
                     try { dragItem.setPointerCapture(e.pointerId); } catch(err){}
-                    dragItem.classList.add('tool-dragging');
+                    startDragMode(e.clientX, e.clientY);
                 } else {
                     return;
                 }
             }
         }
 
-        // 並び替えモード中の処理
         e.preventDefault();
 
-        // ツールバー両端でのオートスクロール
+        let ghost = getOrCreateDragGhost();
+        let ghostY = Math.max(8, e.clientY - 60);
+        let ghostX = Math.max(8, Math.min(window.innerWidth - 220, e.clientX - 40));
+        ghost.style.left = ghostX + 'px';
+        ghost.style.top = ghostY + 'px';
+
         let hRect = header.getBoundingClientRect();
         const EDGE = 40;
         if(e.clientX < hRect.left + EDGE){
@@ -4775,51 +4935,109 @@ function initToolDragAndDrop(){
             stopAutoScroll();
         }
 
-        // 指/ポインター位置にある他のボタンを探して入れ替え
+        clearIndicators();
+        currentDropAction = null;
+
         let items = Array.from(header.querySelectorAll('.tool-item'));
+        let target = null;
+        let position = null;
+
         for(let other of items){
             if(other === dragItem) continue;
             let r = other.getBoundingClientRect();
             if(e.clientX >= r.left && e.clientX <= r.right){
+                target = other;
                 let mid = r.left + r.width / 2;
-                if(e.clientX < mid){
-                    header.insertBefore(dragItem, other);
-                } else {
-                    header.insertBefore(dragItem, other.nextSibling);
-                }
+                position = (e.clientX < mid) ? 'before' : 'after';
                 break;
             }
+        }
+
+        if(!target && items.length > 0){
+            let lastItem = items[items.length - 1];
+            if(lastItem !== dragItem){
+                let lr = lastItem.getBoundingClientRect();
+                if(e.clientX > lr.right){
+                    target = lastItem;
+                    position = 'after';
+                }
+            }
+            let firstItem = items[0];
+            if(firstItem !== dragItem){
+                let fr = firstItem.getBoundingClientRect();
+                if(e.clientX < fr.left){
+                    target = firstItem;
+                    position = 'before';
+                }
+            }
+        }
+
+        if(target && position){
+            if((position === 'before' && target.previousElementSibling === dragItem) ||
+               (position === 'after' && target.nextElementSibling === dragItem)){
+                updateToolbarGhostContent(sourceInfo, null, true);
+            } else {
+                let targetInfo = getHeaderItemInfo(target);
+                currentDropAction = { targetItem: target, position: position, targetName: targetInfo.name };
+                if(position === 'before'){
+                    target.classList.add('tool-drop-left');
+                } else {
+                    target.classList.add('tool-drop-right');
+                }
+                updateToolbarGhostContent(sourceInfo, currentDropAction, true);
+            }
+        } else {
+            updateToolbarGhostContent(sourceInfo, null, true);
         }
     }, { passive: false });
 
     function finishDrag(e){
         clearPressTimer();
         stopAutoScroll();
+        clearIndicators();
+
+        let ghost = document.getElementById('treeDragGhost');
+        if(ghost) ghost.style.display = 'none';
+
         if(!dragItem || (activePointerId !== null && e.pointerId !== activePointerId)) return;
-        
+
         if(hasDragged || isDragMode){
             suppressClickUntil = Date.now() + 350;
-            dragItem.classList.remove('tool-dragging');
+            dragItem.classList.remove('tool-item-dragging');
             try { dragItem.releasePointerCapture(e.pointerId); } catch(err){}
-            saveCurrentToolOrderFromDOM();
-            applyCustomToolLabels();
+
+            if(currentDropAction && currentDropAction.targetItem){
+                let { targetItem, position } = currentDropAction;
+                if(position === 'before'){
+                    header.insertBefore(dragItem, targetItem);
+                } else if(position === 'after'){
+                    header.insertBefore(dragItem, targetItem.nextElementSibling);
+                }
+                saveCurrentToolOrderFromDOM();
+                applyCustomToolLabels();
+                if(typeof navigator !== 'undefined' && navigator.vibrate){
+                    try { navigator.vibrate(15); } catch(err){}
+                }
+            }
         }
-        
+
         activePointerId = null;
         dragItem = null;
+        sourceInfo = null;
         isDragMode = false;
         hasDragged = false;
+        currentDropAction = null;
     }
 
     header.addEventListener('pointerup', finishDrag);
     header.addEventListener('pointercancel', finishDrag);
 }
 
-/* 行番号左ツールバー（紙の色・横の数・特殊コピー・検出・空白色）の並び替え・指なぞりドラッグ＆ドロップ機能 */
-const defaultLinenumToolOrder = ['linenumPaperColorBtn', 'colsBtn', 'linenumCopyBtn', 'detectContainer', 'spColBtn'];
+/* 行番号左ツールバー（ワープ・紙の色・横の数・特殊コピー・検出・空白色）の並び替え・指なぞりドラッグ＆ドロップ機能 */
+const defaultLinenumToolOrder = ['linenumWarpGroup', 'linenumPaperColorBtn', 'colsBtn', 'linenumCopyBtn', 'detectContainer', 'spColBtn'];
 
 function getLinenumToolOrder(){
-    let saved = localStorage.getItem('n_linenum_tool_order_v1');
+    let saved = localStorage.getItem('n_linenum_tool_order_v2') || localStorage.getItem('n_linenum_tool_order_v1');
     if(saved){
         try{
             let arr = JSON.parse(saved);
@@ -4843,7 +5061,7 @@ function applyLinenumToolOrder(orderList){
         let el = document.getElementById(id);
         if(el) toolbar.appendChild(el);
     });
-    localStorage.setItem('n_linenum_tool_order_v1', JSON.stringify(orderList));
+    localStorage.setItem('n_linenum_tool_order_v2', JSON.stringify(orderList));
 }
 
 function saveLinenumToolOrderFromDOM(){
@@ -4853,7 +5071,7 @@ function saveLinenumToolOrderFromDOM(){
     toolbar.querySelectorAll('.linenum-tool-item').forEach(el => {
         if(el.id) newOrder.push(el.id);
     });
-    localStorage.setItem('n_linenum_tool_order_v1', JSON.stringify(newOrder));
+    localStorage.setItem('n_linenum_tool_order_v2', JSON.stringify(newOrder));
 }
 
 function initLinenumToolDragAndDrop(){
@@ -4863,12 +5081,14 @@ function initLinenumToolDragAndDrop(){
 
     let activePointerId = null;
     let dragItem = null;
+    let sourceInfo = null;
     let startY = 0;
     let startX = 0;
     let isDragMode = false;
     let hasDragged = false;
     let suppressClickUntil = 0;
     let longPressTimer = null;
+    let currentDropAction = null;
 
     function clearPressTimer(){
         if(longPressTimer){
@@ -4877,12 +5097,38 @@ function initLinenumToolDragAndDrop(){
         }
     }
 
+    function clearIndicators(){
+        toolbar.querySelectorAll('.linenum-drop-top, .linenum-drop-bottom').forEach(el=>{
+            el.classList.remove('linenum-drop-top', 'linenum-drop-bottom');
+        });
+    }
+
     toolbar.addEventListener('click', (e) => {
         if(Date.now() < suppressClickUntil){
             e.preventDefault();
             e.stopPropagation();
         }
     }, true);
+
+    function startDragMode(clientX, clientY){
+        if(!dragItem) return;
+        isDragMode = true;
+        hasDragged = true;
+        dragItem.classList.add('linenum-tool-item-dragging');
+        sourceInfo = getLinenumItemInfo(dragItem);
+
+        let ghost = getOrCreateDragGhost();
+        updateToolbarGhostContent(sourceInfo, null, false);
+        let ghostY = Math.max(8, clientY - 60);
+        let ghostX = Math.max(8, Math.min(window.innerWidth - 220, clientX + 15));
+        ghost.style.left = ghostX + 'px';
+        ghost.style.top = ghostY + 'px';
+        ghost.style.display = 'flex';
+
+        if(typeof navigator !== 'undefined' && navigator.vibrate){
+            try { navigator.vibrate(28); } catch(err){}
+        }
+    }
 
     toolbar.addEventListener('pointerdown', (e) => {
         if(e.button !== 0 && e.pointerType === 'mouse') return;
@@ -4896,15 +5142,13 @@ function initLinenumToolDragAndDrop(){
         startY = e.clientY;
         isDragMode = false;
         hasDragged = false;
+        currentDropAction = null;
 
         if(e.pointerType === 'touch'){
             longPressTimer = setTimeout(() => {
                 if(dragItem && activePointerId !== null){
-                    isDragMode = true;
-                    hasDragged = true;
-                    dragItem.classList.add('tool-dragging');
                     try { dragItem.setPointerCapture(activePointerId); } catch(err){}
-                    if(navigator.vibrate) try { navigator.vibrate(35); } catch(err){}
+                    startDragMode(startX, startY);
                 }
             }, 180);
         }
@@ -4920,20 +5164,15 @@ function initLinenumToolDragAndDrop(){
             if(e.pointerType === 'touch'){
                 if(Math.abs(dy) > 5 || Math.abs(dx) > 5){
                     clearPressTimer();
-                    isDragMode = true;
-                    hasDragged = true;
-                    dragItem.classList.add('tool-dragging');
                     try { dragItem.setPointerCapture(e.pointerId); } catch(err){}
-                    if(navigator.vibrate) try { navigator.vibrate(25); } catch(err){}
+                    startDragMode(e.clientX, e.clientY);
                 } else {
                     return;
                 }
             } else {
                 if(Math.abs(dy) > 5 || Math.abs(dx) > 5){
-                    isDragMode = true;
-                    hasDragged = true;
                     try { dragItem.setPointerCapture(e.pointerId); } catch(err){}
-                    dragItem.classList.add('tool-dragging');
+                    startDragMode(e.clientX, e.clientY);
                 } else {
                     return;
                 }
@@ -4942,37 +5181,102 @@ function initLinenumToolDragAndDrop(){
 
         e.preventDefault();
 
+        let ghost = getOrCreateDragGhost();
+        let ghostY = Math.max(8, e.clientY - 60);
+        let ghostX = Math.max(8, Math.min(window.innerWidth - 220, e.clientX + 15));
+        ghost.style.left = ghostX + 'px';
+        ghost.style.top = ghostY + 'px';
+
+        clearIndicators();
+        currentDropAction = null;
+
         let items = Array.from(toolbar.querySelectorAll('.linenum-tool-item'));
+        let target = null;
+        let position = null;
+
         for(let other of items){
             if(other === dragItem) continue;
             let r = other.getBoundingClientRect();
             if(e.clientY >= r.top && e.clientY <= r.bottom){
+                target = other;
                 let mid = r.top + r.height / 2;
-                if(e.clientY < mid){
-                    toolbar.insertBefore(dragItem, other);
-                } else {
-                    toolbar.insertBefore(dragItem, other.nextSibling);
-                }
+                position = (e.clientY < mid) ? 'before' : 'after';
                 break;
             }
+        }
+
+        if(!target && items.length > 0){
+            let lastItem = items[items.length - 1];
+            if(lastItem !== dragItem){
+                let lr = lastItem.getBoundingClientRect();
+                if(e.clientY > lr.bottom){
+                    target = lastItem;
+                    position = 'after';
+                }
+            }
+            let firstItem = items[0];
+            if(firstItem !== dragItem){
+                let fr = firstItem.getBoundingClientRect();
+                if(e.clientY < fr.top){
+                    target = firstItem;
+                    position = 'before';
+                }
+            }
+        }
+
+        if(target && position){
+            if((position === 'before' && target.previousElementSibling === dragItem) ||
+               (position === 'after' && target.nextElementSibling === dragItem)){
+                updateToolbarGhostContent(sourceInfo, null, false);
+            } else {
+                let targetInfo = getLinenumItemInfo(target);
+                currentDropAction = { targetItem: target, position: position, targetName: targetInfo.name };
+                if(position === 'before'){
+                    target.classList.add('linenum-drop-top');
+                } else {
+                    target.classList.add('linenum-drop-bottom');
+                }
+                updateToolbarGhostContent(sourceInfo, currentDropAction, false);
+            }
+        } else {
+            updateToolbarGhostContent(sourceInfo, null, false);
         }
     }, { passive: false });
 
     function finishDrag(e){
         clearPressTimer();
+        clearIndicators();
+
+        let ghost = document.getElementById('treeDragGhost');
+        if(ghost) ghost.style.display = 'none';
+
         if(!dragItem || (activePointerId !== null && e.pointerId !== activePointerId)) return;
 
         if(hasDragged || isDragMode){
             suppressClickUntil = Date.now() + 350;
-            dragItem.classList.remove('tool-dragging');
+            dragItem.classList.remove('linenum-tool-item-dragging');
             try { dragItem.releasePointerCapture(e.pointerId); } catch(err){}
-            saveLinenumToolOrderFromDOM();
+
+            if(currentDropAction && currentDropAction.targetItem){
+                let { targetItem, position } = currentDropAction;
+                if(position === 'before'){
+                    toolbar.insertBefore(dragItem, targetItem);
+                } else if(position === 'after'){
+                    toolbar.insertBefore(dragItem, targetItem.nextElementSibling);
+                }
+                saveLinenumToolOrderFromDOM();
+                if(typeof navigator !== 'undefined' && navigator.vibrate){
+                    try { navigator.vibrate(15); } catch(err){}
+                }
+            }
         }
 
         activePointerId = null;
         dragItem = null;
+        sourceInfo = null;
         isDragMode = false;
         hasDragged = false;
+        currentDropAction = null;
     }
 
     toolbar.addEventListener('pointerup', finishDrag);
