@@ -1788,12 +1788,12 @@ function z(){
     const m=document.querySelector('.m');
     const mWidth=m?m.clientWidth:(window.innerWidth-200);
     const pad=0,lw=70;
-    let avail=mWidth-pad-lw;
+    let avail=mWidth-pad-lw-16;
     if(avail<100)avail=100;
     let oldCs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 0;
     let cs=Math.floor(avail/num);
     if(cs<12)cs=12;if(cs>64)cs=64;
-    const pw=cs*num;
+    const pw=cs*num + Math.ceil(cs*0.25);
     const totalW=pw+lw;
     
     let curScroll = m ? m.scrollTop : 0;
