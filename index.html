@@ -245,7 +245,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_search_folder" class="tool-item" onclick="toggleFolderSearchBar()" style="background:transparent;border:none;color:#0369a1;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="現在開いているフォルダ内やノート内の語句を検索">開フォルダ内<br>検索</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:transparent;border:none;color:#1e40af;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
 <button id="tool_area" class="tool-item" onclick="openToolbarColorModal(event)" style="background:transparent;border:none;color:#334155;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="領域の設定（各ツールの文字色設定）">領域</button>
-<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（左端の未入力確定時に1回で強制改行）を確認">最新修正<br>10</button>
+<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（左端の未入力Return/確定キーの検知と強制改行）を確認">最新修正<br>11</button>
 <select id="l" onchange="updateColsDisplay();z()" style="display:none"></select>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
@@ -1851,7 +1851,6 @@ function handleSelectionEvent(){
     isComposing = false;
     composingText = '';
     if(typeof pending229Timer !== 'undefined' && pending229Timer){ clearTimeout(pending229Timer); pending229Timer = null; }
-    if(typeof last229CandidateTimer !== 'undefined' && last229CandidateTimer){ clearTimeout(last229CandidateTimer); last229CandidateTimer = null; }
     normalizeEditorSelectionToTextNode();
     recordActiveSelection();
     setTimeout(normalizeEditorSelectionToTextNode, 20);
@@ -5182,7 +5181,7 @@ function scrollToLatestFix(){
     }
     let toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:10px 16px;border-radius:8px;font-size:12.5px;font-weight:bold;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s ease;pointer-events:none';
-    toast.textContent = '最新修正10: 左端で予測変換が出ている時も、未入力の確定/Return押下で1回で即座に改行されるよう修正完了';
+    toast.textContent = '最新修正11: 左端の予測変換表示時も、未入力の確定/Returnキー押下で1回で即座に改行されるよう修正完了';
     document.body.appendChild(toast);
     setTimeout(()=>{
         toast.style.opacity = '0';
@@ -5529,6 +5528,7 @@ document.addEventListener('keydown', (ev)=>{
         onKeydownNewline(ev);
     }
 }, true);
+window.addEventListener('keydown', onKeydownNewline, true);
 
 // keyupイベント：保険として、iOS Safariでキー押下がkeyupとして届いた場合も確実に改行
 window.addEventListener('keyup', (ev)=>{
@@ -5537,6 +5537,7 @@ window.addEventListener('keyup', (ev)=>{
     if(!isEditorActive) return;
     
     let isEnterKey = (ev.key === 'Enter' || ev.keyCode === 13 || ev.code === 'Enter');
+    let is229 = (ev.keyCode === 229);
     let isTypingComposition = (hasActiveCompositionInput && composingText && composingText.length > 0);
     if(isTypingComposition) return;
     
@@ -5548,6 +5549,19 @@ window.addEventListener('keyup', (ev)=>{
         let now = Date.now();
         if(now - lastEnterTimestamp < 180) return;
         handleNewlineAction(ev);
+        return;
+    }
+    
+    // iPad iOS: 予測変換表示中に文字未入力のまま「↩」キーを押して指を離した瞬間に確実に1回改行
+    if(is229){
+        if(last229CandidateTimer){
+            clearTimeout(last229CandidateTimer);
+            last229CandidateTimer = null;
+        }
+        let now = Date.now();
+        if(now - lastEnterTimestamp >= 150){
+            handleNewlineAction(ev);
+        }
     }
 }, true);
 
