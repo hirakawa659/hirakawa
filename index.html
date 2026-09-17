@@ -32,7 +32,7 @@ button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;backgroun
 .editor-header-info{display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;padding:4px 12px 5px 8px;background:var(--paper-bg);color:var(--text-color);border-bottom:1px solid var(--sidebar-border);min-height:44px;flex-shrink:0;user-select:none;width:100%;z-index:90;gap:2px}
 .story-count-display{display:inline-flex;align-items:center;white-space:nowrap;font-size:11px;cursor:default;gap:4px}
 .l{width:70px;border-right:1px solid var(--grid-color);padding:0;text-align:right;font-size:12px;color:var(--linenum-text);padding-right:4px;-webkit-user-select:none;-moz-user-select:none;user-select:none;pointer-events:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:var(--paper-bg);position:relative}
-#e{flex-grow:1;height:auto;min-height:100%;padding:0;outline:0;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;display:block!important;box-sizing:border-box;font-size:calc(var(--cs)*0.78)!important;line-height:var(--cs)!important;letter-spacing:calc(var(--cs)*0.22)!important;text-align:left!important;caret-color:#2563eb;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","MS Gothic",monospace;font-feature-settings:"halt" 0,"palt" 0,"pkna" 0,"fwid" 1!important;font-variant-east-asian:full-width!important;font-kerning:none!important;background-color:var(--paper-bg)!important;color:var(--text-color)!important;background-image:linear-gradient(90deg,var(--grid-color) 1px,transparent 1px),linear-gradient(var(--grid-color) 1px,transparent 1px)!important;background-size:var(--cs) var(--cs)!important;background-repeat:repeat!important;background-position:0 0!important;cursor:text;contain:style}
+#e{flex-grow:1;height:auto;min-height:100%;padding:0;outline:0;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;display:block!important;box-sizing:border-box;font-size:calc(var(--cs)*0.78)!important;line-height:var(--cs)!important;letter-spacing:calc(var(--cs)*0.22)!important;text-align:left!important;caret-color:#2563eb;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","MS Gothic",monospace;font-feature-settings:"halt" 0,"palt" 0,"pkna" 0,"fwid" 1!important;font-variant-east-asian:full-width!important;font-kerning:none!important;background-color:var(--paper-bg)!important;color:var(--text-color)!important;background-image:linear-gradient(90deg,var(--grid-color) 1px,transparent 1px),linear-gradient(var(--grid-color) 1px,transparent 1px)!important;background-size:var(--cs) var(--cs)!important;background-repeat:repeat!important;background-position:0 0!important;cursor:text;contain:style;-webkit-touch-callout:none!important}
 #e *{background-color:transparent}
 #e div,#e p{min-height:var(--cs)!important;display:block!important;box-sizing:border-box;text-align:left!important;line-height:var(--cs)!important;padding:0!important;padding-left:calc(var(--cs)*0.11)!important;margin:0!important;background:transparent!important;width:100%!important;overflow:visible!important}
 #e span{display:inline;margin:0;padding:0;box-sizing:border-box}
@@ -245,7 +245,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_search_folder" class="tool-item" onclick="toggleFolderSearchBar()" style="background:transparent;border:none;color:#0369a1;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="現在開いているフォルダ内やノート内の語句を検索">開フォルダ内<br>検索</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:transparent;border:none;color:#1e40af;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
 <button id="tool_area" class="tool-item" onclick="openToolbarColorModal(event)" style="background:transparent;border:none;color:#334155;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="領域の設定（各ツールの文字色設定）">領域</button>
-<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（左端の未入力Return/確定キーの検知と強制改行）を確認">最新修正<br>11</button>
+<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（タップ時の誤選択吹き出し防止＆確定キーでの確実な改行）を確認">最新修正<br>12</button>
 <select id="l" onchange="updateColsDisplay();z()" style="display:none"></select>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
@@ -1858,9 +1858,26 @@ function handleSelectionEvent(){
     selChangeDebounce = setTimeout(checkAndDisplaySelectionCount, 120);
 }
 
+// タップ時にiOS Safariが直近の文字を誤って選択（コールアウトメニュー「選択/自動入力」表示）するのを防止
+function collapseAccidentalSelectionOnTap(){
+    let sel = window.getSelection();
+    if(sel && !sel.isCollapsed && sel.rangeCount > 0){
+        let selectedStr = sel.toString();
+        // 1〜3文字の短い自動選択（誤爆）であれば即座にキャレットに解除
+        if(selectedStr && selectedStr.length <= 3){
+            sel.collapseToStart();
+            normalizeEditorSelectionToTextNode();
+        }
+    }
+}
+
 document.addEventListener('selectionchange', handleSelectionEvent);
 window.addEventListener('mouseup', handleSelectionEvent);
-window.addEventListener('touchend', handleSelectionEvent);
+window.addEventListener('touchend', (ev)=>{
+    handleSelectionEvent();
+    setTimeout(collapseAccidentalSelectionOnTap, 10);
+    setTimeout(collapseAccidentalSelectionOnTap, 40);
+});
 window.addEventListener('pointerup', handleSelectionEvent);
 e.addEventListener('keyup', (ev)=>{
     if(ev.key && ev.key.startsWith('Arrow')){
@@ -1869,14 +1886,22 @@ e.addEventListener('keyup', (ev)=>{
 });
 e.addEventListener('pointerdown', handleSelectionEvent);
 e.addEventListener('touchstart', handleSelectionEvent);
-e.addEventListener('pointerup', handleSelectionEvent);
+e.addEventListener('pointerup', (ev)=>{
+    handleSelectionEvent();
+    setTimeout(collapseAccidentalSelectionOnTap, 10);
+    setTimeout(collapseAccidentalSelectionOnTap, 40);
+});
 e.addEventListener('click', ()=>{
     handleSelectionEvent();
+    collapseAccidentalSelectionOnTap();
+    setTimeout(collapseAccidentalSelectionOnTap, 10);
+    setTimeout(collapseAccidentalSelectionOnTap, 40);
     setTimeout(normalizeEditorSelectionToTextNode, 10);
     setTimeout(normalizeEditorSelectionToTextNode, 50);
 });
 e.addEventListener('focus', ()=>{
     handleSelectionEvent();
+    collapseAccidentalSelectionOnTap();
     setTimeout(normalizeEditorSelectionToTextNode, 10);
     setTimeout(normalizeEditorSelectionToTextNode, 50);
     setTimeout(normalizeEditorSelectionToTextNode, 120);
@@ -5181,7 +5206,7 @@ function scrollToLatestFix(){
     }
     let toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:10px 16px;border-radius:8px;font-size:12.5px;font-weight:bold;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s ease;pointer-events:none';
-    toast.textContent = '最新修正11: 左端の予測変換表示時も、未入力の確定/Returnキー押下で1回で即座に改行されるよう修正完了';
+    toast.textContent = '最新修正12: タップ時の文字誤選択と吹き出しメニューを抑止し、1回で確実に改行できるよう修正完了';
     document.body.appendChild(toast);
     setTimeout(()=>{
         toast.style.opacity = '0';
@@ -5293,11 +5318,15 @@ function executeEditorNewline(){
     let sel = window.getSelection();
     if(!sel) return;
     
-    // 範囲選択があれば先に削除
+    // 範囲選択があれば処理：誤選択（短い選択）なら削除せず先頭に折りたたんで改行
     if(sel.rangeCount > 0){
         let r = sel.getRangeAt(0);
         if(!r.collapsed){
-            r.deleteContents();
+            if(r.toString().length <= 3){
+                sel.collapseToStart();
+            } else {
+                r.deleteContents();
+            }
         }
     }
     
