@@ -31,7 +31,7 @@ button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;backgroun
 #w{display:flex;flex-direction:row;align-items:stretch;background:var(--paper-bg);color:var(--text-color);box-sizing:border-box;flex-shrink:0;margin:0 0 0 auto;min-height:calc(100vh - 100px);min-height:calc(100dvh - 100px);height:auto;box-shadow:none;position:relative;contain:layout style}
 .editor-header-info{display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;padding:4px 12px 5px 8px;background:var(--paper-bg);color:var(--text-color);border-bottom:1px solid var(--sidebar-border);min-height:44px;flex-shrink:0;user-select:none;width:100%;z-index:90;gap:2px}
 .story-count-display{display:inline-flex;align-items:center;white-space:nowrap;font-size:11px;cursor:default;gap:4px}
-.l{width:70px;border-right:1px solid var(--grid-color);padding:0;text-align:right;font-size:12px;color:var(--linenum-text);padding-right:4px;user-select:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:var(--paper-bg);position:relative}
+.l{width:70px;border-right:1px solid var(--grid-color);padding:0;text-align:right;font-size:12px;color:var(--linenum-text);padding-right:4px;-webkit-user-select:none;-moz-user-select:none;user-select:none;pointer-events:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:var(--paper-bg);position:relative}
 #e{flex-grow:1;height:auto;min-height:100%;padding:0;outline:0;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;display:block!important;box-sizing:border-box;font-size:calc(var(--cs)*0.78)!important;line-height:var(--cs)!important;letter-spacing:calc(var(--cs)*0.22)!important;text-align:left!important;caret-color:#2563eb;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","MS Gothic",monospace;font-feature-settings:"halt" 0,"palt" 0,"pkna" 0,"fwid" 1!important;font-variant-east-asian:full-width!important;font-kerning:none!important;background-color:var(--paper-bg)!important;color:var(--text-color)!important;background-image:linear-gradient(90deg,var(--grid-color) 1px,transparent 1px),linear-gradient(var(--grid-color) 1px,transparent 1px)!important;background-size:var(--cs) var(--cs)!important;background-repeat:repeat!important;background-position:0 0!important;cursor:text;contain:style}
 #e *{background-color:transparent}
 #e div,#e p{min-height:var(--cs)!important;display:block!important;box-sizing:border-box;text-align:left!important;line-height:var(--cs)!important;padding:0!important;padding-left:calc(var(--cs)*0.11)!important;margin:0!important;background:transparent!important;width:100%!important;overflow:visible!important}
@@ -325,7 +325,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 
   <div class="m" style="flex:1">
     <div id="w">
-      <div class="l" id="n">1</div>
+      <div class="l" id="n" style="pointer-events:none;-webkit-user-select:none;user-select:none">1</div>
       <div id="e" contenteditable="true"><div><br></div></div>
     </div>
   </div>
@@ -5224,8 +5224,8 @@ window.addEventListener('touchend', (ev)=>{
         let changed = ev.changedTouches && ev.changedTouches[0];
         if(changed){
             let targetEl = document.elementFromPoint(changed.clientX, changed.clientY);
-            // 原稿用紙（#w または #e）の内側をタップした場合のみ反応（グレー背景 .m は完全無反応）
-            if(targetEl && (targetEl.closest('#e') || targetEl.closest('#w'))){
+            // エディタ本文（#e）の内側をタップした場合のみ反応（行番号 #n やその左側のツールバー・余白は完全無反応）
+            if(targetEl && targetEl.closest('#e') && !targetEl.closest('#n') && !targetEl.closest('.l') && !targetEl.closest('#linenumLeftToolBar')){
                 if(!targetEl.closest('#s') && !targetEl.closest('.h') && !targetEl.closest('.modal-overlay') && !targetEl.closest('#repBar') && !targetEl.closest('button') && !targetEl.closest('input') && !targetEl.closest('select')){
                     touchHandled = true;
                     handleCellClick({
@@ -5241,8 +5241,9 @@ window.addEventListener('touchend', (ev)=>{
 
 function handleCellClick(ev){
     if(!ev || !ev.target) return;
-    // グレーの背景（.m）や原稿用紙外は完全無反応にする
-    if(!ev.target.closest('#e') && !ev.target.closest('#w')) return;
+    // エディタ本文（#e）の内側のみ反応。行番号（#n, .l）やその左側（ツールバーや余白など）は完全無反応
+    if(!ev.target.closest('#e')) return;
+    if(ev.target.closest('#n') || ev.target.closest('.l') || ev.target.closest('#linenumLeftToolBar')) return;
     if(ev.target.closest('#s')||ev.target.closest('.h')||ev.target.closest('#itemModal')||ev.target.closest('#repBar')||ev.target.closest('.modal-overlay')||ev.target.closest('button')||ev.target.closest('input')||ev.target.closest('select')) return;
     
     // スクロール中の誤作動防止
@@ -5333,10 +5334,8 @@ e.addEventListener('click',(ev)=>{
     handleCellClick(ev);
 });
 w.addEventListener('click',(ev)=>{
-    if(touchHandled && (Date.now() - (lastTouchPos?.time || 0) < 500)) return;
-    if(ev.target===w||ev.target.classList.contains('l')||ev.target===n){
-        handleCellClick(ev);
-    }
+    // 行番号（#n, .l）およびその左側・外側のクリックでエディタが反応・リセットしないようガード
+    return;
 });
 window.addEventListener('resize',()=>{z();window.scrollTo(0,0)});
 if(window.ResizeObserver){
