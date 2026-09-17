@@ -245,7 +245,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_search_folder" class="tool-item" onclick="toggleFolderSearchBar()" style="background:transparent;border:none;color:#0369a1;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="現在開いているフォルダ内やノート内の語句を検索">開フォルダ内<br>検索</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:transparent;border:none;color:#1e40af;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
 <button id="tool_area" class="tool-item" onclick="openToolbarColorModal(event)" style="background:transparent;border:none;color:#334155;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="領域の設定（各ツールの文字色設定）">領域</button>
-<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（1回での改行処理・カーソル位置）を確認">最新修正<br>2</button>
+<button id="tool_latest_fix" class="tool-item" onclick="scrollToLatestFix()" style="background:transparent;border:none;color:#dc2626;font-weight:bold;line-height:1.15;padding:2px 6px;font-size:11px;text-align:center;margin-left:auto;flex-shrink:0" title="最新修正箇所（1回での改行処理・カーソル位置）を確認">最新修正<br>3</button>
 <select id="l" onchange="updateColsDisplay();z()" style="display:none"></select>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
@@ -1755,7 +1755,73 @@ function recordActiveSelection(){
     }
 }
 
+let isNormalizingSelection = false;
+function normalizeEditorSelectionToTextNode(){
+    if(isNormalizingSelection || isComposing) return;
+    let sel = window.getSelection();
+    if(!sel || sel.rangeCount === 0 || !sel.isCollapsed) return;
+    if(document.activeElement !== e && !e.contains(document.activeElement)) return;
+    let node = sel.anchorNode;
+    if(!node) return;
+    
+    // 1. anchorNodeが #e そのものにある場合：適切な子行DIVを探してキャレットを内部に引き込む
+    if(node === e){
+        isNormalizingSelection = true;
+        try {
+            let childDivs = Array.from(e.children).filter(ch => ch.tagName === 'DIV');
+            if(childDivs.length > 0){
+                let idx = Math.min(Math.max(0, sel.anchorOffset), childDivs.length - 1);
+                let targetDiv = childDivs[idx] || childDivs[0];
+                setCaretCharOffset(targetDiv, 0);
+            }
+        } finally {
+            isNormalizingSelection = false;
+        }
+        return;
+    }
+    
+    // 2. anchorNodeが #e > div（行コンテナ要素自身）にある場合：
+    // iOS/WebKitではDIV要素に直接キャレットが置かれるとカーソルが特大（マス目2行分やline-height全体）になり、
+    // キーボードの1回目の改行タップが「テキストノードへの潜り込み」として吸い取られて改行されなくなる。
+    // そのため、行にテキストがある場合は必ず即座にテキストノード（Text node）直下にアンカーし直す。
+    if(node.nodeType === 1 && node.parentElement === e && node.tagName === 'DIV'){
+        isNormalizingSelection = true;
+        try {
+            let offset = sel.anchorOffset;
+            let walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null, false);
+            let firstText = walker.nextNode();
+            if(firstText){
+                let range = document.createRange();
+                if(offset === 0){
+                    range.setStart(firstText, 0);
+                    range.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                } else {
+                    setCaretCharOffset(node, node.textContent.replace(/[\r\n]/g, '').length);
+                }
+            } else {
+                let br = node.querySelector('br');
+                if(!br){
+                    node.innerHTML = '<br>';
+                    br = node.querySelector('br');
+                }
+                if(br){
+                    let range = document.createRange();
+                    range.setStartBefore(br);
+                    range.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+            }
+        } finally {
+            isNormalizingSelection = false;
+        }
+    }
+}
+
 function handleSelectionEvent(){
+    normalizeEditorSelectionToTextNode();
     recordActiveSelection();
     if(selChangeDebounce) clearTimeout(selChangeDebounce);
     selChangeDebounce = setTimeout(checkAndDisplaySelectionCount, 120);
@@ -1764,8 +1830,17 @@ function handleSelectionEvent(){
 document.addEventListener('selectionchange', handleSelectionEvent);
 window.addEventListener('mouseup', handleSelectionEvent);
 window.addEventListener('touchend', handleSelectionEvent);
-e.addEventListener('keyup', recordActiveSelection);
-e.addEventListener('pointerup', recordActiveSelection);
+e.addEventListener('keyup', (ev)=>{
+    normalizeEditorSelectionToTextNode();
+    recordActiveSelection();
+});
+e.addEventListener('pointerup', (ev)=>{
+    normalizeEditorSelectionToTextNode();
+    recordActiveSelection();
+});
+e.addEventListener('focus', ()=>{
+    setTimeout(normalizeEditorSelectionToTextNode, 10);
+});
 
 function norm(){
     if(!e.innerHTML.trim()){e.innerHTML='<div><br></div>';return}
@@ -5067,7 +5142,7 @@ function scrollToLatestFix(){
     }
     let toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:10px 16px;border-radius:8px;font-size:12.5px;font-weight:bold;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s ease;pointer-events:none';
-    toast.textContent = '最新修正2: 1回の改行（Enter/Return）押下で確実に改行できるように修正完了';
+    toast.textContent = '最新修正3: 1回目のカーソルが大きくなる現象を解消し、1回の改行で確実に改行できるように修正完了';
     document.body.appendChild(toast);
     setTimeout(()=>{
         toast.style.opacity = '0';
@@ -5212,6 +5287,7 @@ function executeEditorNewline(){
     function positionCaretInNewDiv(){
         try {
             setCaretCharOffset(newDiv, 0);
+            normalizeEditorSelectionToTextNode();
         } catch(err){
             let newRange = document.createRange();
             let br = newDiv.querySelector('br');
@@ -5232,6 +5308,9 @@ function executeEditorNewline(){
     requestAnimationFrame(()=>{
         positionCaretInNewDiv();
     });
+    setTimeout(()=>{
+        positionCaretInNewDiv();
+    }, 40);
     
     v();
     sc();
@@ -5240,9 +5319,9 @@ function executeEditorNewline(){
 
 let lastEnterTimestamp = 0;
 
-// beforeinputイベント：iOS Safari・iPad・Androidのソフトウェアキーボードにおける改行（insertParagraph/insertLineBreak）を1回で確実に捕捉
+// beforeinputイベント：iOS Safari・iPad・Androidのソフトウェアキーボードにおける改行（insertParagraph/insertLineBreak/insertText改行）を1回で確実に捕捉
 e.addEventListener('beforeinput', (ev)=>{
-    if(ev.inputType === 'insertParagraph' || ev.inputType === 'insertLineBreak'){
+    if(ev.inputType === 'insertParagraph' || ev.inputType === 'insertLineBreak' || (ev.inputType === 'insertText' && (ev.data === '\n' || ev.data === '\r'))){
         ev.preventDefault();
         let now = Date.now();
         if(now - lastEnterTimestamp < 120) return;
@@ -6873,6 +6952,8 @@ e.addEventListener('click',(ev)=>{
         let padLeft = cs * 0.11;
         let clickCol = Math.floor((ev.clientX - rect.left - padLeft) / cs);
         if(clickCol < lineText.length && ev.target !== e){
+            setCaretCharOffset(closestDiv, Math.max(0, clickCol));
+            normalizeEditorSelectionToTextNode();
             v();
             if(mCont && mCont.scrollTop !== savedScrollTop){
                 mCont.scrollTop = savedScrollTop;
@@ -6887,13 +6968,16 @@ e.addEventListener('click',(ev)=>{
             }
             return;
         }
-        // 空行（lineText.length === 0）の先頭マス（clickCol <= 0）をクリックした時もブラウザネイティブのキャレット配置をそのまま尊重
+        // 空行（lineText.length === 0）の先頭マス（clickCol <= 0）をクリックした時も確実にキャレットを正規化
         if(lineText.length === 0 && clickCol <= 0){
+            setCaretCharOffset(closestDiv, 0);
+            normalizeEditorSelectionToTextNode();
             v();
             return;
         }
     }
     handleCellClick(ev);
+    normalizeEditorSelectionToTextNode();
 });
 w.addEventListener('click',(ev)=>{
     // 行番号（#n, .l）およびその左側・外側のクリックでエディタが反応・リセットしないようガード
