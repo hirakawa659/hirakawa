@@ -5067,7 +5067,7 @@ function scrollToLatestFix(){
     }
     let toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:10px 16px;border-radius:8px;font-size:12.5px;font-weight:bold;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s ease;pointer-events:none';
-    toast.textContent = '最新修正: 1回のEnter押下で確実に改行できる処理に調整完了 (22:05)';
+    toast.textContent = '最新修正1: 1回のEnter押下で確実に改行できる処理に調整完了';
     document.body.appendChild(toast);
     setTimeout(()=>{
         toast.style.opacity = '0';
@@ -5082,34 +5082,70 @@ e.addEventListener('compositionend',()=>{
     scheduleHeavyTask(300);
 });
 
-// 半角スペース等の直後・内部でEnter改行した際、
-// 1回のEnter押下で確実に1行改行（新しい<div>行の生成とカーソル移動）を実行
+// カーソル位置によらず1回のEnter押下で確実に1行改行（新しい<div>行の生成とカーソル移動）を実行
 e.addEventListener('keydown', (ev)=>{
     if(ev.key === 'Enter'){
         if(isComposing || ev.isComposing || ev.keyCode === 229) return;
         
         ev.preventDefault();
         
-        // Native insertParagraph creates a new <div> line natively in 1 press
-        try { document.execCommand('defaultParagraphSeparator', false, 'div'); } catch(err){}
-        document.execCommand('insertParagraph', false, null);
-        
-        // Remove cloned .sp-nonzen wrapper if it exists in new line
         let sel = window.getSelection();
-        if(sel && sel.rangeCount > 0){
-            let node = sel.anchorNode;
-            let sp = (node.nodeType === 1) ? node.closest('.sp-nonzen') : node.parentElement?.closest('.sp-nonzen');
-            if(sp){
-                let txt = sp.textContent || '';
-                if(txt !== ' '){
-                    let p = sp.parentNode;
-                    if(p){
-                        while(sp.firstChild) p.insertBefore(sp.firstChild, sp);
-                        p.remove();
-                    }
-                }
-            }
+        if(!sel || sel.rangeCount === 0) return;
+        
+        let range = sel.getRangeAt(0);
+        if(!range.collapsed){
+            range.deleteContents();
         }
+        
+        let node = range.startContainer;
+        while(node && node.parentElement !== e && node !== e){
+            node = node.parentElement;
+        }
+        let curDiv = (node && node.parentElement === e) ? node : null;
+        
+        if(!curDiv){
+            curDiv = document.createElement('div');
+            curDiv.innerHTML = '<br>';
+            e.appendChild(curDiv);
+        }
+        
+        let tailRange = document.createRange();
+        tailRange.selectNodeContents(curDiv);
+        tailRange.setStart(range.startContainer, range.startOffset);
+        
+        let tailFrag = tailRange.extractContents();
+        
+        let newDiv = document.createElement('div');
+        let hasContent = (tailFrag.textContent && tailFrag.textContent.length > 0) || tailFrag.querySelector('img, svg, iframe');
+        if(!hasContent){
+            newDiv.innerHTML = '<br>';
+        } else {
+            newDiv.appendChild(tailFrag);
+            if(newDiv.innerHTML.trim() === '') newDiv.innerHTML = '<br>';
+        }
+        
+        let curHasContent = (curDiv.textContent && curDiv.textContent.length > 0) || curDiv.querySelector('img, svg, iframe');
+        if(!curHasContent){
+            curDiv.innerHTML = '<br>';
+        }
+        
+        let sp = newDiv.querySelector('.sp-nonzen');
+        if(sp && sp.textContent === ''){
+            sp.remove();
+        }
+        
+        if(curDiv.nextSibling){
+            e.insertBefore(newDiv, curDiv.nextSibling);
+        } else {
+            e.appendChild(newDiv);
+        }
+        
+        let newRange = document.createRange();
+        newRange.selectNodeContents(newDiv);
+        newRange.collapse(true);
+        
+        sel.removeAllRanges();
+        sel.addRange(newRange);
         
         v();
         sc();
