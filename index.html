@@ -858,6 +858,13 @@ function saveGlobalCols(cols){
 }
 
 function getActiveCols(paperId = null){
+    let modal = document.getElementById('colsModal');
+    let modalSelect = document.getElementById('colsModalSelect');
+    if(modal && modal.style.display !== 'none' && modalSelect){
+        let val = parseInt(modalSelect.value);
+        if(!isNaN(val) && val >= 18 && val <= 100) return val;
+    }
+
     let targetId = paperId || f;
     if(targetId){
         let it = g(targetId);
@@ -870,13 +877,19 @@ function getActiveCols(paperId = null){
 }
 
 function updateColsDisplay(){
-    let curCols = getActiveCols(f);
-    let valEl=document.getElementById('tool_select_val');
+    let cols = (typeof getActiveCols === 'function' && typeof f !== 'undefined') ? getActiveCols(f) : 30;
+    const colsBtn = document.getElementById('colsBtn');
+    if(colsBtn){
+        colsBtn.innerHTML = `横の数<br><span style="font-size:10.5px;font-weight:bold;color:#000000">${cols}字</span><span style="font-size:8px;line-height:1;margin-left:1px">▾</span>`;
+        colsBtn.style.lineHeight = '1.15';
+        colsBtn.style.whiteSpace = 'normal';
+    }
+    let valEl = document.getElementById('tool_select_val');
     if(valEl){
-        valEl.textContent = curCols + '文字 ▾';
+        valEl.textContent = cols + '文字 ▾';
     }
     if(l){
-        l.value = String(curCols);
+        l.value = String(cols);
     }
 }
 
@@ -6197,16 +6210,6 @@ function initLinenumToolDragAndDrop(){
     toolbar.addEventListener('pointercancel', finishDrag);
 }
 
-function updateColsDisplay(){
-    let cols = (typeof getActiveCols === 'function' && typeof f !== 'undefined') ? getActiveCols(f) : 30;
-    const colsBtn = document.getElementById('colsBtn');
-    if(colsBtn){
-        colsBtn.innerHTML = `横の数<br><span style="font-size:10.5px;font-weight:bold;color:#000000">${cols}字</span><span style="font-size:8px;line-height:1;margin-left:1px">▾</span>`;
-        colsBtn.style.lineHeight = '1.15';
-        colsBtn.style.whiteSpace = 'normal';
-    }
-}
-
 function saveCurrentToolOrderFromDOM(){
     const header=document.querySelector('.h');
     if(!header)return;
@@ -8769,7 +8772,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
       <div class="modal-section" style="background:#ffffff;border-color:#cbd5e1">
         <div class="modal-sec-title" style="color:#1e293b">横の文字数（1行あたりのマス数）</div>
         <div style="display:flex;align-items:center;gap:8px">
-          <select id="colsModalSelect" style="flex:1;padding:8px 10px;border:1px solid #94a3b8;border-radius:6px;font-size:14px;font-weight:bold;color:#1e293b;background:#ffffff;outline:none">
+          <select id="colsModalSelect" onchange="z(); updateColsDisplay();" style="flex:1;padding:8px 10px;border:1px solid #94a3b8;border-radius:6px;font-size:14px;font-weight:bold;color:#1e293b;background:#ffffff;outline:none">
           </select>
         </div>
       </div>
