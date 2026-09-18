@@ -1877,12 +1877,14 @@ function z(){
     // 行数表示がOFFの時は左余白(lw)を詰める（安全マージンとして8pxだけ残す）
     const lw = isLineNumOff ? 8 : (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--linenum-width')) || 36);
     const pad=0;
-    let avail=mWidth-pad-lw-4;
+    let avail=mWidth-pad-lw-5;
     if(avail<100)avail=100;
     let oldCs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 0;
     let cs=Math.floor(avail/num);
     if(cs<12)cs=12;if(cs>64)cs=64;
-    const pw=cs*num;
+    // マス目内の左インセットと右端の境界線も、30文字を収める幅に含める
+    const editorInset = Math.ceil(cs*0.11) + 1;
+    const pw=cs*num + editorInset;
     const totalW=pw+lw;
     
     let curScroll = m ? m.scrollTop : 0;
