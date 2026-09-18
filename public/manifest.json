@@ -4,7 +4,7 @@
   "short_name": "NovelEditor",
   "description": "Grid-based Japanese novel writing editor with manuscript grid view, character counting, file management, and text correction tools",
   "start_url": "/",
-  "display": "standalone",
+  "display": "minimal-ui",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "orientation": "any",
