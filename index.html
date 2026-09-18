@@ -28,6 +28,7 @@ button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;backgroun
 #b{display:flex;position:fixed;top:50px;bottom:0;left:0;right:0;width:100%;height:calc(100% - 50px);height:calc(100dvh - 50px);overflow:hidden}
 #s{width:155px;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);color:var(--sidebar-text);padding:8px 0 0 0;display:flex;flex-direction:column;gap:4px;flex-shrink:0;box-sizing:border-box}
 .m{flex:1;padding:0 0 35vh 0;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;box-sizing:border-box;display:flex;flex-direction:column;align-items:flex-end;-webkit-overflow-scrolling:touch;background:var(--paper-bg)}
+#editorCanvasRow .m{align-items:flex-start}
 #w{display:flex;flex-direction:row;align-items:stretch;background:var(--paper-bg);color:var(--text-color);box-sizing:border-box;flex-shrink:0;margin:0 0 0 auto;min-height:400px;min-height:calc(100vh - 100px);min-height:calc(100dvh - 100px);height:auto;box-shadow:none;position:relative;contain:layout style;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .editor-header-info{display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;padding:4px 12px 5px 8px;background:var(--paper-bg);color:var(--text-color);border-bottom:1px solid var(--sidebar-border);min-height:44px;flex-shrink:0;user-select:none;width:100%;z-index:90;gap:2px}
 .story-count-display{display:inline-flex;align-items:center;white-space:nowrap;font-size:11px;cursor:default;gap:4px}
@@ -374,10 +375,17 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   </div>
 </div>
 
-<!-- 行番号の左側（サイドバー境界）に配置した固定ツールバー＋原稿用紙エリア -->
-<div style="flex:1;display:flex;flex-direction:row;min-height:0;overflow:hidden;position:relative">
-  <!-- 行番号の左・サイドバー境界の固定ツールエリア（スクロールなし） -->
-  <div id="linenumLeftToolBar" style="width:64px;background:var(--paper-bg,#ffffff);border-right:1px solid var(--sidebar-border,#cbd5e1);display:flex;flex-direction:column;align-items:center;padding:8px 3px;gap:8px;flex-shrink:0;user-select:none;z-index:90;box-sizing:border-box;touch-action:none">
+<!-- 行番号・原稿用紙の右側に配置した固定ツールバー＋原稿用紙エリア -->
+<div id="editorCanvasRow" style="flex:1;display:flex;flex-direction:row;min-height:0;overflow:hidden;position:relative">
+  <div class="m" style="flex:1">
+    <div id="w">
+      <div class="l" id="n" style="pointer-events:none;-webkit-user-select:none;user-select:none">1</div>
+      <div id="e" contenteditable="true"><div><br></div></div>
+    </div>
+  </div>
+
+  <!-- 原稿用紙の右端に置く固定ツールエリア（スクロールなし） -->
+  <div id="linenumLeftToolBar" style="width:64px;background:var(--paper-bg,#ffffff);border-left:1px solid var(--sidebar-border,#cbd5e1);display:flex;flex-direction:column;align-items:center;padding:8px 3px;gap:8px;flex-shrink:0;user-select:none;z-index:90;box-sizing:border-box;touch-action:none">
     <!-- 紙の色 -->
     <button type="button" id="linenumPaperColorBtn" class="linenum-tool-item" onclick="if(f)openPaperColorModal(f, event)" style="width:58px;padding:5px 0;font-size:11.5px;font-weight:bold;line-height:1.2;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="この紙の色を設定（デフォルト／個別）">
       紙の色
@@ -413,13 +421,6 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
       <button type="button" id="warpPrevBtn" onclick="warpPrev()" style="width:100%;padding:4px 0;font-size:12px;font-weight:bold;background:transparent;color:var(--text-color,#000000);border:none;border-bottom:1px solid var(--sidebar-border,#cbd5e1);cursor:pointer;text-align:center;touch-action:none" title="前のマッチへワープ">△</button>
       <button type="button" id="warpBtn" onclick="openWarpModal(event)" style="width:100%;padding:4px 0;font-size:10px;font-weight:bold;background:transparent;color:var(--text-color,#000000);border:none;border-bottom:1px solid var(--sidebar-border,#cbd5e1);cursor:pointer;text-align:center;touch-action:none" title="文字検索ワープ設定">ワープ</button>
       <button type="button" id="warpNextBtn" onclick="warpNext()" style="width:100%;padding:4px 0;font-size:12px;font-weight:bold;background:transparent;color:var(--text-color,#000000);border:none;cursor:pointer;text-align:center;touch-action:none" title="次のマッチへワープ">▽</button>
-    </div>
-  </div>
-
-  <div class="m" style="flex:1">
-    <div id="w">
-      <div class="l" id="n" style="pointer-events:none;-webkit-user-select:none;user-select:none">1</div>
-      <div id="e" contenteditable="true"><div><br></div></div>
     </div>
   </div>
 </div>
