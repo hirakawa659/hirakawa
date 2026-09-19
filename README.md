@@ -1,33 +1,51 @@
-# hirakawa
+# Novel Editor (hirakawa)
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+原稿用紙マス目表示、文字数・行数カウント、ファイル・フォルダ階層管理、テキスト校正ツール、およびSupabaseクラウド同期機能を備えた日本語小説執筆エディタです。
 
-## Built with v0
+---
 
-This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+## 3つの責務の分離構成 (`hirakawa-separated/`)
 
-[Continue working on v0 →](https://v0.app/chat/projects/prj_q9ruWxt9o9b5tCbaSEQpCLH54ZCI)
+本プロジェクトは以下の3つの責務に明確に分離・整理されています。
 
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+```text
+hirakawa-separated/
+├── 01-production/             # 実際のサイト（本番機能：エディタ、設定、Supabaseクライアント同期）
+├── 02-preview/                # AI Studioプレビュー（レイアウト検証ハーネス、動的文字数テスト）
+├── 03-external/               # 外部サービス（Supabase SQLスキーマ、RLSポリシー、CDN仕様）
+└── README.md                  # 責務分離・依存関係・30文字調査詳細レポート
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 1. 01-production（実際のサイト）
+- **原稿編集 & グリッド表示**: `contenteditable` エディタ、CSSマス目描画、行番号、文字種検出
+- **文字数設定**: 18〜40文字（最大100文字）までの動的設定、原稿別個別文字数（`customCols`）
+- **データ保存 & 同期**: localStorage自動保存、Supabase Auth ログイン/認証、クラウド自動同期
+- **独立性**: Previewに依存せず、独立して動作可能
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2. 02-preview（AI Studioプレビュー）
+- **レイアウト検証**: 18、20、25、28、30、35、40文字における原稿用紙グリッドの動的適応性を検証
+- **サンドボックス隔離**: プレビューでの操作が本番のユーザー設定や原稿データを上書きしない構造
 
-## Learn More
+### 3. 03-external（外部）
+- **Supabase インフラ**: `user_stories` / `user_settings` テーブル定義、RLS（Row Level Security）ポリシー
+- **外部依存**: jsDelivr CDN、Google / OS システムフォント
 
-To learn more, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
+## 30文字についての調査結果まとめ
+
+- **初期デフォルト値としての30**: 初回起動時や設定未保存時のフォールバック値としてのみ使用。
+- **動的レイアウト**: グリッド計算（`--cs`）は文字数設定に完全に追従し、30文字に固定・拘束されていません。
+- **ユーザー設定の尊重**: ユーザーが設定した文字数（29, 28, 25, 20, 18など）は `customCols` や `localStorage` に確実に保持されます。
+
+---
+
+## 起動方法
+
+```bash
+# 依存関係のインストール
+npm install
+
+# サーバー起動 (ポート 3000)
+npm start
+```
