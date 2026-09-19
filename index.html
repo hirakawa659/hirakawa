@@ -837,7 +837,19 @@ function renderShelfView(){
         emptyMsg.style.display = 'none';
     }
 }
-for(let i=18; i<=40; i++)l.innerHTML+=`<option value="${i}">${i}文字</option>`;l.value="30";
+function initColsSelectOptions(selectEl){
+    if(!selectEl) return;
+    if(selectEl.options.length === 0){
+        let html = '';
+        for(let i = 18; i <= 40; i++){
+            html += `<option value="${i}">${i}文字</option>`;
+        }
+        selectEl.innerHTML = html;
+    }
+}
+initColsSelectOptions(l);
+l.value = "30";
+initColsSelectOptions(document.getElementById('colsModalSelect'));
 
 function getGlobalCols(){
     let saved = localStorage.getItem('n_w');
@@ -8101,9 +8113,7 @@ function openColsModal(targetId = null, ev = null){
     if(subtextCustom) subtextCustom.textContent = `この紙（「${name}」）のみに文字数を保存`;
     
     if(sel){
-        if(sel.options.length === 0){
-            for(let i=18; i<=40; i++) sel.innerHTML += `<option value="${i}">${i}文字</option>`;
-        }
+        initColsSelectOptions(sel);
         sel.value = String(currentVal);
     }
     
