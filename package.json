@@ -13,5 +13,8 @@
   },
   "dependencies": {
     "express": "^4.22.2"
+  },
+  "devDependencies": {
+    "jsdom": "^30.1.0"
   }
 }

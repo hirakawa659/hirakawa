@@ -1,5 +1,5 @@
 /**
- * 原稿用紙グリッド計算・動的文字数設定・行番号描画・文字数カウンター
+ * 原稿用紙グリッド計算・動的文字数設定・文字数カウンター
  */
 import { d, f, g, s } from '../data/storage.js';
 import { cleanLegacyPastedHTML, cleanExcessiveSequentialBlankDivs, extractAndCountDialogue } from '../utils/text.js';
@@ -83,7 +83,6 @@ export function ensureGridLines() {
 export function v() {
     const e = document.getElementById('e');
     const cEl = document.getElementById('c');
-    const nEl = document.getElementById('n');
     if (!e) return;
 
     let text = e.innerText || '';
@@ -97,17 +96,6 @@ export function v() {
 
     if (cEl) {
         cEl.textContent = `${pureCount.toLocaleString()}字 / 400字詰 ${pages}枚（全${totalCount.toLocaleString()}文字 | 会話${dCount.toLocaleString()}字）`;
-    }
-
-    // 行番号の更新
-    if (nEl) {
-        let divs = e.querySelectorAll('#e>div');
-        let totalRows = Math.max(1, divs.length);
-        let numsHtml = '';
-        for (let i = 1; i <= totalRows; i++) {
-            numsHtml += `<div class="ln">${i}</div>`;
-        }
-        nEl.innerHTML = numsHtml;
     }
 
     if (typeof window.sc === 'function') window.sc();

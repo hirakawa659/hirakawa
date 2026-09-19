@@ -12,9 +12,6 @@
   --sidebar-active-bg:#dbeafe;
   --header-info-bg:#ffffff;
   --header-info-text:#000000;
-  --linenum-bg:#ffffff;
-  --linenum-text:#aaaaaa;
-  --linenum-width:36px;
   --toolbar-bg:#ffffff;
   --shelf-bg:#fafbfc;
   --shelf-header-bg:var(--shelf-bg, #fafbfc);
@@ -33,7 +30,6 @@ button{padding:6px 10px;font-size:12px;font-weight:bold;cursor:pointer;backgroun
 #w{display:flex;flex-direction:row;align-items:stretch;background:var(--paper-bg);color:var(--text-color);box-sizing:border-box;flex-shrink:0;margin:0;min-height:400px;min-height:calc(100vh - 100px);min-height:calc(100dvh - 100px);height:auto;box-shadow:none;position:relative;contain:layout style;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .editor-header-info{display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;padding:4px 12px 5px 8px;background:var(--paper-bg);color:var(--text-color);border-bottom:1px solid var(--sidebar-border);min-height:44px;flex-shrink:0;user-select:none;width:100%;z-index:90;gap:2px}
 .story-count-display{display:inline-flex;align-items:center;white-space:nowrap;font-size:11px;cursor:default;gap:4px}
-.l{width:var(--linenum-width);border-right:1px solid var(--grid-color);padding:0;text-align:right;font-size:12px;color:var(--linenum-text);padding-right:4px;-webkit-user-select:none;-moz-user-select:none;user-select:none;pointer-events:none;flex-shrink:0;box-sizing:border-box;line-height:var(--cs)!important;background:var(--paper-bg);position:relative}
 #e{flex-grow:1;height:auto;min-height:100%;padding:0;outline:0;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;display:block!important;box-sizing:border-box;font-size:calc(var(--cs)*0.78)!important;line-height:var(--cs)!important;letter-spacing:calc(var(--cs)*0.22)!important;text-align:left!important;caret-color:#2563eb;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","MS Gothic",monospace;font-feature-settings:"halt" 0,"palt" 0,"pkna" 0,"fwid" 1!important;font-variant-east-asian:full-width!important;font-kerning:none!important;background-color:var(--paper-bg)!important;color:var(--text-color)!important;background-image:linear-gradient(90deg,var(--grid-color) 1px,transparent 1px),linear-gradient(var(--grid-color) 1px,transparent 1px)!important;background-size:var(--cs) var(--cs)!important;background-repeat:repeat!important;background-position:0 0!important;cursor:text;contain:style}
 #e *{background-color:transparent}
 #e div,#e p{min-height:var(--cs)!important;display:block!important;box-sizing:border-box;text-align:left!important;line-height:var(--cs)!important;padding:0!important;margin:0!important;background:transparent!important;width:100%!important;overflow:visible!important}
@@ -378,11 +374,10 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
   </div>
 </div>
 
-<!-- 行番号・原稿用紙の右側に配置した固定ツールバー＋原稿用紙エリア -->
+<!-- 原稿用紙の右側に配置した固定ツールバー＋原稿用紙エリア -->
 <div id="editorCanvasRow" style="flex:1;display:flex;flex-direction:row;min-height:0;overflow:hidden;position:relative">
   <div class="m" style="flex:1">
     <div id="w">
-      <div class="l" id="n" style="pointer-events:none;-webkit-user-select:none;user-select:none">1</div>
       <div id="e" contenteditable="true"><div><br></div></div>
     </div>
   </div>
@@ -392,10 +387,6 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
     <!-- 紙の色 -->
     <button type="button" id="linenumPaperColorBtn" class="linenum-tool-item" onclick="if(f)openPaperColorModal(f, event)" style="width:58px;padding:5px 0;font-size:11.5px;font-weight:bold;line-height:1.2;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="この紙の色を設定（デフォルト／個別）">
       紙の色
-    </button>
-    <!-- 行数表示 -->
-    <button type="button" id="linenumToggleBtn" class="linenum-tool-item" onclick="tgLineNumbers()" style="width:58px;padding:5px 0;font-size:10px;font-weight:bold;line-height:1.15;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:nowrap;text-align:center;touch-action:none" title="行数（行番号）の表示切替（ON/OFF）">
-      行数:ON
     </button>
     <!-- 横の数 -->
     <button type="button" id="colsBtn" class="linenum-tool-item" onclick="openColsModal(f, event)" style="width:58px;padding:4px 0;font-size:10.5px;font-weight:bold;line-height:1.15;background:var(--paper-bg,#ffffff);color:var(--text-color,#000000);border:1px solid var(--sidebar-border,#cbd5e1);border-radius:5px;cursor:pointer;white-space:normal;text-align:center;touch-action:none" title="横の文字数を設定">
@@ -1017,8 +1008,6 @@ window.onload=()=>{
         }
     }
 
-    let lineNumSetting = localStorage.getItem('n_show_line_numbers') || 'on';
-    applyLineNumbersVisibility(lineNumSetting);
     applyToolOrder(getToolOrder());
     initToolDragAndDrop();
     applyLinenumToolOrder(getLinenumToolOrder());
@@ -1632,33 +1621,6 @@ function handleAdminAutoConvert() {
     } catch(err) {}
 }
 
-function tgLineNumbers(){
-    const nEl = document.getElementById('n');
-    let isCurrentlyOff = (nEl && nEl.style.display === 'none') || (localStorage.getItem('n_show_line_numbers') === 'off');
-    let nextState = isCurrentlyOff ? 'on' : 'off';
-    applyLineNumbersVisibility(nextState);
-    localStorage.setItem('n_show_line_numbers', nextState);
-    if(nextState === 'on'){
-        try { updateLineNumbers(); } catch(err){}
-    }
-}
-
-function applyLineNumbersVisibility(state){
-    const nEl = document.getElementById('n');
-    const btn = document.getElementById('linenumToggleBtn');
-    const isOff = (state === 'off');
-    if(nEl){
-        nEl.style.display = isOff ? 'none' : '';
-    }
-    if(btn){
-        btn.textContent = isOff ? '行数:OFF' : '行数:ON';
-        btn.style.fontWeight = 'bold';
-    }
-    setTimeout(() => {
-        try { z(); } catch(err){}
-    }, 10);
-}
-
 /* 選択文字数表示機能（マス数・空白込文字数を5秒間ポップアップ表示） */
 let selCountEnabled = (localStorage.getItem('n_sel_count_enabled') !== 'off');
 let selToastTimer = null;
@@ -1876,19 +1838,13 @@ function z(){
     if(l) l.value = String(num);
     const m=document.querySelector('.m');
     const mWidth=m?m.clientWidth:(window.innerWidth-200);
-    const nEl = document.getElementById('n');
-    const isLineNumOff = (nEl && nEl.style.display === 'none') || (localStorage.getItem('n_show_line_numbers') === 'off');
     
-    // 行数表示がOFFの時は左余白(lw)を詰める（安全マージンとして8pxだけ残す）
-    const lw = isLineNumOff ? 8 : (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--linenum-width')) || 36);
-    const pad=0;
-    let avail=mWidth-pad-lw;
+    let avail=mWidth;
     if(avail<100)avail=100;
     let oldCs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs')) || 0;
     let cs=avail/num;
     if(cs<12)cs=12;if(cs>64)cs=64;
     const pw=cs*num;
-    const totalW=pw+lw;
     
     let curScroll = m ? m.scrollTop : 0;
     let targetScroll = 0;
@@ -1905,11 +1861,10 @@ function z(){
     }
     
     document.documentElement.style.setProperty('--cs',cs+'px');
-    w.style.width=totalW+'px';
+    w.style.width=pw+'px';
     e.style.width=pw+'px';
     e.style.borderRight='none';
     ensureGridLines();
-    updateLineNumbers();
     updateColsDisplay();
     
     if(m && targetScroll > 0){
@@ -2121,48 +2076,6 @@ function ensureGridLines(){
     }
 }
 
-let lastRenderedVisibleLines = -1;
-let lastRenderedActiveLine = -1;
-
-function updateLineNumbers(divs){
-    if(!divs){
-        divs=e.querySelectorAll('#e>div');
-        if(divs.length===0) divs=e.querySelectorAll('div');
-    }
-    let totalLines=Math.max(1, divs.length);
-    let cs=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs'))||32;
-    let mCont=document.querySelector('.m');
-    let mHeight=mCont?mCont.clientHeight:(window.innerHeight||800);
-    let minLinesForScreen=Math.ceil(mHeight/cs)+5;
-    // 画面一杯分＋余白15行分を安定描画（スクロール量に依存しないため無限膨張・再描画カクつきが一切起きない）
-    let visibleGridLines=Math.max(totalLines+15, minLinesForScreen);
-    
-    let lastActiveLine = 0;
-    for(let i=divs.length-1; i>=0; i--){
-        let d = divs[i];
-        let txt = d.textContent.replace(/[\r\n]/g,'');
-        if(txt.length > 0 || d.querySelector('.sub-sup, .hidden-char-badge, .hm-mark, img')){
-            lastActiveLine = i + 1;
-            break;
-        }
-    }
-    if(lastActiveLine === 0) lastActiveLine = 1;
-    
-    if(visibleGridLines !== lastRenderedVisibleLines || lastActiveLine !== lastRenderedActiveLine){
-        lastRenderedVisibleLines = visibleGridLines;
-        lastRenderedActiveLine = lastActiveLine;
-        let h='';
-        for(let i=1;i<=visibleGridLines;i++){
-            if(i<=lastActiveLine){
-                h+=i+'<br>';
-            }else{
-                h+=`<span style="color:#cbd5e1;font-size:10px">${i}</span><br>`;
-            }
-        }
-        n.innerHTML=h;
-    }
-}
-
 function updateCharCount(){
     let pureLines=getEditorPureTextFromElement(e);
     let st=countCharsFromLines(pureLines);
@@ -2192,11 +2105,6 @@ function updateCharCount(){
 
 function v(){
     ensureGridLines();
-    let divs=e.querySelectorAll('#e>div');
-    if(divs.length===0){
-        divs=e.querySelectorAll('div');
-    }
-    updateLineNumbers(divs);
     updateCharCount();
 }
 function o(id){
@@ -5641,13 +5549,6 @@ function getLinenumItemInfo(el){
             icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`
         };
     }
-    if(id === 'linenumToggleBtn'){
-        let txt = el.textContent ? el.textContent.trim().split(/\s+/)[0] : '行数';
-        return {
-            name: txt || '行数',
-            icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="18" y2="18"/></svg>`
-        };
-    }
     if(id === 'colsBtn'){
         return {
             name: '横の数',
@@ -5958,8 +5859,8 @@ function initToolDragAndDrop(){
     header.addEventListener('pointercancel', finishDrag);
 }
 
-/* 行番号左ツールバー（ワープ・紙の色・横の数・特殊コピー・検出・空白色）の並び替え・指なぞりドラッグ＆ドロップ機能 */
-const defaultLinenumToolOrder = ['linenumWarpGroup', 'linenumPaperColorBtn', 'linenumToggleBtn', 'colsBtn', 'linenumCopyBtn', 'detectContainer', 'spColBtn'];
+/* 右側固定ツールバー（ワープ・紙の色・横の数・特殊コピー・検出・空白色）の並び替え・指なぞりドラッグ＆ドロップ機能 */
+const defaultLinenumToolOrder = ['linenumWarpGroup', 'linenumPaperColorBtn', 'colsBtn', 'linenumCopyBtn', 'detectContainer', 'spColBtn'];
 
 function getLinenumToolOrder(){
     let saved = localStorage.getItem('n_linenum_tool_order_v2') || localStorage.getItem('n_linenum_tool_order_v1');
@@ -5967,20 +5868,12 @@ function getLinenumToolOrder(){
         try{
             let arr = JSON.parse(saved);
             if(Array.isArray(arr) && arr.length > 0){
-                let set = new Set(arr);
-                let full = [...arr];
+                let filtered = arr.filter(id => id !== 'linenumToggleBtn');
+                let set = new Set(filtered);
+                let full = [...filtered];
                 defaultLinenumToolOrder.forEach(id => {
                     if(!set.has(id)){
-                        if(id === 'linenumToggleBtn'){
-                            let pIdx = full.indexOf('linenumPaperColorBtn');
-                            if(pIdx !== -1){
-                                full.splice(pIdx + 1, 0, id);
-                            } else {
-                                full.push(id);
-                            }
-                        } else {
-                            full.push(id);
-                        }
+                        full.push(id);
                     }
                 });
                 return full;
@@ -6686,8 +6579,8 @@ window.addEventListener('touchend', (ev)=>{
         let changed = ev.changedTouches && ev.changedTouches[0];
         if(changed){
             let targetEl = document.elementFromPoint(changed.clientX, changed.clientY);
-            // エディタ本文（#e）の内側をタップした場合のみ反応（行番号 #n やその左側のツールバー・余白は完全無反応）
-            if(targetEl && targetEl.closest('#e') && !targetEl.closest('#n') && !targetEl.closest('.l') && !targetEl.closest('#linenumLeftToolBar')){
+            // エディタ本文（#e）の内側をタップした場合のみ反応（ツールバーや余白などは無反応）
+            if(targetEl && targetEl.closest('#e') && !targetEl.closest('#linenumLeftToolBar')){
                 if(!targetEl.closest('#s') && !targetEl.closest('.h') && !targetEl.closest('.modal-overlay') && !targetEl.closest('#repBar') && !targetEl.closest('button') && !targetEl.closest('input') && !targetEl.closest('select')){
                     touchHandled = true;
                     handleCellClick({
@@ -6705,9 +6598,9 @@ function handleCellClick(ev){
     if(!ev || !ev.target) return;
     let sel = window.getSelection();
     if(sel && !sel.isCollapsed) return;
-    // エディタ本文（#e）の内側のみ反応。行番号（#n, .l）やその左側（ツールバーや余白など）は完全無反応
+    // エディタ本文（#e）の内側のみ反応（ツールバーやサイドバーなどは無反応）
     if(!ev.target.closest('#e')) return;
-    if(ev.target.closest('#n') || ev.target.closest('.l') || ev.target.closest('#linenumLeftToolBar')) return;
+    if(ev.target.closest('#linenumLeftToolBar')) return;
     if(ev.target.closest('#s')||ev.target.closest('.h')||ev.target.closest('#itemModal')||ev.target.closest('#repBar')||ev.target.closest('.modal-overlay')||ev.target.closest('button')||ev.target.closest('input')||ev.target.closest('select')) return;
     
     // スクロール中の誤作動防止
@@ -6845,10 +6738,6 @@ e.addEventListener('click',(ev)=>{
         }
     }
     handleCellClick(ev);
-});
-w.addEventListener('click',(ev)=>{
-    // 行番号（#n, .l）およびその左側・外側のクリックでエディタが反応・リセットしないようガード
-    return;
 });
 // ==========================================
 // アプリ・タブ切り替え時のスクロール位置ズレ防止機構
@@ -7296,48 +7185,46 @@ function renderTrashList(){
 const DEFAULT_PAPER_THEME = {
     paperBg: '#ffffff',
     gridLine: '#ececec',
-    paperText: '#000000',
-    lineNumText: '#aaaaaa'
+    paperText: '#000000'
 };
 
 const PAPER_PRESETS = [
     {
         id: 'white',
         name: '標準白',
-        theme: { paperBg: '#ffffff', gridLine: '#ececec', paperText: '#000000', lineNumText: '#aaaaaa' }
+        theme: { paperBg: '#ffffff', gridLine: '#ececec', paperText: '#000000' }
     },
     {
         id: 'sepia',
         name: '生成り（和紙）',
-        theme: { paperBg: '#fbf7ee', gridLine: '#e6d7c3', paperText: '#3b2d20', lineNumText: '#998675' }
+        theme: { paperBg: '#fbf7ee', gridLine: '#e6d7c3', paperText: '#3b2d20' }
     },
     {
         id: 'dark',
         name: 'ダークモード',
-        theme: { paperBg: '#1e293b', gridLine: '#334155', paperText: '#f8fafc', lineNumText: '#64748b' }
+        theme: { paperBg: '#1e293b', gridLine: '#334155', paperText: '#f8fafc' }
     },
     {
         id: 'forest',
         name: '深緑（抹茶）',
-        theme: { paperBg: '#f0fdf4', gridLine: '#bbf7d0', paperText: '#14532d', lineNumText: '#15803d' }
+        theme: { paperBg: '#f0fdf4', gridLine: '#bbf7d0', paperText: '#14532d' }
     },
     {
         id: 'sakura',
         name: '桜・撫子',
-        theme: { paperBg: '#fff1f2', gridLine: '#fecdd3', paperText: '#4c0519', lineNumText: '#9f1239' }
+        theme: { paperBg: '#fff1f2', gridLine: '#fecdd3', paperText: '#4c0519' }
     },
     {
         id: 'ocean',
         name: '藍・インク',
-        theme: { paperBg: '#f0f9ff', gridLine: '#bae6fd', paperText: '#082f49', lineNumText: '#0284c7' }
+        theme: { paperBg: '#f0f9ff', gridLine: '#bae6fd', paperText: '#082f49' }
     }
 ];
 
 const PAPER_COLOR_DEFS = [
-    { key: 'paperBg', label: '用紙・タイトル・行番号の背景色' },
+    { key: 'paperBg', label: '用紙・タイトルの背景色' },
     { key: 'gridLine', label: 'マス目の罫線色' },
-    { key: 'paperText', label: '本文・タイトルの文字色' },
-    { key: 'lineNumText', label: '行番号の文字色' }
+    { key: 'paperText', label: '本文・タイトルの文字色' }
 ];
 
 const DEFAULT_FOLDER_THEME = {
@@ -7565,9 +7452,7 @@ function getGlobalPaperTheme(){
             return {
                 paperBg: p.paperBg || DEFAULT_PAPER_THEME.paperBg,
                 gridLine: p.gridLine || DEFAULT_PAPER_THEME.gridLine,
-                paperText: p.paperText || DEFAULT_PAPER_THEME.paperText,
-                lineNumBg: p.lineNumBg || DEFAULT_PAPER_THEME.lineNumBg,
-                lineNumText: p.lineNumText || DEFAULT_PAPER_THEME.lineNumText
+                paperText: p.paperText || DEFAULT_PAPER_THEME.paperText
             };
         }catch(e){}
     }
@@ -7649,13 +7534,11 @@ function getActiveSidebarTheme(){
 
 function applyCurrentTheme(){
     const root = document.documentElement;
-    // 1. 原稿用紙の色設定（紙・タイトルバー・マス目・行番号エリアを同一色に統一）
+    // 1. 原稿用紙の色設定（紙・タイトルバー・マス目を同一色に統一）
     const pt = getActivePaperTheme();
     root.style.setProperty('--paper-bg', pt.paperBg);
     root.style.setProperty('--grid-color', pt.gridLine);
     root.style.setProperty('--text-color', pt.paperText);
-    root.style.setProperty('--linenum-bg', pt.paperBg);
-    root.style.setProperty('--linenum-text', pt.lineNumText);
     root.style.setProperty('--header-info-bg', pt.paperBg);
     root.style.setProperty('--header-info-text', pt.paperText);
 
@@ -8024,18 +7907,16 @@ function previewDrawerLive(){
     const t = colorDrawerState.workingTheme;
     
     if(colorDrawerState.type === 'paper'){
-        // 原稿用紙の色設定のみ更新。紙・タイトルバー・マス目・行番号エリアを同一色に統一
+        // 原稿用紙の色設定のみ更新。紙・タイトルバー・マス目を同一色に統一
         if(t.paperBg){
             root.style.setProperty('--paper-bg', t.paperBg);
             root.style.setProperty('--header-info-bg', t.paperBg);
-            root.style.setProperty('--linenum-bg', t.paperBg);
         }
         if(t.gridLine) root.style.setProperty('--grid-color', t.gridLine);
         if(t.paperText){
             root.style.setProperty('--text-color', t.paperText);
             root.style.setProperty('--header-info-text', t.paperText);
         }
-        if(t.lineNumText) root.style.setProperty('--linenum-text', t.lineNumText);
     } else if(colorDrawerState.type === 'folder'){
         // フォルダ・収納物の色設定のみ更新。原稿用紙やサイドバーには触れない
         if(t.folderBg) {
