@@ -41,6 +41,18 @@ export function closeWarpModal() {
 
 export function openColsModal() {
     let modal = document.getElementById('colsModal');
+    let sel = document.getElementById('colsModalSelect');
+    if (sel && sel.options.length === 0) {
+        if (typeof window.initColsSelectOptions === 'function') {
+            window.initColsSelectOptions(sel);
+        } else {
+            let html = '';
+            for (let i = 18; i <= 40; i++) {
+                html += `<option value="${i}">${i}文字</option>`;
+            }
+            sel.innerHTML = html;
+        }
+    }
     if (modal) {
         modal.style.display = 'flex';
         if (typeof window.updateColsDisplay === 'function') window.updateColsDisplay();

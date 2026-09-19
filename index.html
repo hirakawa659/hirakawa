@@ -8113,7 +8113,9 @@ function openColsModal(targetId = null, ev = null){
     if(subtextCustom) subtextCustom.textContent = `この紙（「${name}」）のみに文字数を保存`;
     
     if(sel){
-        initColsSelectOptions(sel);
+        if(sel.options.length === 0){
+            initColsSelectOptions(sel);
+        }
         sel.value = String(currentVal);
     }
     
