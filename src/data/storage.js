@@ -4,13 +4,34 @@
 import { cleanLegacyPastedHTML, cleanExcessiveSequentialBlankDivs } from '../utils/text.js';
 
 // グローバルデータ参照
-export let d = { r: [], trash: [] };
+export const SCHEMA_VERSION = 1;
+
+export function getDeviceId() {
+    let id = localStorage.getItem('n_device_id');
+    if (!id) {
+        id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 7);
+        localStorage.setItem('n_device_id', id);
+    }
+    return id;
+}
+
+export let d = {
+    schemaVersion: SCHEMA_VERSION,
+    updatedAt: new Date().toISOString(),
+    deviceId: getDeviceId(),
+    r: [],
+    trash: []
+};
 export let f = null; // 現在開いているファイルID
 export let pId = 'root'; // 現在開いているフォルダID
 
 export function setGlobalData(newData) {
+    if (!newData) return;
     d = newData;
     if (!d.trash) d.trash = [];
+    if (!d.schemaVersion) d.schemaVersion = SCHEMA_VERSION;
+    if (!d.updatedAt) d.updatedAt = new Date().toISOString();
+    if (!d.deviceId) d.deviceId = getDeviceId();
 }
 
 export function setCurrentFileId(id) {
@@ -85,13 +106,113 @@ export function s() {
     if (!d) return;
     try {
         if (!d.trash) d.trash = [];
+        d.schemaVersion = SCHEMA_VERSION;
+        d.updatedAt = new Date().toISOString();
+        if (!d.deviceId) d.deviceId = getDeviceId();
+
         localStorage.setItem('n_d', JSON.stringify(d));
+        localStorage.setItem('n_last_saved_time', String(Date.now()));
         if (f) localStorage.setItem('n_c', f);
         const l = document.getElementById('l');
         if (l && l.value) localStorage.setItem('n_w', l.value);
     } catch (err) {
         console.error('Storage save error:', err);
     }
+}
+
+// 原稿文字数の高速計算（純粋データ用）
+export function getManuscriptStats(targetData = d) {
+    let totalChars = 0;
+    let fileCount = 0;
+    let folderCount = 0;
+    let sampleTitle = '';
+
+    function walk(items) {
+        if (!items || !Array.isArray(items)) return;
+        for (let it of items) {
+            if (it.type === 'file') {
+                fileCount++;
+                if (!sampleTitle && it.name) sampleTitle = it.name;
+                if (it.content) {
+                    let plain = it.content
+                        .replace(/<[^>]*>/g, '')
+                        .replace(/&nbsp;/g, ' ')
+                        .replace(/&amp;/g, '&')
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/[\r\n\s\u3000]/g, '');
+                    totalChars += plain.length;
+                }
+            } else if (it.type === 'folder') {
+                folderCount++;
+                if (it.children) walk(it.children);
+            }
+        }
+    }
+    walk(targetData ? targetData.r : []);
+    return { totalChars, fileCount, folderCount, sampleTitle };
+}
+
+// 安全バックアップ（上書き直前・競合時の復元用スナップショット）
+const MAX_SAFETY_SNAPSHOTS = 12;
+
+export function saveSafetySnapshot(reason = 'auto_backup', customData = null) {
+    try {
+        let target = customData || d;
+        if (!target || !target.r) return null;
+
+        let stats = getManuscriptStats(target);
+        let snapshot = {
+            id: 'snap_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+            timestamp: Date.now(),
+            isoDate: new Date().toISOString(),
+            reason: reason,
+            fileCount: stats.fileCount,
+            totalChars: stats.totalChars,
+            sampleTitle: stats.sampleTitle || '無題の原稿',
+            data: JSON.parse(JSON.stringify(target))
+        };
+
+        let saved = localStorage.getItem('n_safety_snapshots');
+        let list = saved ? JSON.parse(saved) : [];
+        if (!Array.isArray(list)) list = [];
+
+        list.unshift(snapshot);
+        if (list.length > MAX_SAFETY_SNAPSHOTS) {
+            list = list.slice(0, MAX_SAFETY_SNAPSHOTS);
+        }
+
+        localStorage.setItem('n_safety_snapshots', JSON.stringify(list));
+        return snapshot;
+    } catch (e) {
+        console.warn('Failed to save safety snapshot:', e);
+        return null;
+    }
+}
+
+export function getSafetySnapshots() {
+    try {
+        let saved = localStorage.getItem('n_safety_snapshots');
+        let list = saved ? JSON.parse(saved) : [];
+        return Array.isArray(list) ? list : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+export function restoreSafetySnapshot(snapshotId) {
+    let snapshots = getSafetySnapshots();
+    let target = snapshots.find(s => s.id === snapshotId);
+    if (!target || !target.data) return false;
+
+    // 現在の状態も直前バックアップ
+    saveSafetySnapshot('before_snapshot_restore');
+    setGlobalData(target.data);
+    s();
+    if (typeof window.r === 'function') window.r();
+    if (typeof window.o === 'function' && f) window.o(f);
+    if (typeof window.updateCurrentStoryDisplay === 'function') window.updateCurrentStoryDisplay();
+    return true;
 }
 
 // データ初期読み込み
@@ -101,13 +222,25 @@ export function loadInitialData() {
         try {
             d = JSON.parse(saved);
             if (!d.trash) d.trash = [];
+            if (!d.schemaVersion) d.schemaVersion = SCHEMA_VERSION;
+            if (!d.updatedAt) d.updatedAt = new Date().toISOString();
+            if (!d.deviceId) d.deviceId = getDeviceId();
         } catch (e) {
             console.error('Failed to parse n_d from localStorage:', e);
-            d = { r: [], trash: [] };
+            d = {
+                schemaVersion: SCHEMA_VERSION,
+                updatedAt: new Date().toISOString(),
+                deviceId: getDeviceId(),
+                r: [],
+                trash: []
+            };
         }
     } else {
         // 初期サンプルデータ
         d = {
+            schemaVersion: SCHEMA_VERSION,
+            updatedAt: new Date().toISOString(),
+            deviceId: getDeviceId(),
             r: [
                 {
                     id: 'f_default_sample',

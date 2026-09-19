@@ -178,6 +178,16 @@ export function setSyncStatusBadge(status, message, lastSyncTimestamp = null) {
         if (lastTimeEl && lastSyncTimestamp) {
             lastTimeEl.textContent = `最終同期: ${formatSyncDate(lastSyncTimestamp)}`;
         }
+    } else if (status === 'conflict') {
+        if (iconEl) iconEl.textContent = '⚠️';
+        if (textEl) {
+            textEl.textContent = '競合検出';
+            textEl.style.color = '#d97706';
+        }
+        if (badgeEl) {
+            badgeEl.textContent = `⚠️ 競合検出: ${message || '他端末での更新があります'}`;
+            badgeEl.style.color = '#d97706';
+        }
     } else if (status === 'error') {
         if (iconEl) iconEl.textContent = '⚠️';
         if (textEl) {
