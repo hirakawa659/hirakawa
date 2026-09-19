@@ -8472,57 +8472,71 @@ function getSupabase(){
 async function initSupabaseAuth(){
     const sb = getSupabase();
     if(!sb) return;
-    try {
-        const { data: { session } } = await sb.auth.getSession();
-        if(session && session.user){
-            currentUser = session.user;
-            updateSyncUiState();
-            await pullFromCloud(false);
-        } else {
-            currentUser = null;
-            updateSyncUiState();
-        }
-    } catch(err) {
-        console.error('Session error:', err);
-    }
 
     window.isPasswordRecoveryMode = false;
 
+    // URLハッシュまたはクエリパラメータにリセット用トークン/タイプが含まれているか即座に判定
+    const fullUrl = window.location.href;
+    const hashStr = window.location.hash || '';
+    const searchStr = window.location.search || '';
+    const isRecoveryUrl = fullUrl.includes('type=recovery') ||
+                          hashStr.includes('type=recovery') ||
+                          searchStr.includes('type=recovery') ||
+                          hashStr.includes('access_token') ||
+                          searchStr.includes('access_token') ||
+                          searchStr.includes('token_hash') ||
+                          searchStr.includes('code=');
+
+    const triggerRecoveryUi = () => {
+        window.isPasswordRecoveryMode = true;
+        openSyncModal();
+        switchSyncTab('reset_password');
+        showAuthMsg('新しいパスワードを入力して再設定を完了してください。', false);
+    };
+
+    if(isRecoveryUrl){
+        window.isPasswordRecoveryMode = true;
+        triggerRecoveryUi();
+        // 遅延実行でレンダリング後も確実にモーダルを表示
+        setTimeout(triggerRecoveryUi, 50);
+        setTimeout(triggerRecoveryUi, 300);
+        setTimeout(triggerRecoveryUi, 800);
+    }
+
+    // AuthStateChange リスナーを先に登録し、PASSWORD_RECOVERYイベントを確実にキャッチ
     sb.auth.onAuthStateChange(async (event, session) => {
         if(event === 'PASSWORD_RECOVERY'){
-            window.isPasswordRecoveryMode = true;
-            openSyncModal();
-            switchSyncTab('reset_password');
-            showAuthMsg('新しいパスワードを入力して再設定を完了してください。', false);
+            triggerRecoveryUi();
             return;
         }
         const prevUser = currentUser;
         currentUser = session ? session.user : null;
-        updateSyncUiState();
-        if(window.isPasswordRecoveryMode){
-            openSyncModal();
-            switchSyncTab('reset_password');
-            showAuthMsg('新しいパスワードを入力して再設定を完了してください。', false);
+        if(window.isPasswordRecoveryMode || isRecoveryUrl){
+            triggerRecoveryUi();
             return;
         }
+        updateSyncUiState();
         if(event === 'SIGNED_IN' && currentUser && (!prevUser || prevUser.id !== currentUser.id)){
             await pullFromCloud(false);
         }
     });
 
-    const hashStr = window.location.hash || '';
-    const searchStr = window.location.search || '';
-    if(hashStr.includes('type=recovery') || hashStr.includes('access_token') || searchStr.includes('type=recovery')){
-        window.isPasswordRecoveryMode = true;
-        const triggerRecoveryUi = () => {
-            openSyncModal();
-            switchSyncTab('reset_password');
-            showAuthMsg('新しいパスワードを入力して再設定を完了してください。', false);
-        };
-        triggerRecoveryUi();
-        setTimeout(triggerRecoveryUi, 200);
-        setTimeout(triggerRecoveryUi, 600);
-        setTimeout(triggerRecoveryUi, 1200);
+    try {
+        const { data: { session } } = await sb.auth.getSession();
+        if(session && session.user){
+            currentUser = session.user;
+            if(!window.isPasswordRecoveryMode && !isRecoveryUrl){
+                updateSyncUiState();
+                await pullFromCloud(false);
+            }
+        } else {
+            currentUser = null;
+            if(!window.isPasswordRecoveryMode && !isRecoveryUrl){
+                updateSyncUiState();
+            }
+        }
+    } catch(err) {
+        console.error('Session error:', err);
     }
 }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'novel-editor-v4';
+const CACHE_NAME = 'novel-editor-v5';
 const ASSETS = [
   '/',
   '/index.html',
