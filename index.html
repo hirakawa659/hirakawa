@@ -8486,8 +8486,11 @@ async function initSupabaseAuth(){
         console.error('Session error:', err);
     }
 
+    window.isPasswordRecoveryMode = false;
+
     sb.auth.onAuthStateChange(async (event, session) => {
         if(event === 'PASSWORD_RECOVERY'){
+            window.isPasswordRecoveryMode = true;
             openSyncModal();
             switchSyncTab('reset_password');
             showAuthMsg('新しいパスワードを入力して再設定を完了してください。', false);
@@ -8496,17 +8499,30 @@ async function initSupabaseAuth(){
         const prevUser = currentUser;
         currentUser = session ? session.user : null;
         updateSyncUiState();
+        if(window.isPasswordRecoveryMode){
+            openSyncModal();
+            switchSyncTab('reset_password');
+            showAuthMsg('新しいパスワードを入力して再設定を完了してください。', false);
+            return;
+        }
         if(event === 'SIGNED_IN' && currentUser && (!prevUser || prevUser.id !== currentUser.id)){
             await pullFromCloud(false);
         }
     });
 
-    if(window.location.hash && (window.location.hash.includes('type=recovery') || window.location.hash.includes('access_token'))){
-        setTimeout(() => {
+    const hashStr = window.location.hash || '';
+    const searchStr = window.location.search || '';
+    if(hashStr.includes('type=recovery') || hashStr.includes('access_token') || searchStr.includes('type=recovery')){
+        window.isPasswordRecoveryMode = true;
+        const triggerRecoveryUi = () => {
             openSyncModal();
             switchSyncTab('reset_password');
             showAuthMsg('新しいパスワードを入力して再設定を完了してください。', false);
-        }, 500);
+        };
+        triggerRecoveryUi();
+        setTimeout(triggerRecoveryUi, 200);
+        setTimeout(triggerRecoveryUi, 600);
+        setTimeout(triggerRecoveryUi, 1200);
     }
 }
 
@@ -8518,6 +8534,12 @@ function updateSyncUiState(){
     const emailEl = document.getElementById('syncUserEmail');
     const badgeEl = document.getElementById('syncStatusBadge');
     const lastTimeEl = document.getElementById('syncLastTimeText');
+
+    if(window.isPasswordRecoveryMode){
+        if(loggedInView) loggedInView.style.display = 'none';
+        if(loggedOutView) loggedOutView.style.display = 'flex';
+        return;
+    }
 
     if(currentUser){
         if(iconEl) iconEl.textContent = '☁️';
@@ -8713,7 +8735,9 @@ async function manualPullFromCloud(){
 }
 
 function openSyncModal(){
-    updateSyncUiState();
+    if(!window.isPasswordRecoveryMode){
+        updateSyncUiState();
+    }
     const modal = document.getElementById('syncModal');
     if(modal) modal.style.display = 'flex';
 }
@@ -8724,6 +8748,10 @@ function closeSyncModal(){
     clearAuthMsg();
     if(currentSyncTab === 'forgot' || currentSyncTab === 'reset_password'){
         switchSyncTab('login');
+    }
+    if(window.isPasswordRecoveryMode){
+        window.isPasswordRecoveryMode = false;
+        updateSyncUiState();
     }
 }
 
@@ -8801,12 +8829,17 @@ function switchSyncTab(tab){
         if(passwordInput) passwordInput.required = false;
         if(confirmInput) confirmInput.required = false;
     } else if(tab === 'reset_password'){
+        const loggedInView = document.getElementById('syncLoggedInView');
+        const loggedOutView = document.getElementById('syncLoggedOutView');
+        if(loggedInView) loggedInView.style.display = 'none';
+        if(loggedOutView) loggedOutView.style.display = 'flex';
+
         if(tabRow) tabRow.style.display = 'none';
         if(forgotHeader) forgotHeader.style.display = 'flex';
         if(forgotTitle) forgotTitle.textContent = '新しいパスワードの設定';
         if(noticeEl){
             noticeEl.style.display = 'block';
-            noticeEl.innerHTML = '新しいパスワードを入力して再設定を完了してください。';
+            noticeEl.innerHTML = '届いたメールの認証が確認されました。<br>新しいパスワードを入力して再設定を完了してください。';
         }
         if(emailRow) emailRow.style.display = 'none';
         if(passwordRow) passwordRow.style.display = 'flex';
@@ -8893,6 +8926,10 @@ async function handleAuthSubmit(event){
             if(error){
                 showAuthMsg(translateAuthError(error.message));
             } else {
+                window.isPasswordRecoveryMode = false;
+                if(window.location.hash) {
+                    history.replaceState(null, '', window.location.pathname + window.location.search);
+                }
                 showAuthMsg('パスワードを更新しました！', false);
                 if(data && data.user) currentUser = data.user;
                 updateSyncUiState();
