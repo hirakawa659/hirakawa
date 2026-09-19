@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Novel Editor</title><meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Novel Editor"><meta name="description" content="Grid-based Japanese novel writing editor with manuscript grid view, character counting, file management, and text correction tools"><meta property="og:title" content="Novel Editor"><meta property="og:description" content="Grid-based Japanese novel writing editor with manuscript grid view, character counting, file management, and text correction tools"><link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/icon-192.png"><style>
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Novel Editor</title><meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Novel Editor"><meta name="description" content="Grid-based Japanese novel writing editor with manuscript grid view, character counting, file management, and text correction tools"><meta property="og:title" content="Novel Editor"><meta property="og:description" content="Grid-based Japanese novel writing editor with manuscript grid view, character counting, file management, and text correction tools"><link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/icon-192.png"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>
 :root{
   --cs:32px;
   --paper-bg:#ffffff;
@@ -248,6 +248,7 @@ body.sp-color-off #e .sp-nonzen{background:transparent!important;border-bottom:n
 <button id="tool_search_folder" class="tool-item" onclick="toggleFolderSearchBar()" style="background:transparent;border:none;color:#0369a1;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="現在開いているフォルダ内やノート内の語句を検索">開フォルダ内<br>検索</button>
 <button id="tool_selcount" class="tool-item" onclick="tgSelCount()" style="background:transparent;border:none;color:#1e40af;font-weight:bold;line-height:1.15;padding:2px 4px;font-size:11px;text-align:center" title="文字選択時の文字数ポップアップ（5秒間）のON/OFF">選択文字数<br>ON</button>
 <button id="tool_area" class="tool-item" onclick="openToolbarColorModal(event)" style="background:transparent;border:none;color:#334155;font-weight:bold;font-size:11px;padding:2px 4px;white-space:nowrap" title="領域の設定（各ツールの文字色設定）">領域</button>
+<button id="tool_sync" class="tool-item" onclick="openSyncModal()" style="background:transparent;border:none;color:#2563eb;font-weight:bold;font-size:11px;line-height:1.15;padding:2px 4px;text-align:center" title="クラウド同期とアカウント"><span id="toolSyncStatusIcon">☁️</span><br><span id="toolSyncStatusText">未ログイン</span></button>
 <select id="l" onchange="updateColsDisplay();z()" style="display:none"></select>
 </div>
 <div id="repBar" style="display:none;position:fixed;top:50px;left:0;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 12px;gap:8px;align-items:center;z-index:998;box-sizing:border-box">
@@ -1031,6 +1032,9 @@ window.onload=()=>{
     norm();cleanSpans();autoFormatEditor();highlightSpaces();z();v();
     try {
         restoreAppScroll();
+    } catch(err){}
+    try {
+        initSupabaseAuth();
     } catch(err){}
 };
 function cleanExcessiveLeadingLines(root = e){
@@ -2259,6 +2263,7 @@ function s(){
             localStorage.setItem('n_d', JSON.stringify(d));
             r();
             updateCurrentStoryDisplay();
+            scheduleCloudSync();
         }
         return;
     }
@@ -2266,6 +2271,7 @@ function s(){
     if(i){
         i.content=e.innerHTML;
         localStorage.setItem('n_d',JSON.stringify(d));
+        scheduleCloudSync();
     }
 }
 function g(id,items=d.r){for(let i of items){if(i.id===id)return i;if(i.children){let found=g(id,i.children);if(found)return found}}return null}
@@ -5535,9 +5541,10 @@ const toolDefs={
     'tool_num':{name:'算用数字',desc:'半角・全角・下付き・上付きなどの算用数字を検出'},
     'tool_copy':{name:'特殊コピー\nプレーンコード化',desc:'装飾タグを除去しプレーンテキストとしてコピー'},
     'tool_fx':{name:'半角→全角',desc:'半角空白・英数記号を全角1マス文字に変換'},
-    'tool_area':{name:'領域',desc:'サイドバー・ツールバー・タイトルバーの配色や、ツールボタンの名前・改行・情報設定'}
+    'tool_area':{name:'領域',desc:'サイドバー・ツールバー・タイトルバーの配色や、ツールボタンの名前・改行・情報設定'},
+    'tool_sync':{name:'クラウド同期\n/ アカウント',desc:'Supabaseによるデータのクラウド同期・保存・復元とログイン'}
 };
-const defaultToolOrder=['tool_sb','tool_shelf','tool_undo','tool_redo','tool_save_txt','tool_rep','tool_search_folder','tool_selcount','tool_area'];
+const defaultToolOrder=['tool_sb','tool_shelf','tool_undo','tool_redo','tool_save_txt','tool_rep','tool_search_folder','tool_selcount','tool_area','tool_sync'];
 
 function getToolOrder(){
     let saved=localStorage.getItem('n_tool_order_v9')||localStorage.getItem('n_tool_order_v8')||localStorage.getItem('n_tool_order_v7')||localStorage.getItem('n_tool_order_v6');
@@ -8438,6 +8445,400 @@ window.addEventListener('DOMContentLoaded', ()=>{
     applyDetectMenuOrder(getDetectMenuOrder());
     initDetectMenuDragAndDrop();
 });
+
+/* ============================================
+   Supabase クラウド同期 & 認証ロジック
+============================================ */
+const SUPABASE_PROJECT_URL = "https://eqzyrsziwgmlanmztivu.supabase.co";
+const SUPABASE_ANON_PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxenlyc3ppd2dtbGFubXp0aXZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3NDE0NzgsImV4cCI6MjEwNTMxNzQ3OH0.ej_Yk_IHC1YimO_OzPUDpbF-XqHSM8XszyeD1LbJIdc";
+
+let supabaseClient = null;
+let currentUser = null;
+let currentSyncTab = 'login';
+let cloudSyncTimeout = null;
+let lastSyncTimestamp = null;
+
+function getSupabase(){
+    if(!supabaseClient && window.supabase && typeof window.supabase.createClient === 'function'){
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_ANON_PUBLIC_KEY);
+        } catch(e) {
+            console.error('Supabase init error:', e);
+        }
+    }
+    return supabaseClient;
+}
+
+async function initSupabaseAuth(){
+    const sb = getSupabase();
+    if(!sb) return;
+    try {
+        const { data: { session } } = await sb.auth.getSession();
+        if(session && session.user){
+            currentUser = session.user;
+            updateSyncUiState();
+            await pullFromCloud(false);
+        } else {
+            currentUser = null;
+            updateSyncUiState();
+        }
+    } catch(err) {
+        console.error('Session error:', err);
+    }
+
+    sb.auth.onAuthStateChange(async (event, session) => {
+        const prevUser = currentUser;
+        currentUser = session ? session.user : null;
+        updateSyncUiState();
+        if(event === 'SIGNED_IN' && currentUser && (!prevUser || prevUser.id !== currentUser.id)){
+            await pullFromCloud(false);
+        }
+    });
+}
+
+function updateSyncUiState(){
+    const iconEl = document.getElementById('toolSyncStatusIcon');
+    const textEl = document.getElementById('toolSyncStatusText');
+    const loggedInView = document.getElementById('syncLoggedInView');
+    const loggedOutView = document.getElementById('syncLoggedOutView');
+    const emailEl = document.getElementById('syncUserEmail');
+    const badgeEl = document.getElementById('syncStatusBadge');
+    const lastTimeEl = document.getElementById('syncLastTimeText');
+
+    if(currentUser){
+        if(iconEl) iconEl.textContent = '☁️';
+        if(textEl) {
+            textEl.textContent = '同期済';
+            textEl.style.color = '#15803d';
+        }
+        if(loggedInView) loggedInView.style.display = 'flex';
+        if(loggedOutView) loggedOutView.style.display = 'none';
+        if(emailEl) emailEl.textContent = currentUser.email || 'ログイン中';
+        if(badgeEl){
+            badgeEl.textContent = '☁️ 接続中 (自動同期有効)';
+            badgeEl.style.color = '#15803d';
+        }
+        if(lastTimeEl){
+            lastTimeEl.textContent = lastSyncTimestamp ? `最終同期: ${formatSyncDate(lastSyncTimestamp)}` : '同期済み（クラウド接続中）';
+        }
+    } else {
+        if(iconEl) iconEl.textContent = '☁️';
+        if(textEl) {
+            textEl.textContent = '未ログイン';
+            textEl.style.color = '#64748b';
+        }
+        if(loggedInView) loggedInView.style.display = 'none';
+        if(loggedOutView) loggedOutView.style.display = 'flex';
+    }
+}
+
+function setSyncStatusBadge(status, message){
+    const iconEl = document.getElementById('toolSyncStatusIcon');
+    const textEl = document.getElementById('toolSyncStatusText');
+    const badgeEl = document.getElementById('syncStatusBadge');
+    const lastTimeEl = document.getElementById('syncLastTimeText');
+
+    if(!currentUser){
+        if(iconEl) iconEl.textContent = '☁️';
+        if(textEl) {
+            textEl.textContent = '未ログイン';
+            textEl.style.color = '#64748b';
+        }
+        return;
+    }
+
+    if(status === 'syncing'){
+        if(iconEl) iconEl.textContent = '⏳';
+        if(textEl) {
+            textEl.textContent = '同期中...';
+            textEl.style.color = '#0284c7';
+        }
+        if(badgeEl){
+            badgeEl.textContent = '⏳ 同期中...';
+            badgeEl.style.color = '#0284c7';
+        }
+    } else if(status === 'synced'){
+        if(iconEl) iconEl.textContent = '☁️';
+        if(textEl) {
+            textEl.textContent = '同期済';
+            textEl.style.color = '#15803d';
+        }
+        if(badgeEl){
+            badgeEl.textContent = '☁️ 同期完了';
+            badgeEl.style.color = '#15803d';
+        }
+        if(lastTimeEl && lastSyncTimestamp){
+            lastTimeEl.textContent = `最終同期: ${formatSyncDate(lastSyncTimestamp)}`;
+        }
+    } else if(status === 'error'){
+        if(iconEl) iconEl.textContent = '⚠️';
+        if(textEl) {
+            textEl.textContent = '同期失敗';
+            textEl.style.color = '#dc2626';
+        }
+        if(badgeEl){
+            badgeEl.textContent = `⚠️ 同期エラー: ${message || ''}`;
+            badgeEl.style.color = '#dc2626';
+        }
+    }
+}
+
+function formatSyncDate(d){
+    if(!d) return '-';
+    const date = new Date(d);
+    const Y = date.getFullYear();
+    const M = String(date.getMonth() + 1).padStart(2, '0');
+    const D = String(date.getDate()).padStart(2, '0');
+    const h = String(date.getHours()).padStart(2, '0');
+    const m = String(date.getMinutes()).padStart(2, '0');
+    const s = String(date.getSeconds()).padStart(2, '0');
+    return `${Y}/${M}/${D} ${h}:${m}:${s}`;
+}
+
+function scheduleCloudSync(){
+    if(!currentUser) return; // 未ログイン時は同期制限
+    setSyncStatusBadge('syncing');
+    if(cloudSyncTimeout) clearTimeout(cloudSyncTimeout);
+    cloudSyncTimeout = setTimeout(async () => {
+        await pushToCloud();
+    }, 1500);
+}
+
+async function pushToCloud(){
+    const sb = getSupabase();
+    if(!sb || !currentUser) return;
+    try {
+        setSyncStatusBadge('syncing');
+        const payload = {
+            d: d,
+            f: f,
+            sw: (typeof l !== 'undefined' && l ? l.value : '30'),
+            timestamp: Date.now()
+        };
+        const { error } = await sb
+            .from('user_novels')
+            .upsert({
+                user_id: currentUser.id,
+                data: payload,
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'user_id' });
+
+        if(error){
+            console.error('Supabase push error:', error);
+            setSyncStatusBadge('error', error.message);
+        } else {
+            lastSyncTimestamp = new Date();
+            setSyncStatusBadge('synced');
+        }
+    } catch(err){
+        console.error('Supabase push exception:', err);
+        setSyncStatusBadge('error', err.message);
+    }
+}
+
+async function pullFromCloud(isManual = false){
+    const sb = getSupabase();
+    if(!sb || !currentUser) return;
+    try {
+        setSyncStatusBadge('syncing');
+        const { data, error } = await sb
+            .from('user_novels')
+            .select('data, updated_at')
+            .eq('user_id', currentUser.id)
+            .maybeSingle();
+
+        if(error){
+            console.error('Supabase pull error:', error);
+            setSyncStatusBadge('error', error.message);
+            if(isManual) alert('クラウドからのデータ取得に失敗しました: ' + error.message);
+            return;
+        }
+
+        if(data && data.data && data.data.d && Array.isArray(data.data.d.r)){
+            d = data.data.d;
+            if(data.data.f) f = data.data.f;
+            if(!d.trash) d.trash = [];
+            localStorage.setItem('n_d', JSON.stringify(d));
+            if(f) localStorage.setItem('n_c', f);
+            if(data.data.sw && typeof l !== 'undefined' && l){
+                l.value = data.data.sw;
+                localStorage.setItem('n_w', String(data.data.sw));
+                updateColsDisplay();
+            }
+            r();
+            o(f);
+            updateCurrentStoryDisplay();
+            lastSyncTimestamp = data.updated_at ? new Date(data.updated_at) : new Date();
+            setSyncStatusBadge('synced');
+            if(isManual) alert('クラウドから最新データを復元しました。');
+        } else {
+            // クラウドにデータがまだ無い場合はローカルデータを初登録
+            await pushToCloud();
+        }
+    } catch(err){
+        console.error('Supabase pull exception:', err);
+        setSyncStatusBadge('error', err.message);
+        if(isManual) alert('エラーが発生しました: ' + err.message);
+    }
+}
+
+async function manualPushToCloud(){
+    const btn = document.getElementById('syncPushBtn');
+    if(btn) { btn.disabled = true; btn.textContent = '保存中...'; }
+    await pushToCloud();
+    if(btn) { btn.disabled = false; btn.innerHTML = '<span>今すぐクラウドへ保存（上書き）</span>'; }
+    alert('クラウドに最新データを保存しました。');
+}
+
+async function manualPullFromCloud(){
+    if(!confirm('クラウドのデータで現在の原稿データを上書き復元しますか？')) return;
+    const btn = document.getElementById('syncPullBtn');
+    if(btn) { btn.disabled = true; btn.textContent = '読み込み中...'; }
+    await pullFromCloud(true);
+    if(btn) { btn.disabled = false; btn.innerHTML = '<span>クラウドから最新データを復元（読み込み）</span>'; }
+}
+
+function openSyncModal(){
+    updateSyncUiState();
+    const modal = document.getElementById('syncModal');
+    if(modal) modal.style.display = 'flex';
+}
+
+function closeSyncModal(){
+    const modal = document.getElementById('syncModal');
+    if(modal) modal.style.display = 'none';
+    clearAuthMsg();
+}
+
+function switchSyncTab(tab){
+    currentSyncTab = tab;
+    const loginBtn = document.getElementById('syncTabLoginBtn');
+    const signupBtn = document.getElementById('syncTabSignupBtn');
+    const confirmRow = document.getElementById('syncAuthPasswordConfirmRow');
+    const submitBtn = document.getElementById('syncAuthSubmitBtn');
+    clearAuthMsg();
+
+    if(tab === 'login'){
+        if(loginBtn) { loginBtn.style.borderBottom = '2px solid #2563eb'; loginBtn.style.color = '#2563eb'; }
+        if(signupBtn) { signupBtn.style.borderBottom = '2px solid transparent'; signupBtn.style.color = '#64748b'; }
+        if(confirmRow) confirmRow.style.display = 'none';
+        if(submitBtn) submitBtn.textContent = 'ログイン';
+    } else {
+        if(loginBtn) { loginBtn.style.borderBottom = '2px solid transparent'; loginBtn.style.color = '#64748b'; }
+        if(signupBtn) { signupBtn.style.borderBottom = '2px solid #2563eb'; signupBtn.style.color = '#2563eb'; }
+        if(confirmRow) confirmRow.style.display = 'flex';
+        if(submitBtn) submitBtn.textContent = '新規アカウント作成';
+    }
+}
+
+function showAuthMsg(text, isError = true){
+    const msgEl = document.getElementById('syncAuthMsg');
+    if(!msgEl) return;
+    msgEl.style.display = 'block';
+    msgEl.style.color = isError ? '#b91c1c' : '#15803d';
+    msgEl.textContent = text;
+}
+
+function clearAuthMsg(){
+    const msgEl = document.getElementById('syncAuthMsg');
+    if(!msgEl) return;
+    msgEl.style.display = 'none';
+    msgEl.textContent = '';
+}
+
+async function handleAuthSubmit(event){
+    event.preventDefault();
+    const sb = getSupabase();
+    if(!sb){
+        showAuthMsg('Supabase SDKの読み込みに失敗しました。');
+        return;
+    }
+    const email = (document.getElementById('syncAuthEmail')?.value || '').trim();
+    const password = document.getElementById('syncAuthPassword')?.value || '';
+    const submitBtn = document.getElementById('syncAuthSubmitBtn');
+
+    if(!email || !password){
+        showAuthMsg('メールアドレスとパスワードを入力してください。');
+        return;
+    }
+
+    if(currentSyncTab === 'signup'){
+        const confirmPass = document.getElementById('syncAuthPasswordConfirm')?.value || '';
+        if(password !== confirmPass){
+            showAuthMsg('パスワードが一致しません。');
+            return;
+        }
+        if(password.length < 6){
+            showAuthMsg('パスワードは6文字以上で入力してください。');
+            return;
+        }
+
+        try {
+            if(submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '登録中...'; }
+            clearAuthMsg();
+            const { data, error } = await sb.auth.signUp({ email, password });
+            if(error){
+                showAuthMsg(translateAuthError(error.message));
+            } else if(data && data.user && data.session){
+                currentUser = data.user;
+                updateSyncUiState();
+                await pushToCloud();
+                showAuthMsg('登録とログインが完了しました！', false);
+                setTimeout(closeSyncModal, 1000);
+            } else if(data && data.user && !data.session){
+                showAuthMsg('確認用メールを送信しました。受信トレイをご確認の上、メール内のリンクをクリックしてください。', false);
+            }
+        } catch(err){
+            showAuthMsg('エラー: ' + err.message);
+        } finally {
+            if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '新規アカウント作成'; }
+        }
+    } else {
+        try {
+            if(submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'ログイン中...'; }
+            clearAuthMsg();
+            const { data, error } = await sb.auth.signInWithPassword({ email, password });
+            if(error){
+                showAuthMsg(translateAuthError(error.message));
+            } else if(data && data.user){
+                currentUser = data.user;
+                updateSyncUiState();
+                await pullFromCloud(false);
+                showAuthMsg('ログインしました！', false);
+                setTimeout(closeSyncModal, 800);
+            }
+        } catch(err){
+            showAuthMsg('エラー: ' + err.message);
+        } finally {
+            if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'ログイン'; }
+        }
+    }
+}
+
+async function handleSupabaseLogout(){
+    const sb = getSupabase();
+    if(!sb) return;
+    if(!confirm('ログアウトしますか？\n（ログアウトしても端末内のデータは保持されます）')) return;
+    try {
+        await sb.auth.signOut();
+        currentUser = null;
+        updateSyncUiState();
+        closeSyncModal();
+    } catch(err){
+        alert('ログアウトエラー: ' + err.message);
+    }
+}
+
+function translateAuthError(msg){
+    if(!msg) return 'エラーが発生しました。';
+    if(msg.includes('Invalid login credentials')) return 'メールアドレスまたはパスワードが間違っています。';
+    if(msg.includes('User already registered')) return 'このメールアドレスは既に登録されています。';
+    if(msg.includes('Password should be at least')) return 'パスワードは6文字以上必要です。';
+    if(msg.includes('Email not confirmed')) return 'メールアドレスが確認されていません。受信トレイの認証リンクをご確認ください。';
+    if(msg.includes('rate limit')) return 'アクセスが集中しています。しばらく待ってから再度お試しください。';
+    return msg;
+}
+
 </script>
 
 <!-- 紙・フォルダの管理モーダル -->
@@ -8916,6 +9317,89 @@ window.addEventListener('DOMContentLoaded', ()=>{
           <button type="button" onclick="clearHalfZenSlots()" style="background:transparent;border:none;color:#64748b;font-size:9.5px;cursor:pointer;text-decoration:underline">マス目をクリア</button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Supabase クラウド同期・アカウントモーダル -->
+<div id="syncModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeSyncModal()">
+  <div class="modal-card" style="max-width:390px;display:flex;flex-direction:column" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div style="font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px;color:#1e293b">
+        <span>☁️ クラウド同期 & アカウント</span>
+      </div>
+      <button type="button" onclick="closeSyncModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;padding:0 4px;line-height:1" title="閉じる">✕</button>
+    </div>
+    
+    <div class="modal-body" style="padding:14px;gap:12px">
+      <!-- ログイン中のビュー -->
+      <div id="syncLoggedInView" style="display:none;flex-direction:column;gap:12px">
+        <div class="modal-section" style="background:#f0fdf4;border-color:#bbf7d0">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:11px;font-weight:bold;color:#166534">ログイン中</span>
+            <span id="syncUserEmail" style="font-size:12px;font-weight:600;color:#1e293b;word-break:break-all"></span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+            <span style="font-size:11px;color:#4b5563">同期状態:</span>
+            <span id="syncStatusBadge" style="font-size:11px;font-weight:bold;color:#166534">☁️ 最新 (同期済)</span>
+          </div>
+          <div style="font-size:10.5px;color:#6b7280;margin-top:2px" id="syncLastTimeText">最終同期: -</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button type="button" onclick="manualPushToCloud()" id="syncPushBtn" style="background:#2563eb;color:#ffffff;border:none;padding:9px 12px;border-radius:6px;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+            <span>今すぐクラウドへ保存（上書き）</span>
+          </button>
+          <button type="button" onclick="manualPullFromCloud()" id="syncPullBtn" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;padding:9px 12px;border-radius:6px;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
+            <span>クラウドから最新データを復元（読み込み）</span>
+          </button>
+        </div>
+
+        <div style="border-top:1px solid #e2e8f0;padding-top:10px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:10.5px;color:#64748b">執筆内容は自動同期されます</span>
+          <button type="button" onclick="handleSupabaseLogout()" style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:bold;cursor:pointer">
+            ログアウト
+          </button>
+        </div>
+      </div>
+
+      <!-- 未ログイン時のビュー（ログイン / 新規登録タブ） -->
+      <div id="syncLoggedOutView" style="display:flex;flex-direction:column;gap:10px">
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:8px 10px;font-size:11.5px;color:#1e40af;line-height:1.4">
+          未ログイン時はブラウザ内（ローカル）に保存されます。<br>
+          ログインすると、別の端末やブラウザとも自動同期できます。
+        </div>
+
+        <!-- タブ切り替え -->
+        <div style="display:flex;border-bottom:1px solid #e2e8f0;gap:4px">
+          <button type="button" id="syncTabLoginBtn" onclick="switchSyncTab('login')" style="flex:1;padding:6px 0;background:none;border:none;border-bottom:2px solid #2563eb;font-size:12px;font-weight:bold;color:#2563eb;cursor:pointer">ログイン</button>
+          <button type="button" id="syncTabSignupBtn" onclick="switchSyncTab('signup')" style="flex:1;padding:6px 0;background:none;border:none;border-bottom:2px solid transparent;font-size:12px;font-weight:bold;color:#64748b;cursor:pointer">新規登録</button>
+        </div>
+
+        <form id="syncAuthForm" onsubmit="handleAuthSubmit(event)" style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <label style="font-size:11px;font-weight:bold;color:#475569">メールアドレス</label>
+            <input type="email" id="syncAuthEmail" required placeholder="example@email.com" style="padding:7px 9px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px;outline:none;background:#fff">
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <label style="font-size:11px;font-weight:bold;color:#475569">パスワード</label>
+            <input type="password" id="syncAuthPassword" required minlength="6" placeholder="6文字以上" style="padding:7px 9px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px;outline:none;background:#fff">
+          </div>
+
+          <div id="syncAuthPasswordConfirmRow" style="display:none;flex-direction:column;gap:3px">
+            <label style="font-size:11px;font-weight:bold;color:#475569">パスワード（確認）</label>
+            <input type="password" id="syncAuthPasswordConfirm" minlength="6" placeholder="もう一度入力" style="padding:7px 9px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px;outline:none;background:#fff">
+          </div>
+
+          <div id="syncAuthMsg" style="font-size:11.5px;min-height:16px;line-height:1.3;display:none"></div>
+
+          <button type="submit" id="syncAuthSubmitBtn" style="background:#2563eb;color:#fff;border:none;padding:8px 0;border-radius:6px;font-size:13px;font-weight:bold;cursor:pointer;margin-top:4px">
+            ログイン
+          </button>
+        </form>
+      </div>
+
     </div>
   </div>
 </div>
