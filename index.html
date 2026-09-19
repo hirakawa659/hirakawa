@@ -8756,7 +8756,11 @@ function openSyncModal(){
     if(modal) modal.style.display = 'flex';
 }
 
-function closeSyncModal(){
+function closeSyncModal(force = false){
+    if(!force && (window.isPasswordRecoveryMode || currentSyncTab === 'reset_password')){
+        showAuthMsg('新しいパスワードを設定するまで閉じることはできません。パスワードを入力して更新してください。');
+        return;
+    }
     const modal = document.getElementById('syncModal');
     if(modal) modal.style.display = 'none';
     clearAuthMsg();
@@ -8770,12 +8774,18 @@ function closeSyncModal(){
 }
 
 function switchSyncTab(tab){
+    if(window.isPasswordRecoveryMode && tab !== 'reset_password'){
+        showAuthMsg('パスワードの再設定が完了するまで画面を切り替えることはできません。');
+        return;
+    }
     currentSyncTab = tab;
     const tabRow = document.getElementById('syncAuthTabRow');
     const loginBtn = document.getElementById('syncTabLoginBtn');
     const signupBtn = document.getElementById('syncTabSignupBtn');
     const forgotHeader = document.getElementById('syncForgotHeader');
     const forgotTitle = document.getElementById('syncForgotTitle');
+    const forgotBackBtn = document.getElementById('syncForgotBackBtn');
+    const modalCloseBtn = document.getElementById('syncModalCloseBtn');
     const noticeEl = document.getElementById('syncLoggedOutNotice');
     const emailRow = document.getElementById('syncAuthEmailRow');
     const emailInput = document.getElementById('syncAuthEmail');
@@ -8789,9 +8799,14 @@ function switchSyncTab(tab){
     const submitBtn = document.getElementById('syncAuthSubmitBtn');
     clearAuthMsg();
 
+    if(modalCloseBtn) {
+        modalCloseBtn.style.display = (tab === 'reset_password') ? 'none' : 'block';
+    }
+
     if(tab === 'login'){
         if(tabRow) tabRow.style.display = 'flex';
         if(forgotHeader) forgotHeader.style.display = 'none';
+        if(forgotBackBtn) forgotBackBtn.style.display = 'inline-block';
         if(noticeEl){
             noticeEl.style.display = 'block';
             noticeEl.innerHTML = '未ログイン時はブラウザ内（ローカル）に保存されます。<br>ログインすると、別の端末やブラウザとも自動同期できます。';
@@ -8810,6 +8825,7 @@ function switchSyncTab(tab){
     } else if(tab === 'signup'){
         if(tabRow) tabRow.style.display = 'flex';
         if(forgotHeader) forgotHeader.style.display = 'none';
+        if(forgotBackBtn) forgotBackBtn.style.display = 'inline-block';
         if(noticeEl){
             noticeEl.style.display = 'block';
             noticeEl.innerHTML = 'アカウントを作成すると、クラウドに原稿が自動保存され、複数端末で同期できます。';
@@ -8830,6 +8846,7 @@ function switchSyncTab(tab){
         if(tabRow) tabRow.style.display = 'none';
         if(forgotHeader) forgotHeader.style.display = 'flex';
         if(forgotTitle) forgotTitle.textContent = 'パスワードの再設定';
+        if(forgotBackBtn) forgotBackBtn.style.display = 'inline-block';
         if(noticeEl){
             noticeEl.style.display = 'block';
             noticeEl.innerHTML = 'ご登録のメールアドレスを入力してください。<br>パスワード再設定用の案内メールをお送りします。';
@@ -8850,10 +8867,11 @@ function switchSyncTab(tab){
 
         if(tabRow) tabRow.style.display = 'none';
         if(forgotHeader) forgotHeader.style.display = 'flex';
-        if(forgotTitle) forgotTitle.textContent = '新しいパスワードの設定';
+        if(forgotTitle) forgotTitle.textContent = '新しいパスワードの設定（必須）';
+        if(forgotBackBtn) forgotBackBtn.style.display = 'none';
         if(noticeEl){
             noticeEl.style.display = 'block';
-            noticeEl.innerHTML = '届いたメールの認証が確認されました。<br>新しいパスワードを入力して再設定を完了してください。';
+            noticeEl.innerHTML = '<span style="color:#b91c1c;font-weight:bold">※新しいパスワードの設定が必須です。</span><br>設定を完了するまでこの画面を閉じることはできません。<br>6文字以上の新しいパスワードを入力してください。';
         }
         if(emailRow) emailRow.style.display = 'none';
         if(passwordRow) passwordRow.style.display = 'flex';
@@ -8863,7 +8881,7 @@ function switchSyncTab(tab){
         if(confirmLabel) confirmLabel.textContent = '新しいパスワード（確認）';
         if(confirmInput) { confirmInput.value = ''; confirmInput.required = true; }
         if(forgotRow) forgotRow.style.display = 'none';
-        if(submitBtn) submitBtn.textContent = 'パスワードを更新';
+        if(submitBtn) submitBtn.textContent = 'パスワードを更新して完了';
         if(emailInput) emailInput.required = false;
     }
 }
@@ -8941,18 +8959,19 @@ async function handleAuthSubmit(event){
                 showAuthMsg(translateAuthError(error.message));
             } else {
                 window.isPasswordRecoveryMode = false;
+                currentSyncTab = 'login';
                 if(window.location.hash) {
                     history.replaceState(null, '', window.location.pathname + window.location.search);
                 }
                 showAuthMsg('パスワードを更新しました！', false);
                 if(data && data.user) currentUser = data.user;
                 updateSyncUiState();
-                setTimeout(closeSyncModal, 1500);
+                setTimeout(() => closeSyncModal(true), 1500);
             }
         } catch(err){
             showAuthMsg('エラー: ' + err.message);
         } finally {
-            if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'パスワードを更新'; }
+            if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'パスワードを更新して完了'; }
         }
         return;
     }
@@ -9531,7 +9550,7 @@ function translateAuthError(msg){
       <div style="font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px;color:#1e293b">
         <span>☁️ クラウド同期 & アカウント</span>
       </div>
-      <button type="button" onclick="closeSyncModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;padding:0 4px;line-height:1" title="閉じる">✕</button>
+      <button type="button" id="syncModalCloseBtn" onclick="closeSyncModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;padding:0 4px;line-height:1" title="閉じる">✕</button>
     </div>
     
     <div class="modal-body" style="padding:14px;gap:12px">
@@ -9582,7 +9601,7 @@ function translateAuthError(msg){
         <!-- パスワード再設定ヘッダー（forgot/reset時表示） -->
         <div id="syncForgotHeader" style="display:none;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #e2e8f0">
           <span id="syncForgotTitle" style="font-size:12.5px;font-weight:bold;color:#1e293b">パスワードの再設定</span>
-          <button type="button" onclick="switchSyncTab('login')" style="background:none;border:none;color:#2563eb;font-size:11.5px;cursor:pointer;text-decoration:underline">← ログインに戻る</button>
+          <button type="button" id="syncForgotBackBtn" onclick="switchSyncTab('login')" style="background:none;border:none;color:#2563eb;font-size:11.5px;cursor:pointer;text-decoration:underline">← ログインに戻る</button>
         </div>
 
         <form id="syncAuthForm" onsubmit="handleAuthSubmit(event)" style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
