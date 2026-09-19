@@ -8487,6 +8487,12 @@ async function initSupabaseAuth(){
     }
 
     sb.auth.onAuthStateChange(async (event, session) => {
+        if(event === 'PASSWORD_RECOVERY'){
+            openSyncModal();
+            switchSyncTab('reset_password');
+            showAuthMsg('新しいパスワードを入力して再設定を完了してください。', false);
+            return;
+        }
         const prevUser = currentUser;
         currentUser = session ? session.user : null;
         updateSyncUiState();
@@ -8494,6 +8500,14 @@ async function initSupabaseAuth(){
             await pullFromCloud(false);
         }
     });
+
+    if(window.location.hash && (window.location.hash.includes('type=recovery') || window.location.hash.includes('access_token'))){
+        setTimeout(() => {
+            openSyncModal();
+            switchSyncTab('reset_password');
+            showAuthMsg('新しいパスワードを入力して再設定を完了してください。', false);
+        }, 500);
+    }
 }
 
 function updateSyncUiState(){
@@ -8708,26 +8722,102 @@ function closeSyncModal(){
     const modal = document.getElementById('syncModal');
     if(modal) modal.style.display = 'none';
     clearAuthMsg();
+    if(currentSyncTab === 'forgot' || currentSyncTab === 'reset_password'){
+        switchSyncTab('login');
+    }
 }
 
 function switchSyncTab(tab){
     currentSyncTab = tab;
+    const tabRow = document.getElementById('syncAuthTabRow');
     const loginBtn = document.getElementById('syncTabLoginBtn');
     const signupBtn = document.getElementById('syncTabSignupBtn');
+    const forgotHeader = document.getElementById('syncForgotHeader');
+    const forgotTitle = document.getElementById('syncForgotTitle');
+    const noticeEl = document.getElementById('syncLoggedOutNotice');
+    const emailRow = document.getElementById('syncAuthEmailRow');
+    const emailInput = document.getElementById('syncAuthEmail');
+    const passwordRow = document.getElementById('syncAuthPasswordRow');
+    const passwordLabel = document.getElementById('syncAuthPasswordLabel');
+    const passwordInput = document.getElementById('syncAuthPassword');
     const confirmRow = document.getElementById('syncAuthPasswordConfirmRow');
+    const confirmLabel = document.getElementById('syncAuthPasswordConfirmLabel');
+    const confirmInput = document.getElementById('syncAuthPasswordConfirm');
+    const forgotRow = document.getElementById('syncForgotPasswordRow');
     const submitBtn = document.getElementById('syncAuthSubmitBtn');
     clearAuthMsg();
 
     if(tab === 'login'){
+        if(tabRow) tabRow.style.display = 'flex';
+        if(forgotHeader) forgotHeader.style.display = 'none';
+        if(noticeEl){
+            noticeEl.style.display = 'block';
+            noticeEl.innerHTML = '未ログイン時はブラウザ内（ローカル）に保存されます。<br>ログインすると、別の端末やブラウザとも自動同期できます。';
+        }
         if(loginBtn) { loginBtn.style.borderBottom = '2px solid #2563eb'; loginBtn.style.color = '#2563eb'; }
         if(signupBtn) { signupBtn.style.borderBottom = '2px solid transparent'; signupBtn.style.color = '#64748b'; }
+        if(emailRow) emailRow.style.display = 'flex';
+        if(passwordRow) passwordRow.style.display = 'flex';
+        if(passwordLabel) passwordLabel.textContent = 'パスワード';
         if(confirmRow) confirmRow.style.display = 'none';
+        if(forgotRow) forgotRow.style.display = 'flex';
         if(submitBtn) submitBtn.textContent = 'ログイン';
-    } else {
+        if(emailInput) emailInput.required = true;
+        if(passwordInput) passwordInput.required = true;
+        if(confirmInput) confirmInput.required = false;
+    } else if(tab === 'signup'){
+        if(tabRow) tabRow.style.display = 'flex';
+        if(forgotHeader) forgotHeader.style.display = 'none';
+        if(noticeEl){
+            noticeEl.style.display = 'block';
+            noticeEl.innerHTML = 'アカウントを作成すると、クラウドに原稿が自動保存され、複数端末で同期できます。';
+        }
         if(loginBtn) { loginBtn.style.borderBottom = '2px solid transparent'; loginBtn.style.color = '#64748b'; }
         if(signupBtn) { signupBtn.style.borderBottom = '2px solid #2563eb'; signupBtn.style.color = '#2563eb'; }
+        if(emailRow) emailRow.style.display = 'flex';
+        if(passwordRow) passwordRow.style.display = 'flex';
+        if(passwordLabel) passwordLabel.textContent = 'パスワード';
         if(confirmRow) confirmRow.style.display = 'flex';
+        if(confirmLabel) confirmLabel.textContent = 'パスワード（確認）';
+        if(forgotRow) forgotRow.style.display = 'none';
         if(submitBtn) submitBtn.textContent = '新規アカウント作成';
+        if(emailInput) emailInput.required = true;
+        if(passwordInput) passwordInput.required = true;
+        if(confirmInput) confirmInput.required = true;
+    } else if(tab === 'forgot'){
+        if(tabRow) tabRow.style.display = 'none';
+        if(forgotHeader) forgotHeader.style.display = 'flex';
+        if(forgotTitle) forgotTitle.textContent = 'パスワードの再設定';
+        if(noticeEl){
+            noticeEl.style.display = 'block';
+            noticeEl.innerHTML = 'ご登録のメールアドレスを入力してください。<br>パスワード再設定用の案内メールをお送りします。';
+        }
+        if(emailRow) emailRow.style.display = 'flex';
+        if(passwordRow) passwordRow.style.display = 'none';
+        if(confirmRow) confirmRow.style.display = 'none';
+        if(forgotRow) forgotRow.style.display = 'none';
+        if(submitBtn) submitBtn.textContent = '再設定メールを送信';
+        if(emailInput) { emailInput.required = true; emailInput.focus(); }
+        if(passwordInput) passwordInput.required = false;
+        if(confirmInput) confirmInput.required = false;
+    } else if(tab === 'reset_password'){
+        if(tabRow) tabRow.style.display = 'none';
+        if(forgotHeader) forgotHeader.style.display = 'flex';
+        if(forgotTitle) forgotTitle.textContent = '新しいパスワードの設定';
+        if(noticeEl){
+            noticeEl.style.display = 'block';
+            noticeEl.innerHTML = '新しいパスワードを入力して再設定を完了してください。';
+        }
+        if(emailRow) emailRow.style.display = 'none';
+        if(passwordRow) passwordRow.style.display = 'flex';
+        if(passwordLabel) passwordLabel.textContent = '新しいパスワード';
+        if(passwordInput) { passwordInput.value = ''; passwordInput.required = true; }
+        if(confirmRow) confirmRow.style.display = 'flex';
+        if(confirmLabel) confirmLabel.textContent = '新しいパスワード（確認）';
+        if(confirmInput) { confirmInput.value = ''; confirmInput.required = true; }
+        if(forgotRow) forgotRow.style.display = 'none';
+        if(submitBtn) submitBtn.textContent = 'パスワードを更新';
+        if(emailInput) emailInput.required = false;
     }
 }
 
@@ -8756,6 +8846,65 @@ async function handleAuthSubmit(event){
     const email = (document.getElementById('syncAuthEmail')?.value || '').trim();
     const password = document.getElementById('syncAuthPassword')?.value || '';
     const submitBtn = document.getElementById('syncAuthSubmitBtn');
+
+    if(currentSyncTab === 'forgot'){
+        if(!email){
+            showAuthMsg('メールアドレスを入力してください。');
+            return;
+        }
+        try {
+            if(submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '送信中...'; }
+            clearAuthMsg();
+            const redirectUrl = window.location.origin + window.location.pathname;
+            const { data, error } = await sb.auth.resetPasswordForEmail(email, {
+                redirectTo: redirectUrl
+            });
+            if(error){
+                showAuthMsg(translateAuthError(error.message));
+            } else {
+                showAuthMsg('パスワード再設定用のメールを送信しました。受信トレイのリンクから新しいパスワードを設定してください。', false);
+            }
+        } catch(err){
+            showAuthMsg('エラー: ' + err.message);
+        } finally {
+            if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '再設定メールを送信'; }
+        }
+        return;
+    }
+
+    if(currentSyncTab === 'reset_password'){
+        const confirmPass = document.getElementById('syncAuthPasswordConfirm')?.value || '';
+        if(!password){
+            showAuthMsg('新しいパスワードを入力してください。');
+            return;
+        }
+        if(password !== confirmPass){
+            showAuthMsg('パスワードが一致しません。');
+            return;
+        }
+        if(password.length < 6){
+            showAuthMsg('パスワードは6文字以上で入力してください。');
+            return;
+        }
+        try {
+            if(submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '更新中...'; }
+            clearAuthMsg();
+            const { data, error } = await sb.auth.updateUser({ password });
+            if(error){
+                showAuthMsg(translateAuthError(error.message));
+            } else {
+                showAuthMsg('パスワードを更新しました！', false);
+                if(data && data.user) currentUser = data.user;
+                updateSyncUiState();
+                setTimeout(closeSyncModal, 1500);
+            }
+        } catch(err){
+            showAuthMsg('エラー: ' + err.message);
+        } finally {
+            if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'パスワードを更新'; }
+        }
+        return;
+    }
 
     if(!email || !password){
         showAuthMsg('メールアドレスとパスワードを入力してください。');
@@ -8835,7 +8984,10 @@ function translateAuthError(msg){
     if(msg.includes('User already registered')) return 'このメールアドレスは既に登録されています。';
     if(msg.includes('Password should be at least')) return 'パスワードは6文字以上必要です。';
     if(msg.includes('Email not confirmed')) return 'メールアドレスが確認されていません。受信トレイの認証リンクをご確認ください。';
-    if(msg.includes('rate limit')) return 'アクセスが集中しています。しばらく待ってから再度お試しください。';
+    if(msg.includes('rate limit') || msg.includes('once every') || msg.includes('security purposes')) return 'セキュリティ保護のため、再試行までしばらく時間をおいてください。';
+    if(msg.includes('User not found')) return 'このメールアドレスのアカウントが見つかりません。';
+    if(msg.includes('should be different')) return '新しいパスワードは過去のものと異なるものを指定してください。';
+    if(msg.includes('invalid format')) return '有効なメールアドレスを入力してください。';
     return msg;
 }
 
@@ -9365,31 +9517,44 @@ function translateAuthError(msg){
 
       <!-- 未ログイン時のビュー（ログイン / 新規登録タブ） -->
       <div id="syncLoggedOutView" style="display:flex;flex-direction:column;gap:10px">
-        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:8px 10px;font-size:11.5px;color:#1e40af;line-height:1.4">
+        <div id="syncLoggedOutNotice" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:8px 10px;font-size:11.5px;color:#1e40af;line-height:1.4">
           未ログイン時はブラウザ内（ローカル）に保存されます。<br>
           ログインすると、別の端末やブラウザとも自動同期できます。
         </div>
 
         <!-- タブ切り替え -->
-        <div style="display:flex;border-bottom:1px solid #e2e8f0;gap:4px">
+        <div id="syncAuthTabRow" style="display:flex;border-bottom:1px solid #e2e8f0;gap:4px">
           <button type="button" id="syncTabLoginBtn" onclick="switchSyncTab('login')" style="flex:1;padding:6px 0;background:none;border:none;border-bottom:2px solid #2563eb;font-size:12px;font-weight:bold;color:#2563eb;cursor:pointer">ログイン</button>
           <button type="button" id="syncTabSignupBtn" onclick="switchSyncTab('signup')" style="flex:1;padding:6px 0;background:none;border:none;border-bottom:2px solid transparent;font-size:12px;font-weight:bold;color:#64748b;cursor:pointer">新規登録</button>
         </div>
 
+        <!-- パスワード再設定ヘッダー（forgot/reset時表示） -->
+        <div id="syncForgotHeader" style="display:none;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #e2e8f0">
+          <span id="syncForgotTitle" style="font-size:12.5px;font-weight:bold;color:#1e293b">パスワードの再設定</span>
+          <button type="button" onclick="switchSyncTab('login')" style="background:none;border:none;color:#2563eb;font-size:11.5px;cursor:pointer;text-decoration:underline">← ログインに戻る</button>
+        </div>
+
         <form id="syncAuthForm" onsubmit="handleAuthSubmit(event)" style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
-          <div style="display:flex;flex-direction:column;gap:3px">
-            <label style="font-size:11px;font-weight:bold;color:#475569">メールアドレス</label>
+          <div id="syncAuthEmailRow" style="display:flex;flex-direction:column;gap:3px">
+            <label id="syncAuthEmailLabel" style="font-size:11px;font-weight:bold;color:#475569">メールアドレス</label>
             <input type="email" id="syncAuthEmail" required placeholder="example@email.com" style="padding:7px 9px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px;outline:none;background:#fff">
           </div>
 
-          <div style="display:flex;flex-direction:column;gap:3px">
-            <label style="font-size:11px;font-weight:bold;color:#475569">パスワード</label>
+          <div id="syncAuthPasswordRow" style="display:flex;flex-direction:column;gap:3px">
+            <label id="syncAuthPasswordLabel" style="font-size:11px;font-weight:bold;color:#475569">パスワード</label>
             <input type="password" id="syncAuthPassword" required minlength="6" placeholder="6文字以上" style="padding:7px 9px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px;outline:none;background:#fff">
           </div>
 
           <div id="syncAuthPasswordConfirmRow" style="display:none;flex-direction:column;gap:3px">
-            <label style="font-size:11px;font-weight:bold;color:#475569">パスワード（確認）</label>
+            <label id="syncAuthPasswordConfirmLabel" style="font-size:11px;font-weight:bold;color:#475569">パスワード（確認）</label>
             <input type="password" id="syncAuthPasswordConfirm" minlength="6" placeholder="もう一度入力" style="padding:7px 9px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px;outline:none;background:#fff">
+          </div>
+
+          <!-- パスワードを忘れた方はこちらボタン/リンク -->
+          <div id="syncForgotPasswordRow" style="display:flex;justify-content:flex-end;margin-top:1px">
+            <button type="button" id="syncForgotPasswordBtn" onclick="switchSyncTab('forgot')" style="background:none;border:none;color:#2563eb;font-size:11px;cursor:pointer;padding:2px 0;text-decoration:underline">
+              パスワードを忘れた方はこちら
+            </button>
           </div>
 
           <div id="syncAuthMsg" style="font-size:11.5px;min-height:16px;line-height:1.3;display:none"></div>
