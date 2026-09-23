@@ -1,0 +1,12 @@
+{
+  "name": "novel-editor-production",
+  "version": "1.0.0",
+  "description": "Production Grid-based Japanese Novel Editor",
+  "main": "index.html",
+  "scripts": {
+    "start": "node ../../server.js"
+  },
+  "dependencies": {
+    "express": "^4.22.2"
+  }
+}

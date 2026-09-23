@@ -1,0 +1,24 @@
+{
+  "responsibility": "02-preview",
+  "description": "AI Studioプレビュー環境およびレスポンシブ検証・レイアウト確認の仕様定義",
+  "previewRules": {
+    "noHardcodedCols": true,
+    "allowedColumnRange": [18, 40],
+    "defaultVerificationTarget": 30,
+    "viewports": [
+      { "name": "Desktop Wide", "width": 1440, "height": 900 },
+      { "name": "Desktop Standard", "width": 1200, "height": 800 },
+      { "name": "Tablet", "width": 820, "height": 1180 },
+      { "name": "Mobile Pro", "width": 430, "height": 932 },
+      { "name": "Mobile Standard", "width": 375, "height": 667 }
+    ]
+  },
+  "layoutRequirements": {
+    "minHeight": "400px",
+    "printColorAdjust": "exact",
+    "gridSync": "background-size matches font-size / line-height via --cs calculation"
+  },
+  "stateIsolation": {
+    "description": "Preview側でのレイアウト変更やテスターの操作がProduction側のlocalStorageやユーザー原稿データを上書きしないよう設計"
+  }
+}

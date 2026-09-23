@@ -1,0 +1,40 @@
+{
+  "responsibility": "03-external",
+  "description": "本番アプリケーションの外部に存在するサービス、外部API、CDNライブラリ、外部インフラの定義",
+  "externalServices": [
+    {
+      "name": "Supabase Cloud Database & Auth",
+      "type": "BaaS (Backend as a Service)",
+      "url": "https://eqzyrsziwgmlanmztivu.supabase.co",
+      "purpose": "ユーザー認証（サインアップ、ログイン、パスワードリセット）および原稿データ・フォルダ構造・設定のクラウド保存・同期",
+      "authMethod": "Anon JWT Public Key (Client-side) + RLS (Row Level Security)",
+      "databaseTables": [
+        "public.user_stories",
+        "public.user_settings"
+      ]
+    },
+    {
+      "name": "jsDelivr CDN",
+      "type": "Content Delivery Network",
+      "url": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+      "purpose": "Supabase JavaScript Client SDK v2 の配信",
+      "subresourceIntegrity": "none (runtime client script)"
+    },
+    {
+      "name": "Google Fonts / OS System Fonts",
+      "type": "Typography Rendering Engine",
+      "fonts": [
+        "Hiragino Kaku Gothic ProN",
+        "Yu Gothic",
+        "Meiryo",
+        "MS Gothic",
+        "monospace"
+      ],
+      "purpose": "等幅かつ全角日本語原稿用紙レイアウトの正確なレンダリング"
+    }
+  ],
+  "pwaManifest": {
+    "location": "/public/manifest.json",
+    "purpose": "モバイルブラウザおよびデスクトップでのPWAインストール・オフラインキャッシュ（Service Worker）のメタデータ定義"
+  }
+}
