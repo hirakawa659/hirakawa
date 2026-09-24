@@ -513,7 +513,8 @@ const APP_REVISIONS = [
     { n: 20, date: '2026-09-23', text: '重要な修正漏れを解消：最初の入力判定が「新規作成時のみ」のフラグだったため、既存文字を全消去してから入力する場合やサイズ適用直後に対策が一切効いていなかった。実際の文字数(0〜1文字)で判定する方式に統一' },
     { n: 21, date: '2026-09-23', text: 'repaint方法をtransform(translateZ)からopacityの微小変更に変更' },
     { n: 22, date: '2026-09-23', text: '実機での検証により「新規作成」時のカーソル1マス目戻りバグを解消。全角スペースを1マス目手前に先置きし、入力/IME確定/ファイル切替時に安全に除去する方式（ユーザー様ご提供の修正を採用）' },
-    { n: 23, date: '2026-09-23', text: '調査経緯と既知の制限をコード内コメント・README.mdに記録（新規作成のみ対応／削除後の再入力とサイズ変更後は未対応であることを明記）' }
+    { n: 23, date: '2026-09-23', text: '調査経緯と既知の制限をコード内コメント・README.mdに記録（新規作成のみ対応／削除後の再入力とサイズ変更後は未対応であることを明記）' },
+    { n: 24, date: '2026-09-24', text: '「検出と変換」ボタンを押してもメニューが出ない不具合を修正（メニューが画面右端の外側に開いていたため。ボタンの左側に表示するよう位置計算を変更）' }
 ];
 const APP_REVISION = APP_REVISIONS[APP_REVISIONS.length - 1].n;
 function initRevisionButton(){
@@ -4053,7 +4054,16 @@ function positionDetectMenu(){
     if(!menu || !btn) return;
     const rect = btn.getBoundingClientRect();
     menu.style.position = 'fixed';
-    menu.style.left = (rect.right + 4) + 'px';
+    const winW = window.innerWidth || document.documentElement.clientWidth;
+    const menuW = menu.offsetWidth || 246;
+    // ツールバーは画面右端にあるため、右側に出すと画面外に隠れる。
+    // 右に収まらない場合はボタンの左側に表示し、最終的に画面内へ収める。
+    let left = rect.right + 4;
+    if(left + menuW > winW - 8){
+        left = rect.left - menuW - 4;
+    }
+    left = Math.max(8, Math.min(left, winW - menuW - 8));
+    menu.style.left = left + 'px';
     let top = rect.top;
     const winH = window.innerHeight || document.documentElement.clientHeight;
     const menuH = menu.offsetHeight || 320;
@@ -6190,6 +6200,9 @@ function applyToolOrder(orderList){
     // 修正ボタンは並べ替え対象外。常に最右端に置く
     const revBtn=document.getElementById('tool_revision');
     if(revBtn) header.appendChild(revBtn);
+    // ピクセル情報表示(cssVarDiagLabel)も並べ替え対象外。常に修正ボタンの一個左に固定
+    const diagLabel=document.getElementById('cssVarDiagLabel');
+    if(diagLabel && revBtn) header.insertBefore(diagLabel, revBtn);
     localStorage.setItem('n_tool_order_v8',JSON.stringify(orderList));
     applyCustomToolLabels();
 }
